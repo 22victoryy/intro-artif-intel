@@ -1,1 +1,6 @@
 /** WRITE YOUR TIPS IN THIS FILE **/
+
+1. Before jumping straight into the code to attempt to formulate the problem, it is necessary playing
+   Sokoban game first so that you have a good understanding how the overall game works.
+
+2.

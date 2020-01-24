@@ -28,10 +28,35 @@ def heur_manhattan_distance(state):
     #We want an admissible heuristic, which is an optimistic heuristic.
     #It must never overestimate the cost to get from the current state to the goal.
     #The sum of the Manhattan distances between each box that has yet to be stored and the storage point nearest to it is such a heuristic.
-    #When calculating distances, assume there are no obstacles on the grid.
+    #When calculating distances, assume there are no obstacles on the grid. --> no obstacles
     #You should implement this heuristic function exactly, even if it is tempting to improve it.
     #Your function should return a numeric value; this is the estimate of the distance to the goal.
-    return 0
+
+    total_dist = 0
+    #storage --> frozen pts
+    # Pseudocode
+    # if shortest distance = 0, do not calculate; return 0
+    # else check all storages, concatenate x1+x1, y1+y1
+    # put all values into a list
+    # return minimum value
+
+    for box in state.boxes:
+        man_distances = []
+        if box in state.storage and state.boxes[box] == 0:
+            pass
+        else:
+            for storage in state.boxes:
+                # we need to check something here
+                # if box in state.obstacles:
+                #     pass
+                # else:
+                man_distances.append(abs(storage[0]-box[0]) + abs(storage[1] + box[1]))
+                total_dist += min(man_distances)
+    return total_dist
+
+
+
+
 
 
 #SOKOBAN HEURISTICS
