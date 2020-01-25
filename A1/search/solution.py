@@ -32,31 +32,35 @@ def heur_manhattan_distance(state):
     #You should implement this heuristic function exactly, even if it is tempting to improve it.
     #Your function should return a numeric value; this is the estimate of the distance to the goal.
 
-    total_dist = 0
-    #storage --> frozen pts
-    # Pseudocode
-    # if shortest distance = 0, do not calculate; return 0
-    # else check all storages, concatenate x1+x1, y1+y1
-    # put all values into a list
-    # return minimum value
 
-    for box in state.boxes:
-        man_distances = []
-        if box in state.storage and state.boxes[box] == 0:
-            pass
-        else:
-            for storage in state.boxes:
-                # we need to check something here
-                # if box in state.obstacles:
-                #     pass
-                # else:
-                man_distances.append(abs(storage[0]-box[0]) + abs(storage[1] + box[1]))
-                total_dist += min(man_distances)
+    # Pseudocode
+
+    # access all the storages in the boxes
+    # manhattan distance = (x1-x2) + (y2-y1) coords
+    #
+
+    total_dist = 0
+
+    for box in state.boxes: # iterate through all the boxes
+        man_distances = [] # empty list to store all the distances of the boxes
+        for storage in state.storage: #iterate through the storages
+            #  box pts - storage pts
+            man_distances.append(abs(box[0] - storage[0]) + abs(box[1] - storage[1]))
+
+        # add shortest manhattan distance to total dist
+        total_dist += min(man_distances)
+
     return total_dist
 
 
-
-
+    # result_dist = 0
+    # for box in state.boxes:
+    #     distances = []
+    #     for goal in state.storage:
+    #         distances.append(abs(box[0] - goal[0]) + abs(box[1] - goal[1]))
+    #     if distances:
+    #         result_dist += min(distances)
+    # return result_dist
 
 
 #SOKOBAN HEURISTICS
@@ -101,7 +105,9 @@ def fval_function(sN, weight):
     #The function must return a numeric f-value.
     #The value will determine your state's position on the Frontier list during a 'custom' search.
     #You must initialize your search engine object as a 'custom' search engine if you supply a custom fval function.
-    return 0
+
+    # f value = cost + heuristic
+    return (weight * sN.hval) + sN.gval
 
 def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound = 10):
 #IMPLEMENT
@@ -109,7 +115,33 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound = 10):
   '''INPUT: a sokoban state that represents the start state and a timebound (number of seconds)'''
   '''OUTPUT: A goal state (if a goal is found), else False'''
   '''implementation of weighted astar algorithm'''
-  return False
+  start_time = os.times()[0]
+  # we are adding the weight to the astar search, therefore this will be custom
+  # search all the spaces
+  search_util = SearchEngine('custom', 'full')
+  wrapped_fval_function = (lambda sN: fval_function(sN, weight))
+  search_util.init_search(initial_state, sokoban_goal_state, heur_fn, wrapped_fval_function)
+
+  goal = search_util.search(timebound)
+  if goal:
+
+      costbound = goal.gval + heur_fn(goal)  # Costbound.
+      time_remaining = timebound - (os.times()[0] - start_time)
+      best = goal
+      while time_remaining > 0:  # While there is still time.
+          initial_time = os.times()[0]
+          new_goal = search_util.search(time_remaining, costbound=(float("inf"), float("inf"), costbound))
+          time_remaining = time_remaining - (os.times()[0] - initial_time)  # Update remaining time.
+
+          if new_goal:
+              costbound = new_goal.gval + heur_fn(new_goal)
+              best = new_goal
+      return best  # Return the best state.
+  else:
+    return False
+
+
+
 
 def anytime_gbfs(initial_state, heur_fn, timebound = 10):
 #IMPLEMENT
@@ -117,4 +149,34 @@ def anytime_gbfs(initial_state, heur_fn, timebound = 10):
   '''INPUT: a sokoban state that represents the start state and a timebound (number of seconds)'''
   '''OUTPUT: A goal state (if a goal is found), else False'''
   '''implementation of weighted astar algorithm'''
-  return False
+  # search_util = SearchEngine('best_first', 'full')
+  # search_util.init_search(initial_state, sokoban_goal_state, heur_fn)
+  #
+  # start_time = os.times()[0]
+  # endtime_bound = timebound
+  # end_time = start_time + endtime_bound
+  #
+  # goal = search_util.search(timebound)
+  # # print(goal.gval)
+  #
+  # if goal:
+  #   costbound = goal.gval # Costbound.
+  #   time_remaining = timebound - (os.times()[0] - start_time)
+  #   best = goal
+  #   while time_remaining > 0 and not search_util.open.empty: # While there is still time.
+  #       initial_time = os.times()[0]
+  #       new_goal = search_engine.search(time_remaining, costbound = (costbound, float("inf"), float("inf")))
+  #       time_remaining = time_remaining - (os.times()[0] - initial_time) # Update remaining time.
+  #       if new_goal:
+  #           costbound = new_goal.gval
+  #           best = new_goal
+  #   return best # Return the best state.
+  # else:
+  #     return False
+
+  # if not end_time:
+  #     return False
+  # else:
+  #
+
+
