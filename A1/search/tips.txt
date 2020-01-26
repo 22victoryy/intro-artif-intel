@@ -3,4 +3,18 @@
 1. Before jumping straight into the code to attempt to formulate the problem, it is necessary playing
    Sokoban game first so that you have a good understanding how the overall game works.
 
-2.
+2. Review the Pseudocode on the class slides and understand how the algorithms work
+
+3. Before anything, start by implmenting fval because this is the easiest out of all the functions.
+
+4. Start implementing the heuristics. Start with manhattan distance as this is so far the easiest, followed by the
+   anytime astar and anytime gbfs as these functions are doable by understanding the logic and pseudocode,
+   and with a bit of thinking.
+
+5. Move onto the last portion, alternate heuristic. Think about all the edge cases, such as a box being deadlocked
+   in the corners, in the edge, if there is a storage available etc. Write it down or draw it, whatever it helps you
+   to formalise the cases
+
+6. Implement the alternate heuristic, and continue testing to find edge cases
+
+7. Submit it on MarkUs.

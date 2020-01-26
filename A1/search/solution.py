@@ -32,33 +32,21 @@ def heur_manhattan_distance(state):
     #You should implement this heuristic function exactly, even if it is tempting to improve it.
     #Your function should return a numeric value; this is the estimate of the distance to the goal.
 
-
     # Pseudocode
 
     # access all the storages in the boxes
     # manhattan distance = (x1-x2) + (y2-y1) coords
-    #
+
     total_dist = 0
     for box in state.boxes: # iterate through all the boxes
         man_distances = []  # empty list to store all the manhattan distances of the boxes
-        for storage in state.storage: #iterate through the storages
+        for storage in state.storage: # iterate through the storages
             #  (x1-x2) + (y1-y2)
             man_distances.append(abs(box[0] - storage[0]) + abs(box[1] - storage[1]))
         # add shortest manhattan distance to total dist
         total_dist += min(man_distances)
 
     return total_dist
-
-
-    # result_dist = 0
-    # for box in state.boxes:
-    #     distances = []
-    #     for goal in state.storage:
-    #         distances.append(abs(box[0] - goal[0]) + abs(box[1] - goal[1]))
-    #     if distances:
-    #         result_dist += min(distances)
-    # return result_dist
-
 
 #SOKOBAN HEURISTICS
 def trivial_heuristic(state):
@@ -70,58 +58,66 @@ def trivial_heuristic(state):
     if box not in state.storage:
         count += 1
   return count
-#
-# def x_locked(x, width, storage):
-#     """
-#     :param x:
-#     :type x:
-#     :param width:
-#     :type width:
-#     :return:
-#     :rtype:
-#     """
-#     vertical_locked = ((0, 0), (width - 1, 0))
-#     return (x in vertical_locked) or \
-#            (x == 0 and (x, y) not in storage) or \
-#            (y == 0 and (x, y) not in storage) or \
-#            (x == width - 1 and (x, y) not in storage) or \
-#            (y == height - 1 and (x, y) not in storage)
 
-
-def trapped(x, y, height, width, obstacles, storage):
-    corners = ((0, 0), (0, height - 1), (width - 1, 0), (width - 1, height - 1))
-    return ((x, y) in corners) or \
-           (x == 0 and (x, y) not in storage) or \
-           (y == 0 and (x, y) not in storage) or \
-           (x == width - 1 and (x, y) not in storage) or \
-           (y == height - 1 and (x, y) not in storage)
 
 def heur_alternate(state):
-#IMPLEMENT
-    '''a better heuristic'''
+    #IMPLEMENT
+    '''a better sokoban heuristic'''
     '''INPUT: a sokoban state'''
     '''OUTPUT: a numeric value that serves as an estimate of the distance of the state to the goal.'''
-    #heur_manhattan_distance has flaws.
-    #Write a heuristic function that improves upon heur_manhattan_distance to estimate distance between the current state and the goal.
-    #Your function should return a numeric value for the estimate of the distance to the goal.
-    '''Detects deadlock squares (i.e. when no progress can be made such that when box is trapped)'''
-    result = 0
-    robot_box_dists = []  # distance from robot to each box
-    for box in state.boxes:
-        distances = []
-        # calculate distance from robot to this box
-        # robot_box_dists.append(abs(state.robots[0] - box[0]) + abs(state.robot[1] - box[1]))
-        # check if this state is deadlocked
-        if trapped(box[0], box[1], state.height, state.width, state.obstacles, state.storage):
-            result += 2
-        for goal in state.storage:
-            # if state.restrictions is None or goal in state.restrictions[state.boxes[box]]:
-            distances.append(abs(box[0] - goal[0]) + abs(box[1] - goal[1]))
-        if distances:
-            result += min(distances)
+    return False
+    # result = 0
+    # robot_box_dists = []  # distance from robot to each box
+    # for box in state.boxes:
+    #     distances = []
+    #     # calculate distance from robot to this box
+    #     # print((state.robots[0])[1])
+    #     # print(box[0])
+    #     # print((state.robots[1])[1])
+    #     # print(box[1])
+    #     # a = (state.robots[0])[1]
+    #     # b = (state.robots[1])[1]
+    #
+    #     # print(box[1])
+    #
+    #     # robot_box_dists.append(abs(state.robots[0] - box[0]) + abs(state.robots[1] - box[1]))
+    #     # check if this state is deadlocked
+    #     if trapped(box[0], box[1], state.height, state.width, state.obstacles, state.storage):
+    #         result += 2
+    #     for goal in state.storage:
+    #         # if state.restrictions is None or goal in state.restrictions[state.boxes[box]]:
+    #         distances.append(abs(box[0] - goal[0]) + abs(box[1] - goal[1]))
+    #     if distances:
+    #         result += min(distances)
+    #
+    # # result += min(robot_box_dists)
+    # return result
 
-        # result += min(robot_box_dists)
-    return result
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def heur_zero(state):
@@ -149,36 +145,47 @@ def fval_function(sN, weight):
     # f value = cost + heuristic
     return (weight * sN.hval) + sN.gval
 
+
+
+
+
+
+
+
+
+
+
+
 def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound = 10):
 #IMPLEMENT
   '''Provides an implementation of anytime weighted a-star, as described in the HW1 handout'''
   '''INPUT: a sokoban state that represents the start state and a timebound (number of seconds)'''
   '''OUTPUT: A goal state (if a goal is found), else False'''
   '''implementation of weighted astar algorithm'''
-  start_time = os.times()[0]
+  # start_time = os.times()[0]
   # we are adding the weight to the astar search, therefore this will be custom
   # search all the spaces
-  search_util = SearchEngine('custom', 'full')
-  wrapped_fval_function = (lambda sN: fval_function(sN, weight))
-  search_util.init_search(initial_state, sokoban_goal_state, heur_fn, wrapped_fval_function)
-
-  goal = search_util.search(timebound)
-  if goal:
-
-      costbound = goal.gval + heur_fn(goal)  # Costbound.
-      time_remaining = timebound - (os.times()[0] - start_time)
-      best = goal
-      while time_remaining > 0:  # While there is still time.
-          initial_time = os.times()[0]
-          new_goal = search_util.search(time_remaining, costbound=(float("inf"), float("inf"), costbound))
-          time_remaining = time_remaining - (os.times()[0] - initial_time)  # Update remaining time.
-
-          if new_goal:
-              costbound = new_goal.gval + heur_fn(new_goal)
-              best = new_goal
-      return best  # Return the best state.
-  else:
-    return False
+  # search_util = SearchEngine('custom', 'full')
+  # wrapped_fval_function = (lambda sN: fval_function(sN, weight))
+  # search_util.init_search(initial_state, sokoban_goal_state, heur_fn, wrapped_fval_function)
+  #
+  # goal = search_util.search(timebound)
+  # if goal:
+  #
+  #     costbound = goal.gval + heur_fn(goal)  # Costbound.
+  #     time_remaining = timebound - (os.times()[0] - start_time)
+  #     best = goal
+  #     while time_remaining > 0:  # While there is still time.
+  #         initial_time = os.times()[0]
+  #         new_goal = search_util.search(time_remaining, costbound=(float("inf"), float("inf"), costbound))
+  #         time_remaining = time_remaining - (os.times()[0] - initial_time)  # Update remaining time.
+  #
+  #         if new_goal:
+  #             costbound = new_goal.gval + heur_fn(new_goal)
+  #             best = new_goal
+  #     return best  # Return the best state.
+  # else:
+  #   return False
 
 
 
@@ -188,35 +195,39 @@ def anytime_gbfs(initial_state, heur_fn, timebound = 10):
   '''Provides an implementation of anytime greedy best-first search, as described in the HW1 handout'''
   '''INPUT: a sokoban state that represents the start state and a timebound (number of seconds)'''
   '''OUTPUT: A goal state (if a goal is found), else False'''
-  '''implementation of weighted astar algorithm'''
-  search_util = SearchEngine('best_first', 'full')
-  search_util.init_search(initial_state, sokoban_goal_state, heur_fn)
+  '''implementation of anytime gbfs algorithm'''
 
-  start_time = os.times()[0]
-  endtime_bound = timebound
-  end_time = start_time + endtime_bound
-
-  goal = search_util.search(timebound)
-  # print(goal.gval)
-
-  if goal:
-    costbound = goal.gval # Costbound.
-    time_remaining = timebound - (os.times()[0] - start_time)
-    best = goal
-    while time_remaining > 0 and not search_util.open.empty: # While there is still time.
-        initial_time = os.times()[0]
-        new_goal = search_engine.search(time_remaining, costbound = (costbound, float("inf"), float("inf")))
-        time_remaining = time_remaining - (os.times()[0] - initial_time) # Update remaining time.
-        if new_goal:
-            costbound = new_goal.gval
-            best = new_goal
-    return best # Return the best state.
-  else:
-      return False
-
-  # if not end_time:
-  #     return False
-  # else:
+  # time = os.times()[0] # start time
+  # end_time = time + timebound  #end time
+  # new_timebound = timebound  #timebound
   #
+  # # Initialize Searcher
+  # searcher = SearchEngine('best_first', 'default')
+  # searcher.init_search(initial_state, sokoban_goal_state, heur_fn)
+  #
+  # # Perform  search and gather time
+  # cost_bound = (float("inf"), float("inf"), float("inf"))
+  # # cost_bound = None
+  # best_result = False
+  # result = searcher.search(new_timebound)  #costbound
+  #
+  # # Perform the search while the timebound has not been reached
+  # while time < end_time:
+  #   if result == False:
+  #       # If no result found
+  #       return best_result
+  #   diff_time = os.times()[0] - time
+  #   time = os.times()[0]        # Get current time
+  #   new_timebound -= diff_time
+  #   if result.gval <= cost_bound[0]:
+  #       cost_bound = (result.gval, result.gval, result.gval)
+  #       best_result = result
+  #   result = searcher.search(new_timebound, cost_bound)
+  # return best_result
+
+
+
+
+
 
 
