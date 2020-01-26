@@ -1,13 +1,11 @@
 /** WRITE YOUR TIPS IN THIS FILE **/
 
-1. Before jumping straight into the code to attempt to formulate the problem, it is necessary playing the
-   Sokoban game first so that you have a good understanding how the overall game works.
+1. Play the sokoban game. Read sokoban.py and understand the structure of the code, and waterjug as well. look At the
+   class slides and understand the algorithm pseudocodes.
 
 2. Review the Pseudocode on the class slides and understand how the algorithms work. Before anything, start by
    implmenting fval because this is the easiest out of all the functions.
 
-4. Start implementing the heuristics. Start with manhattan distance, followed by the anytime astar and anytime gbfs as
-   these functions are doable by understanding the logic and pseudocode, and with a bit of thinking. Move on to the
-   alternate heuristic, thinking about all the edge cases, such as a box being deadlocked in the corners, in the edge,
-   if there is a storage available etc.
+3. Start implementing the heuristics. For the alternate heuristic, thinking about all the edge cases, such as a box
+   being deadlocked in the corners, in the edge, if there is a storage available etc...
 
