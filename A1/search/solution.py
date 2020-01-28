@@ -80,7 +80,6 @@ def obstacles(start, dest, state):
     #return numbers of obstacles from start to dest
     #robots on the way also considered as obstacles
     total = 0
-    # boxes = frozenset(state.boxes)
     cast_rob= frozenset(state.robots)
     all_obs= state.obstacles.union(cast_rob)
     for obst in all_obs:
@@ -89,19 +88,6 @@ def obstacles(start, dest, state):
                 total += 1
     return total
 
-# def get_obstacles(state):
-#
-#     obstacless = []
-#     for x in range(-1, state.width):
-#         obstacless.append((x, -1))
-#         obstacless.append((x, state.height))
-#     for y in range(-1, state.height):
-#         obstacless.append((-1, y))
-#         obstacless.append((state.width, y))
-#     for z in state.obstacles:
-#         obstacless.append(z)
-#     return obstacless
-#
 
 def avail_storage(box, state):
     """
@@ -138,11 +124,11 @@ def pos_deadlocked(box_pos, state):
 
     obst_list = state.obstacles | state.boxes
 
+    #(x, y) --> box pos
     up_pos= (box_pos[0],box_pos[1]+1)
     down_pos= (box_pos[0],box_pos[1]-1)
     left_pos= (box_pos[0]-1,box_pos[1])
     right_pos= (box_pos[0]+1,box_pos[1])
-
 
     #if there are walls,then any consecutive boxes are immovable
     if box_pos[0] == 0:
@@ -170,26 +156,30 @@ def pos_deadlocked(box_pos, state):
         return False
 
     if box_pos[1] == (state.height - 1):
-        if box_pos[1] == 0:
+        if box_pos:
             return True
-        if box_pos[1] == state.height - 1:
+        # if box_pos[0] == 0:
+        #     return True
+        # if box_pos[0] == state.width -1 :
+        #     return True
+        if left_pos in obst_list:
             return True
-        if up_pos in obst_list:
-            return True
-        if down_pos in obst_list:
+        if right_pos in obst_list:
             return True
         return False
 
     if box_pos[1] == 0:
-        if box_pos[1] == 0:
+        # if box_pos[0] == 0:
+        #     return True
+        # if box_pos[0] == state.width -1 :
+        #     return True
+        if left_pos in obst_list:
             return True
-        if box_pos[1] == state.height - 1:
-            return True
-        if up_pos in obst_list:
-            return True
-        if down_pos in obst_list:
+        if right_pos in obst_list:
             return True
         return False
+
+    #idk...?
 
     #no walls but surrounded by obstacles
     if up_pos in state.obstacles:
@@ -223,29 +213,32 @@ def pos_deadlocked(box_pos, state):
     x_list = [pos[0] for pos in possible_storage_pos]
     y_list = [pos[1] for pos in possible_storage_pos]
 
-    # if not any(i == 0 for i in x_list) and box_pos[0] == 0:
-    #     return True
-    # if not any(i == (state.width - 1) for i in x_list) and box_pos[0] == (state.width - 1):
-    #     return True
-    # if not any(i == state.height - 1 for i in y_list) and box_pos[1] == (state.height - 1):
-        # if not any(i == state.height - 1 for i in y_list):
-        # return True
-    # if box_pos[1] == 0:
-        # if not any(i == 0 for i in y_list):
-        # return True
     if box_pos[0] == 0:
         if not any(i == 0 for i in x_list):
             return True
     if box_pos[0] == (state.width - 1):
         if not any(i == (state.width - 1) for i in x_list):
             return True
-    if not any(i == state.height - 1 for i in y_list) and box_pos[1] == (state.height - 1):
-        # if not any(i == state.height - 1 for i in y_list):
-            return True
-    if not any(i == state.height - 1 for i in y_list) and box_pos[1] == 0:
-        # if not any(i == 0 for i in y_list):
-            return True
+    # if box_pos[1] == (state.height - 1):
+    #     if not any(i == state.height - 1 for i in y_list):
+    #         return True
+    # if box_pos[1] == 0:
+    #     if not any(i == 0 for i in y_list):
+    #         return True
 
+
+    # if box_pos[0] == 0:
+    #     if not any(i == 0 for i in x_list):
+    #         return True
+    # if box_pos[0] == (state.width - 1):
+    #     if not any(i == (state.width - 1) for i in x_list):
+    #         return True
+    # if not any(i == state.height - 1 for i in y_list) and box_pos[1] == (state.height - 1):
+    #     # if not any(i == state.height - 1 for i in y_list):
+    #         return True
+    # if not any(i == state.height - 1 for i in y_list) and box_pos[1] == 0:
+    #     # if not any(i == 0 for i in y_list):
+    #         return True
 
     return False
 
