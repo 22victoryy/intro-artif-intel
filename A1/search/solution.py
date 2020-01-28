@@ -65,23 +65,11 @@ def trivial_heuristic(state):
 # if on the edge but storage is not in the way, then doomed
 # if box in the corner, not possible
 
-def manhattan_distance(x, y):
-    """
-    :param x:
-    :type x:
-    :param y:
-    :type y:
-    :return:
-    :rtype:
-    """
-    #return the manhattan distance between x and y
-    return abs(x[0]-y[0])+abs(x[1]-y[1])
 
-
-def obstacles(ori, dest, state):
+def obstacles(start, dest, state):
     """
-    :param ori:
-    :type ori:
+    :param start:
+    :type start:
     :param dest:
     :type dest:
     :param state:
@@ -89,18 +77,31 @@ def obstacles(ori, dest, state):
     :return:
     :rtype:
     """
-    #return numbers of obstacles from ori to dest
+    #return numbers of obstacles from start to dest
     #robots on the way also considered as obstacles
     total = 0
     # boxes = frozenset(state.boxes)
     cast_rob= frozenset(state.robots)
-    all_obs= state.obstacles|cast_rob
+    all_obs= state.obstacles.union(cast_rob)
     for obst in all_obs:
-        if max(dest[0],ori[0]) > obst[0] > min(ori[0],dest[0]):
-            if max(dest[1],ori[1])>obst[1]> min(ori[1],dest[1]):
+        if max(dest[0], start[0]) > obst[0] > min(start[0], dest[0]):
+            if max(dest[1], start[1])> obst[1]> min(start[1], dest[1]):
                 total += 1
     return total
 
+# def get_obstacles(state):
+#
+#     obstacless = []
+#     for x in range(-1, state.width):
+#         obstacless.append((x, -1))
+#         obstacless.append((x, state.height))
+#     for y in range(-1, state.height):
+#         obstacless.append((-1, y))
+#         obstacless.append((state.width, y))
+#     for z in state.obstacles:
+#         obstacless.append(z)
+#     return obstacless
+#
 
 def avail_storage(box, state):
     """
@@ -111,13 +112,13 @@ def avail_storage(box, state):
     :return:
     :rtype:
     """
-    #see the storage is avaliable,
+    # see the storage is avaliable,
     # remove from the list if the any storage is already occupied.
     possible = []
     for place in state.storage:
         possible.append(place)
-    # if box in possible:
-    #     return [box]
+
+    # remove other boxes in the storage if there are occupied
     for other_boxes in state.boxes:
         if box != other_boxes:
             if other_boxes in possible:
@@ -133,19 +134,29 @@ def pos_deadlocked(box_pos, state):
     :return:
     :rtype:
     """
-    # helper
+    # check if the box is deadlocked
 
-    # check if a block is cornered given the position of the block and the size of the map
-    #obst_list includes other boxes
-
-    obst_list = state.obstacles|state.boxes
+    obst_list = state.obstacles | state.boxes
 
     up_pos= (box_pos[0],box_pos[1]+1)
     down_pos= (box_pos[0],box_pos[1]-1)
     left_pos= (box_pos[0]-1,box_pos[1])
     right_pos= (box_pos[0]+1,box_pos[1])
+
+
     #if there are walls,then any consecutive boxes are immovable
     if box_pos[0] == 0:
+        if box_pos[1] == 0:
+            return True
+        if box_pos[1] == state.height - 1:
+            return True
+        if up_pos in obst_list:
+            return True
+        if down_pos in obst_list:
+            return True
+        return False
+
+    if box_pos[0] == state.width - 1:
         if box_pos[1] == 0:
             return True
         # if box_pos[1] == state.height:
@@ -157,11 +168,21 @@ def pos_deadlocked(box_pos, state):
         if down_pos in obst_list:
             return True
         return False
-    if box_pos[0] == state.width - 1 or box_pos[0] == state.width - 0:
+
+    if box_pos[1] == (state.height - 1):
         if box_pos[1] == 0:
             return True
-        # if box_pos[1] == state.height:
-        #     return True
+        if box_pos[1] == state.height - 1:
+            return True
+        if up_pos in obst_list:
+            return True
+        if down_pos in obst_list:
+            return True
+        return False
+
+    if box_pos[1] == 0:
+        if box_pos[1] == 0:
+            return True
         if box_pos[1] == state.height - 1:
             return True
         if up_pos in obst_list:
@@ -182,35 +203,50 @@ def pos_deadlocked(box_pos, state):
         if right_pos in state.obstacles:
             return True
 
+    # if left_pos in state.obstacles:
+    #     if up_pos in state.obstacles:
+    #         return True
+    #     if down_pos in state.obstacles:
+    #         return True
+    # if right_pos in state.obstacles:
+    #     if up_pos in state.obstacles:
+    #         return True
+    #     if down_pos in state.obstacles:
+    #         return True
+    #     return False
 
-    if left_pos in state.obstacles:
-        if up_pos in state.obstacles:
-            return True
-        if down_pos in state.obstacles:
-            return True
-    if right_pos in state.obstacles:
-        if up_pos in state.obstacles:
-            return True
-        if down_pos in state.obstacles:
-            return True
-        return False
+
 
     possible_storage_pos = avail_storage(box_pos, state)
+
+
     x_list = [pos[0] for pos in possible_storage_pos]
     y_list = [pos[1] for pos in possible_storage_pos]
 
+    # if not any(i == 0 for i in x_list) and box_pos[0] == 0:
+    #     return True
+    # if not any(i == (state.width - 1) for i in x_list) and box_pos[0] == (state.width - 1):
+    #     return True
+    # if not any(i == state.height - 1 for i in y_list) and box_pos[1] == (state.height - 1):
+        # if not any(i == state.height - 1 for i in y_list):
+        # return True
+    # if box_pos[1] == 0:
+        # if not any(i == 0 for i in y_list):
+        # return True
     if box_pos[0] == 0:
         if not any(i == 0 for i in x_list):
             return True
-    if box_pos[0] == (state.width - 1) or box_pos[0] == state.width:
+    if box_pos[0] == (state.width - 1):
         if not any(i == (state.width - 1) for i in x_list):
             return True
-    if box_pos[1] == (state.height - 1) or box_pos[1] == state.height:
-        if not any(i == state.height - 1 for i in y_list):
+    if not any(i == state.height - 1 for i in y_list) and box_pos[1] == (state.height - 1):
+        # if not any(i == state.height - 1 for i in y_list):
             return True
-    if box_pos[1] == 0:
-        if not any(i == 0 for i in y_list):
+    if not any(i == state.height - 1 for i in y_list) and box_pos[1] == 0:
+        # if not any(i == 0 for i in y_list):
             return True
+
+
     return False
 
 def heur_alternate(state):
@@ -234,30 +270,44 @@ def heur_alternate(state):
     else:
         #add the distances from the box to the goal
         cost = 0
+        # for box in state.boxes:
         for box in state.boxes:
             possible_positions = avail_storage(box, state)
             cost_each_box = float("inf")
             for possibility in possible_positions:
-                current_cost = manhattan_distance(possibility, box) + obstacles(box, possibility, state) * 2
+                # manhattan_distance(possibility, box)
+                current_cost = manhattan_distance(box, possibility) + obstacles(box, possibility, state) * 2
+                # current_cost = (manhattan_distance(possibility, box) + obstacles(box, possibility, state)) * 2
                 if current_cost < cost_each_box:
                     cost_each_box = current_cost
-                else:
-                    continue
             cost += cost_each_box
+
+
         for rob in state.robots:
             # find the distance of the closest storage for each robot
             closest = float("inf")
             for box in state.boxes:
                 if (manhattan_distance(box, rob) + obstacles(rob, box, state) * 2) < closest:
+                # if (abs(box[0] + rob[0]) + obstacles(rob, box, state) * 2) < closest:
                     closest = manhattan_distance(box, rob) + obstacles(rob, box, state) * 2
-                else:
-                    continue
             cost += closest
          # add the distances from the robot to the box
         alternate += cost
         return alternate # return the alternate heuristic numeric value
 
-##########################################################################
+def manhattan_distance(x, y):
+    """
+    :param x:
+    :type x:
+    :param y:
+    :type y:
+    :return:
+    :rtype:
+    """
+    #return the manhattan distance between x and y
+    return abs(x[0]-y[0])+abs(x[1]-y[1])
+
+#######################################################################################
 
 def heur_zero(state):
     '''Zero Heuristic can be used to make A* search perform uniform cost search'''

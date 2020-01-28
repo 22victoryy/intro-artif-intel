@@ -6,8 +6,8 @@ from sokoban import sokoban_goal_state
 #Select what to test
 test_manhattan = False # done
 test_fval_function = False #done
-test_anytime_gbfs = True #done more refactoring
-test_alternate = False # this is a huge problem, fuck this
+test_anytime_gbfs = False #done more refactoring
+test_alternate = True # this is a huge problem, fuck this
 test_anytime_weighted_astar = False #done more refactoring
 
 if test_manhattan:
@@ -63,7 +63,8 @@ if test_alternate:
     final = se.search(timebound)
 
     if final:
-      #final.print_path()
+      print("nice")
+      # final.print_path()
       solved += 1
     else:
       unsolved.append(i)
@@ -129,7 +130,7 @@ if test_anytime_gbfs:
         index = i
       else:
         index = 0
-      final.print_path()
+      # final.print_path()
       if final.gval <= len_benchmark[index] or len_benchmark[index] == -99:
         benchmark += 1
       solved += 1
