@@ -6,8 +6,8 @@ from sokoban import sokoban_goal_state
 #Select what to test
 test_manhattan = False # done
 test_fval_function = False #done
-test_anytime_gbfs = False #done more refactoring
-test_alternate = True # this is a huge problem, fuck this
+test_anytime_gbfs = True #done more refactoring
+test_alternate = False # this is a huge problem, fuck this
 test_anytime_weighted_astar = False #done more refactoring
 
 if test_manhattan:

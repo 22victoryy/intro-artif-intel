@@ -32,8 +32,6 @@ def heur_manhattan_distance(state):
     #You should implement this heuristic function exactly, even if it is tempting to improve it.
     #Your function should return a numeric value; this is the estimate of the distance to the goal.
 
-    # Pseudocode
-
     # access all the storages in the boxes
     # manhattan distance = (x1-x2) + (y2-y1) coords
 
@@ -61,44 +59,70 @@ def trivial_heuristic(state):
 
 ###################################################################
 
+# box is deadlocked by obstacles
+# deadlocked by walls
+# if on the wall, not pushable
+# if on the edge but storage is not in the way, then doomed
+# if box in the corner, not possible
 
-def heur_alternate(state):
-    # IMPLEMENT
-    '''a better heuristic'''
-    '''INPUT: a sokoban state'''
-    '''OUTPUT: a numeric value that serves as an estimate of the distance of the state to the goal.'''
-    # heur_manhattan_distance has flaws.
-    # Write a heuristic function that improves upon heur_manhattan_distance to estimate distance between the current state and the goal.
-    # Your function should return a numeric value for the estimate of the distance to the goal.
-
-    heru_alt = 0
-    # our cost consist of two components: the cost of the box in current position to our final storage +
-    #                                     the cost of (closest) robert need to walk to position of the box
-    if not_movable(state):
-        return float("inf")
-    heru_alt += dist_box_goal(state)
-    heru_alt += dist_rob_box(state)
-    return heru_alt
-
-
-def not_movable(state):
+def manhattan_distance(x, y):
     """
+    :param x:
+    :type x:
+    :param y:
+    :type y:
+    :return:
+    :rtype:
+    """
+    #return the manhattan distance between x and y
+    return abs(x[0]-y[0])+abs(x[1]-y[1])
+
+
+def obstacles(ori, dest, state):
+    """
+    :param ori:
+    :type ori:
+    :param dest:
+    :type dest:
     :param state:
     :type state:
     :return:
     :rtype:
     """
-    # impossible cases consists of two situations
-    # (1)the box is in corner
-    # (2)the box in on edge and no storage avaliable in edge
-    # return True if state is impossible, False otherwise
-    for box in state.boxes:
-        possible_storage_positions = avail_storage(box, state)
-        if box not in possible_storage_positions:
-            if pos_deadlocked(box, state):return True
-            if pos_edged(box, state): return True
-    return False
+    #return numbers of obstacles from ori to dest
+    #robots on the way also considered as obstacles
+    total = 0
+    # boxes = frozenset(state.boxes)
+    cast_rob= frozenset(state.robots)
+    all_obs= state.obstacles|cast_rob
+    for obst in all_obs:
+        if max(dest[0],ori[0]) > obst[0] > min(ori[0],dest[0]):
+            if max(dest[1],ori[1])>obst[1]> min(ori[1],dest[1]):
+                total += 1
+    return total
 
+
+def avail_storage(box, state):
+    """
+    :param box:
+    :type box:
+    :param state:
+    :type state:
+    :return:
+    :rtype:
+    """
+    #see the storage is avaliable,
+    # remove from the list if the any storage is already occupied.
+    possible = []
+    for place in state.storage:
+        possible.append(place)
+    # if box in possible:
+    #     return [box]
+    for other_boxes in state.boxes:
+        if box != other_boxes:
+            if other_boxes in possible:
+                possible.remove(other_boxes)
+    return possible
 
 def pos_deadlocked(box_pos, state):
     """
@@ -120,159 +144,118 @@ def pos_deadlocked(box_pos, state):
     down_pos= (box_pos[0],box_pos[1]-1)
     left_pos= (box_pos[0]-1,box_pos[1])
     right_pos= (box_pos[0]+1,box_pos[1])
-    #first test if there are walls,then any consecutive boxes are immovable
+    #if there are walls,then any consecutive boxes are immovable
     if box_pos[0] == 0:
-        if box_pos[1] == 0 :return True
-        if box_pos[1] == state.height:return True
-        if box_pos[1] == state.height - 1:return True
-        if up_pos in obst_list :return True
-        if down_pos in obst_list:return True
+        if box_pos[1] == 0:
+            return True
+        # if box_pos[1] == state.height:
+        #     return True
+        if box_pos[1] == state.height - 1:
+            return True
+        if up_pos in obst_list:
+            return True
+        if down_pos in obst_list:
+            return True
         return False
     if box_pos[0] == state.width - 1 or box_pos[0] == state.width - 0:
-        if box_pos[1] == 0 :return True
-        if box_pos[1] == state.height:return True
-        if box_pos[1] == state.height - 1:return True
-        if up_pos in obst_list:return True
-        if down_pos in obst_list:return True
+        if box_pos[1] == 0:
+            return True
+        # if box_pos[1] == state.height:
+        #     return True
+        if box_pos[1] == state.height - 1:
+            return True
+        if up_pos in obst_list:
+            return True
+        if down_pos in obst_list:
+            return True
         return False
+
     #no walls but surrounded by obstacles
     if up_pos in state.obstacles:
         if left_pos in state.obstacles:
             return True
-        if right_pos in state.obstacles:return True
+        if right_pos in state.obstacles:
+            return True
     if down_pos in state.obstacles:
-        if left_pos in state.obstacles: return True
-        if right_pos in state.obstacles: return True
-    return False
+        if left_pos in state.obstacles:
+            return True
+        if right_pos in state.obstacles:
+            return True
 
 
-def pos_edged(box_pos, state):
-    """
-    :param box_pos:
-    :type box_pos:
-    :param state:
-    :type state:
-    :return:
-    :rtype:
-    """
-    # if the box is on edge,and there is no storage along the side, then it is still an impossible position
+    if left_pos in state.obstacles:
+        if up_pos in state.obstacles:
+            return True
+        if down_pos in state.obstacles:
+            return True
+    if right_pos in state.obstacles:
+        if up_pos in state.obstacles:
+            return True
+        if down_pos in state.obstacles:
+            return True
+        return False
+
     possible_storage_pos = avail_storage(box_pos, state)
     x_list = [pos[0] for pos in possible_storage_pos]
     y_list = [pos[1] for pos in possible_storage_pos]
-    if box_pos[0]== 0:
-        if not any(i==0 for i in x_list):return True
-    if box_pos[0]== (state.width -1) or box_pos[0] == state.width:
-        if not any(i == (state.width-1) for i in x_list): return True
-    if box_pos[1]==(state.height -1) or box_pos[1] == state.height:
-        if not any(i == state.height - 1 for i in y_list): return True
-    if box_pos[1]== 0:
-        if not any(i == 0 for i in y_list): return True
+
+    if box_pos[0] == 0:
+        if not any(i == 0 for i in x_list):
+            return True
+    if box_pos[0] == (state.width - 1) or box_pos[0] == state.width:
+        if not any(i == (state.width - 1) for i in x_list):
+            return True
+    if box_pos[1] == (state.height - 1) or box_pos[1] == state.height:
+        if not any(i == state.height - 1 for i in y_list):
+            return True
+    if box_pos[1] == 0:
+        if not any(i == 0 for i in y_list):
+            return True
     return False
 
+def heur_alternate(state):
+    # IMPLEMENT
+    '''a better heuristic'''
+    '''INPUT: a sokoban state'''
+    '''OUTPUT: a numeric value that serves as an estimate of the distance of the state to the goal.'''
+    # heur_manhattan_distance has flaws.
+    # Write a heuristic function that improves upon heur_manhattan_distance to estimate distance between the current
+    # state and the goal.
+    # Your function should return a numeric value for the estimate of the distance to the goal.
 
-def manhattan_distance(x, y):
-    """
-    :param x:
-    :type x:
-    :param y:
-    :type y:
-    :return:
-    :rtype:
-    """
-    #return the manhattan distance between x and y
-    return abs(x[0]-y[0])+abs(x[1]-y[1])
-
-
-############################################################################
-
-
-def obstacles(ori, dest, state):
-    """
-    :param ori:
-    :type ori:
-    :param dest:
-    :type dest:
-    :param state:
-    :type state:
-    :return:
-    :rtype:
-    """
-    #return numbers of obstacles from ori to dest
-    #robots on the way also considered as obstacles
-    total=0
-    # boxes = frozenset(state.boxes)
-    cast_rob= frozenset(state.robots)
-    all_obs= state.obstacles|cast_rob
-    for obst in all_obs:
-        if max(dest[0],ori[0]) > obst[0] > min(ori[0],dest[0]):
-            if max(dest[1],ori[1])>obst[1]> min(ori[1],dest[1]):
-                total+=1
-    return total
-
-
-def avail_storage(box, state):
-    """
-    :param box:
-    :type box:
-    :param state:
-    :type state:
-    :return:
-    :rtype:
-    """
-    #see the storage is avaliable,
-    # remove from the list if the any storage is already occupied.
-    possible = []
-    for place in state.storage:
-        possible.append(place)
-    if box in possible:
-        return [box]
-    for other_boxes in state.boxes:
-        if box != other_boxes:
-            if other_boxes in possible:
-                possible.remove(other_boxes)
-    return possible
-
-
-def dist_box_goal(state):
-    """
-    :param state:
-    :type state:
-    :return:
-    :rtype:
-    """
-    # return value of the sum of box to its closest possible positions
-    # add considerations of obstacles along the side
-    cost=0
+    alternate = 0
+    # our cost consist of two components: the cost of the box in current position to our final storage +
+    #                                     the cost of (closest) robert need to walk to position of the box
     for box in state.boxes:
-        possible_positions= avail_storage(box, state)
-        cost_each_box= float("inf")
-        for possibility in possible_positions:
-            current_cost = manhattan_distance(possibility, box) + obstacles(box, possibility, state) * 2
-            if current_cost<cost_each_box:
-                cost_each_box=current_cost
-        cost += cost_each_box
-    return cost
-
-
-def dist_rob_box(state):
-    """
-    :param state:
-    :type state:
-    :return:
-    :rtype:
-    """
-    # return value of sum of all robert to its closest box,
-    # add considerations of obstacles along the side
-    cost =0
-    for rob in state.robots:
-        #find the distance of the closest storage for each robot
-        closest= float("inf")
+        avail_storages = avail_storage(box, state)
+        if box not in avail_storages:
+            if pos_deadlocked(box, state):
+                return float("inf")
+    else:
+        #add the distances from the box to the goal
+        cost = 0
         for box in state.boxes:
-            if (manhattan_distance(box, rob) + obstacles(rob, box, state) * 2)<closest:
-                closest= manhattan_distance(box, rob) + obstacles(rob, box, state) * 2
-        cost += closest
-    return cost
-
+            possible_positions = avail_storage(box, state)
+            cost_each_box = float("inf")
+            for possibility in possible_positions:
+                current_cost = manhattan_distance(possibility, box) + obstacles(box, possibility, state) * 2
+                if current_cost < cost_each_box:
+                    cost_each_box = current_cost
+                else:
+                    continue
+            cost += cost_each_box
+        for rob in state.robots:
+            # find the distance of the closest storage for each robot
+            closest = float("inf")
+            for box in state.boxes:
+                if (manhattan_distance(box, rob) + obstacles(rob, box, state) * 2) < closest:
+                    closest = manhattan_distance(box, rob) + obstacles(rob, box, state) * 2
+                else:
+                    continue
+            cost += closest
+         # add the distances from the robot to the box
+        alternate += cost
+        return alternate # return the alternate heuristic numeric value
 
 ##########################################################################
 
@@ -323,7 +306,7 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):
     search_util.init_search(initial_state, sokoban_goal_state, heur_fn, weight_fval)
 
     # Initialize cost bounds and variables
-    cost_bound = (state_inf, state_inf, state_inf) #None..?
+    cost = (state_inf, state_inf, state_inf) #None..?
 
     # final state
     final = search_util.search(timebound)
@@ -333,16 +316,17 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):
     while time < end_time:
         if final == False:  # base case, final not found
             return not_found
+        else:
+            # subtract the time cost from the restricted timebound
+            diff_time = os.times()[0] - time
+            # time = os.times()[0]
+            bound_limit -= diff_time
 
-        # subtract the time cost from the restricted timebound
-        diff_time = os.times()[0] - time
-        time = os.times()[0]
-        bound_limit -= diff_time
-
-        if final.gval <= cost_bound[0]:
-            cost_bound = (final.gval, final.gval, final.gval)
-            not_found = final
-        final = search_util.search(bound_limit, cost_bound)
+            # if the cost of state is less than the current costbound...
+            if final.gval <= cost[0]:
+                cost = (final.gval, final.gval, final.gval)
+                not_found = final
+            final = search_util.search(bound_limit, cost)
     return not_found
 
 
@@ -382,17 +366,17 @@ def anytime_gbfs(initial_state, heur_fn, timebound = 10):
   while time_start < end_time:
     if final == False: # base case, if final not found
         return not_found
-    time_passed = os.times()[0] - time_start
+    else:
+        time_passed = os.times()[0] - time_start
 
-    time_start = os.times()[0]
+        time_start = os.times()[0]
 
-    bound_limit -= time_passed
+        bound_limit -= time_passed
 
-    if final.gval <= cost_bound[0]:
-        cost_bound = (final.gval, final.gval, final.gval)
-        not_found = final
-    final = search_util.search(bound_limit, cost_bound)
-
+        if final.gval <= cost_bound[0]:
+            cost_bound = (final.gval, final.gval, final.gval)
+            not_found = final
+        final = search_util.search(bound_limit, cost_bound)
   return not_found
 
 
