@@ -64,7 +64,20 @@ def trivial_heuristic(state):
 # if on the wall, not pushable
 # if on the edge but storage is not in the way, then doomed
 # if box in the corner, not possible
+# closest two boxes?
 
+
+def manhattan_distance(x, y):
+    """
+    :param x:
+    :type x:
+    :param y:
+    :type y:
+    :return:
+    :rtype:
+    """
+    #return the manhattan distance between x and y
+    return abs(x[0]-y[0])+abs(x[1]-y[1])
 
 def obstacles(start, dest, state):
     """
@@ -111,7 +124,7 @@ def avail_storage(box, state):
                 possible.remove(other_boxes)
     return possible
 
-def pos_deadlocked(box_pos, state):
+def check_deadlocked(box_pos, state):
     """
     :param box_pos:
     :type box_pos:
@@ -140,13 +153,21 @@ def pos_deadlocked(box_pos, state):
             return True
         if down_pos in obst_list:
             return True
+        if left_pos in obst_list:
+            return True
+        if right_pos in obst_list:
+            return True
+        # if box_pos in obst_list:
+        #     return True
         return False
 
     if box_pos[0] == state.width - 1:
         if box_pos[1] == 0:
             return True
-        # if box_pos[1] == state.height:
-        #     return True
+        if  left_pos in obst_list:
+            return True
+        if right_pos in obst_list:
+            return True
         if box_pos[1] == state.height - 1:
             return True
         if up_pos in obst_list:
@@ -155,12 +176,11 @@ def pos_deadlocked(box_pos, state):
             return True
         return False
 
-    if box_pos[1] == (state.height - 1):
-        if box_pos:
+################# DO NOT TOUCH ABOVE THIS ####################
+    if box_pos[1] == state.height - 1:
+        if box_pos[0] == 0:
             return True
-        # if box_pos[0] == 0:
-        #     return True
-        # if box_pos[0] == state.width -1 :
+        # if up_pos or down_pos or left_pos or right_pos in obst_list:
         #     return True
         if left_pos in obst_list:
             return True
@@ -169,17 +189,19 @@ def pos_deadlocked(box_pos, state):
         return False
 
     if box_pos[1] == 0:
-        # if box_pos[0] == 0:
-        #     return True
-        # if box_pos[0] == state.width -1 :
+        # if box_pos[0] in obst_list:
         #     return True
         if left_pos in obst_list:
             return True
         if right_pos in obst_list:
             return True
+        # if up_pos in obst_list:
+        #     return True
+        # if down_pos in obst_list:
+        #     return True
         return False
 
-    #idk...?
+    #idk................?
 
     #no walls but surrounded by obstacles
     if up_pos in state.obstacles:
@@ -187,17 +209,20 @@ def pos_deadlocked(box_pos, state):
             return True
         if right_pos in state.obstacles:
             return True
+        return False
     if down_pos in state.obstacles:
         if left_pos in state.obstacles:
             return True
         if right_pos in state.obstacles:
             return True
+        return False
 
     # if left_pos in state.obstacles:
     #     if up_pos in state.obstacles:
     #         return True
     #     if down_pos in state.obstacles:
     #         return True
+    #     return False
     # if right_pos in state.obstacles:
     #     if up_pos in state.obstacles:
     #         return True
@@ -206,26 +231,11 @@ def pos_deadlocked(box_pos, state):
     #     return False
 
 
-
-    possible_storage_pos = avail_storage(box_pos, state)
-
-
-    x_list = [pos[0] for pos in possible_storage_pos]
-    y_list = [pos[1] for pos in possible_storage_pos]
-
-    if box_pos[0] == 0:
-        if not any(i == 0 for i in x_list):
-            return True
-    if box_pos[0] == (state.width - 1):
-        if not any(i == (state.width - 1) for i in x_list):
-            return True
-    # if box_pos[1] == (state.height - 1):
-    #     if not any(i == state.height - 1 for i in y_list):
-    #         return True
-    # if box_pos[1] == 0:
-    #     if not any(i == 0 for i in y_list):
-    #         return True
-
+    # possible_storage_pos = avail_storage(box_pos, state)
+    #
+    #
+    # x_list = [pos[0] for pos in possible_storage_pos]
+    # y_list = [pos[1] for pos in possible_storage_pos]
 
     # if box_pos[0] == 0:
     #     if not any(i == 0 for i in x_list):
@@ -233,11 +243,11 @@ def pos_deadlocked(box_pos, state):
     # if box_pos[0] == (state.width - 1):
     #     if not any(i == (state.width - 1) for i in x_list):
     #         return True
-    # if not any(i == state.height - 1 for i in y_list) and box_pos[1] == (state.height - 1):
-    #     # if not any(i == state.height - 1 for i in y_list):
+    # if box_pos[1] == (state.height - 1):
+    #     if not any(i == state.height - 1 for i in y_list):
     #         return True
-    # if not any(i == state.height - 1 for i in y_list) and box_pos[1] == 0:
-    #     # if not any(i == 0 for i in y_list):
+    # if box_pos[1] == 0:
+    #     if not any(i == 0 for i in y_list):
     #         return True
 
     return False
@@ -253,12 +263,13 @@ def heur_alternate(state):
     # Your function should return a numeric value for the estimate of the distance to the goal.
 
     alternate = 0
-    # our cost consist of two components: the cost of the box in current position to our final storage +
-    #                                     the cost of (closest) robert need to walk to position of the box
+    # our cost consist of two components:
+    #  the cost of the box in current position to our final storage +
+    #  the cost of (closest) robert need to walk to position of the box
     for box in state.boxes:
         avail_storages = avail_storage(box, state)
         if box not in avail_storages:
-            if pos_deadlocked(box, state):
+            if check_deadlocked(box, state):
                 return float("inf")
     else:
         #add the distances from the box to the goal
@@ -287,18 +298,6 @@ def heur_alternate(state):
          # add the distances from the robot to the box
         alternate += cost
         return alternate # return the alternate heuristic numeric value
-
-def manhattan_distance(x, y):
-    """
-    :param x:
-    :type x:
-    :param y:
-    :type y:
-    :return:
-    :rtype:
-    """
-    #return the manhattan distance between x and y
-    return abs(x[0]-y[0])+abs(x[1]-y[1])
 
 #######################################################################################
 
