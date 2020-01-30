@@ -1,14 +1,47 @@
 
+import multiprocessing
+
 # import student's functions
 from solution import *
 from sokoban import sokoban_goal_state
 
 #Select what to test
-test_manhattan = False # done
-test_fval_function = False #done
-test_anytime_gbfs = False #done more refactoring
-test_alternate = True # this is a huge problem, fuck this
-test_anytime_weighted_astar = False #done more refactoring
+test_time_astar = True
+test_time_gbfs = True
+test_manhattan = False
+test_fval_function = False
+test_anytime_gbfs = True
+test_alternate = False
+test_anytime_weighted_astar = False
+
+if test_time_astar:
+
+  time_bound = 3
+  p = multiprocessing.Process(target=anytime_weighted_astar, name="Anytime A star", args=(PROBLEMS[19],heur_alternate,10,time_bound))
+  p.start()
+  p.join(3.1)
+  if p.is_alive():
+
+    print('Process killed. anytime_weighted_astar() not keeping track of time properly')
+    p.terminate()
+    p.join()
+  else:
+    print('anytime_weighted_astar did not exceed timebound')
+
+if test_time_gbfs:
+
+  time_bound = 3
+  p = multiprocessing.Process(target=anytime_gbfs, name="Anytime GBFS", args=(PROBLEMS[19],heur_alternate,time_bound))
+  p.start()
+  p.join(3.1)
+  if p.is_alive():
+
+    print('Process killed. anytime_gbfs() not keeping track of time properly')
+    p.terminate()
+    p.join()
+  else:
+    print('anytime_gbfs did not exceed timebound')
+
 
 if test_manhattan:
     ##############################################################
@@ -63,8 +96,7 @@ if test_alternate:
     final = se.search(timebound)
 
     if final:
-      print("nice")
-      # final.print_path()
+      #final.print_path()
       solved += 1
     else:
       unsolved.append(i)
@@ -130,7 +162,7 @@ if test_anytime_gbfs:
         index = i
       else:
         index = 0
-      # final.print_path()
+      final.print_path()
       if final.gval <= len_benchmark[index] or len_benchmark[index] == -99:
         benchmark += 1
       solved += 1
