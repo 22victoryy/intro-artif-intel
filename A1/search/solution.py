@@ -134,8 +134,7 @@ def check_deadlocked(box_pos, state):
     :rtype:
     """
     # check if the box is deadlocked
-
-    obst_list = state.obstacles | state.boxes
+    obst_list = state.obstacles.union(state.boxes)
 
     #(x, y) --> box pos
     up_pos= (box_pos[0],box_pos[1]+1)
@@ -145,84 +144,75 @@ def check_deadlocked(box_pos, state):
 
     #if there are walls,then any consecutive boxes are immovable
     if box_pos[0] == 0:
+        # if box_pos[1] == state.height - 1:
+        #     return True
         if box_pos[1] == 0:
             return True
+        elif up_pos in obst_list:
+            return True
+        elif down_pos in obst_list:
+            return True
+        elif left_pos in obst_list:
+            return True
+        elif right_pos in obst_list:
+            return True
+
+        return False
+
+    # if box_pos[0] == 0 and box_pos[1] == 0:
+    #     return True
+    # if box_pos[1] == state.height -1 and box_pos[0] == state.width -1:
+    #     return True
+
+
+    elif box_pos[0] == state.width - 1:
         if box_pos[1] == state.height - 1:
             return True
-        if up_pos in obst_list:
+        elif box_pos[1] == 0:
             return True
-        if down_pos in obst_list:
+        elif left_pos in obst_list:
             return True
-        if left_pos in obst_list:
+        elif right_pos in obst_list:
             return True
-        if right_pos in obst_list:
+        elif up_pos in obst_list:
             return True
-        # if box_pos in obst_list:
-        #     return True
-        return False
-
-    if box_pos[0] == state.width - 1:
-        if box_pos[1] == 0:
-            return True
-        if  left_pos in obst_list:
-            return True
-        if right_pos in obst_list:
-            return True
-        if box_pos[1] == state.height - 1:
-            return True
-        if up_pos in obst_list:
-            return True
-        if down_pos in obst_list:
+        elif down_pos in obst_list:
             return True
         return False
 
-################# DO NOT TOUCH ABOVE THIS ####################
-    if box_pos[1] == state.height - 1:
-        if box_pos[0] == 0:
-            return True
-        # if up_pos or down_pos or left_pos or right_pos in obst_list:
-        #     return True
-        if left_pos in obst_list:
-            return True
-        if right_pos in obst_list:
-            return True
-        return False
+################ DO NOT TOUCH ABOVE THIS ####################
 
-    if box_pos[1] == 0:
-        # if box_pos[0] in obst_list:
-        #     return True
+    elif box_pos[1] == state.height - 1:
         if left_pos in obst_list:
             return True
-        if right_pos in obst_list:
+        elif right_pos in obst_list:
             return True
         # if up_pos in obst_list:
         #     return True
-        # if down_pos in obst_list:
-        #     return True
+
         return False
 
-    #idk................?
-
-    #no walls but surrounded by obstacles
-    if up_pos in state.obstacles:
-        if left_pos in state.obstacles:
+    elif box_pos[1] == 0:
+        if left_pos in obst_list:
             return True
-        if right_pos in state.obstacles:
+        elif right_pos in obst_list:
             return True
-        return False
-    if down_pos in state.obstacles:
-        if left_pos in state.obstacles:
-            return True
-        if right_pos in state.obstacles:
-            return True
+        #
+        # if up_pos in obst_list:
+        #     retu
         return False
 
+
+
+##### below this line might be double checking therefore may not be needed############
+    #
     # if left_pos in state.obstacles:
     #     if up_pos in state.obstacles:
     #         return True
     #     if down_pos in state.obstacles:
     #         return True
     #     return False
+    #
     # if right_pos in state.obstacles:
     #     if up_pos in state.obstacles:
     #         return True
@@ -232,11 +222,11 @@ def check_deadlocked(box_pos, state):
 
 
     # possible_storage_pos = avail_storage(box_pos, state)
-    #
+
     #
     # x_list = [pos[0] for pos in possible_storage_pos]
     # y_list = [pos[1] for pos in possible_storage_pos]
-
+    #
     # if box_pos[0] == 0:
     #     if not any(i == 0 for i in x_list):
     #         return True
@@ -286,7 +276,6 @@ def heur_alternate(state):
                     cost_each_box = current_cost
             cost += cost_each_box
 
-
         for rob in state.robots:
             # find the distance of the closest storage for each robot
             closest = float("inf")
@@ -315,7 +304,6 @@ def fval_function(sN, weight):
     @param float weight: Weight given by Anytime Weighted A star
     @rtype: float
     """
-
     #Many searches will explore nodes (or states) that are ordered by their f-value.
     #For UCS, the fvalue is the same as the gval of the state. For best-first search, the fvalue is the hval of the state.
     #You can use this function to create an alternate f-value for states; this must be a function of the state and the weight.
@@ -323,7 +311,6 @@ def fval_function(sN, weight):
     #The value will determine your state's position on the Frontier list during a 'custom' search.
     #You must initialize your search engine object as a 'custom' search engine if you supply a custom fval function.
 
-    # f value = cost + heuristic
     return (weight * sN.hval) + sN.gval
 
 
@@ -402,7 +389,6 @@ def anytime_gbfs(initial_state, heur_fn, timebound = 10):
 
   # cost_bound = None
   not_found = False
-
 
   # Perform the search while the timebound has not been reached
   while time_start < end_time:
