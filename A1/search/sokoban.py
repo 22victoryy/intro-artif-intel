@@ -31,11 +31,11 @@ class SokobanState(StateSpace):
         self.robots = robots
         self.boxes = boxes
         self.storage = storage
-        self.obstacles = obstacles    
+        self.obstacles = obstacles
 
     def successors(self):
         '''
-        Generates all the actions that can be performed from this state, and the states those actions will create.        
+        Generates all the actions that can be performed from this state, and the states those actions will create.
         '''
         successors = []
         transition_cost = 1
@@ -49,7 +49,7 @@ class SokobanState(StateSpace):
               new_robots = tuple(new_robots)
               new_boxes = set(self.boxes)
               new_moved_boxes = set(moved_boxes)
-              
+
               if new_location[0] < 0 or new_location[0] >= self.width:
                   continue
               if new_location[1] < 0 or new_location[1] >= self.height:
@@ -60,10 +60,10 @@ class SokobanState(StateSpace):
                   continue
               if new_location in moved_boxes:
                   continue
-              
+
               if new_location in self.boxes:
                   new_box_location = direction.move(new_location)
-                  
+
                   if new_box_location[0] < 0 or new_box_location[0] >= self.width:
                       continue
                   if new_box_location[1] < 0 or new_box_location[1] >= self.height:
@@ -74,11 +74,11 @@ class SokobanState(StateSpace):
                       continue
                   if new_box_location in new_boxes:
                       continue
-                  
+
                   new_boxes.remove(new_location)
                   new_boxes.add(new_box_location)
                   new_moved_boxes.add(new_box_location)
-              
+
               new_robots = list(self.robots)
               new_robots[robot] = new_location
               new_robots = tuple(new_robots)
@@ -90,17 +90,17 @@ class SokobanState(StateSpace):
 
     def hashable_state(self):
         '''Return a data item that can be used as a dictionary key to UNIQUELY represent a state.'''
-        return hash((self.robots, self.boxes))       
+        return hash((self.robots, self.boxes))
 
     def state_string(self):
-        '''Returns a string representation fo a state that can be printed to stdout.'''        
+        '''Returns a string representation fo a state that can be printed to stdout.'''
         map = []
         for y in range(0, self.height):
             row = []
             for x in range(0, self.width):
                 row += [' ']
             map += [row]
-        
+
         for storage_point in self.storage:
             map[storage_point[1]][storage_point[0]] = '.'
         for obstacle in self.obstacles:
@@ -115,7 +115,7 @@ class SokobanState(StateSpace):
                 map[box[1]][box[0]] = '*'
             else:
                 map[box[1]][box[0]] = '$'
-        
+
         for y in range(0, self.height):
             map[y] = ['#'] + map[y]
             map[y] = map[y] + ['#']
@@ -128,20 +128,20 @@ class SokobanState(StateSpace):
                 s += char
             s += '\n'
 
-        return s        
+        return s
 
     def print_state(self):
         '''
         Prints the string representation of the state. ASCII art FTW!
-        '''        
-        print("ACTION was " + self.action)      
+        '''
+        print("ACTION was " + self.action)
         print(self.state_string())
 
 
 def sokoban_goal_state(state):
   '''Returns True if we have reached a goal state'''
   '''INPUT: a sokoban state'''
-  '''OUTPUT: True (if goal) or False (if not)'''  
+  '''OUTPUT: True (if goal) or False (if not)'''
   for box in state.boxes:
     if box not in state.storage:
       return False
@@ -247,6 +247,7 @@ PROBLEMS = (
                  frozenset(((0, 0), (1, 0), (2, 0), (0, 1), (1, 1), (0, 2))), #storage
                  frozenset() #obstacles
                  ),
+    # 16
     SokobanState("START", 0, None, 8, 8, # dimensions
                  ((0, 5), (1, 6), (2, 7)), #robots
                  frozenset(((6, 2), (5, 6), (4, 4), (6, 3))), #boxes
@@ -265,6 +266,8 @@ PROBLEMS = (
                  frozenset(((0, 0), (1, 0), (2, 0), (0, 1), (1, 1), (0, 2))), #storage
                  frozenset() #obstacles
                  ),
+    ##18
+
     SokobanState("START", 0, None, 8, 8, # dimensions
                  ((0, 5), (1, 6), (2, 7)), #robots
                  frozenset(((6, 6), (4, 5), (4, 1), (4, 3), (5, 2), (5, 3))), #boxes
@@ -281,7 +284,7 @@ class Direction():
     '''
     A direction of movement.
     '''
-    
+
     def __init__(self, name, delta):
         '''
         Creates a new direction.
@@ -290,24 +293,24 @@ class Direction():
         '''
         self.name = name
         self.delta = delta
-    
+
     def __hash__(self):
         '''
-        The hash method must be implemented for actions to be inserted into sets 
+        The hash method must be implemented for actions to be inserted into sets
         and dictionaries.
         @return: The hash value of the action.
         '''
         return hash(self.name)
-    
+
     def __str__(self):
         '''
         @return: The string representation of this object when *str* is called.
         '''
         return str(self.name)
-    
+
     def __repr__(self):
         return self.__str__()
-    
+
     def move(self, location):
         '''
         @return: Moving from the given location in this direction will result in the returned location.
@@ -323,4 +326,4 @@ LEFT = Direction("left", (-1, 0))
 
 
 
-  
+
