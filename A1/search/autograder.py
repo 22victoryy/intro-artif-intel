@@ -10,8 +10,8 @@ test_time_astar = True
 test_time_gbfs = True
 test_manhattan = False
 test_fval_function = False
-test_anytime_gbfs = True
-test_alternate = False
+test_anytime_gbfs = False
+test_alternate = True
 test_anytime_weighted_astar = False
 
 if test_time_astar:
@@ -200,7 +200,7 @@ if test_anytime_weighted_astar:
         index = i
       else:
         index = 0
-      #final.print_path()
+      final.print_path()
       if final.gval <= len_benchmark[index] or len_benchmark[index] == -99:
         benchmark += 1
       solved += 1

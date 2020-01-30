@@ -59,14 +59,6 @@ def trivial_heuristic(state):
 
 ###################################################################
 
-# box is deadlocked by obstacles
-# deadlocked by walls
-# if on the wall, not pushable
-# if on the edge but storage is not in the way, then doomed
-# if box in the corner, not possible
-# closest two boxes?
-
-
 def manhattan_distance(x, y):
     """
     :param x:
@@ -124,123 +116,62 @@ def avail_storage(box, state):
                 possible.remove(other_boxes)
     return possible
 
-def check_deadlocked(box_pos, state):
+def check_deadlocked(position, state):
     """
-    :param box_pos:
-    :type box_pos:
+    :param position:
+    :type position:
     :param state:
     :type state:
     :return:
     :rtype:
     """
     # check if the box is deadlocked
-    obst_list = state.obstacles.union(state.boxes)
+    blockades = state.obstacles.union(state.boxes)
 
     #(x, y) --> box pos
-    up_pos= (box_pos[0],box_pos[1]+1)
-    down_pos= (box_pos[0],box_pos[1]-1)
-    left_pos= (box_pos[0]-1,box_pos[1])
-    right_pos= (box_pos[0]+1,box_pos[1])
+    up = (position[0], position[1] + 1)
+    down = (position[0], position[1] - 1)
+    left = (position[0] - 1, position[1])
+    right = (position[0] + 1, position[1])
 
     #if there are walls,then any consecutive boxes are immovable
-    if box_pos[0] == 0:
-        # if box_pos[1] == state.height - 1:
-        #     return True
-        if box_pos[1] == 0:
+    if position[0] == 0:
+        if position[1] == 0:
             return True
-        elif up_pos in obst_list:
+        elif up in blockades:
             return True
-        elif down_pos in obst_list:
+        elif down in blockades:
             return True
-        elif left_pos in obst_list:
+        elif left in blockades:
             return True
-        elif right_pos in obst_list:
+        elif right in blockades:
             return True
 
-        return False
-
-    # if box_pos[0] == 0 and box_pos[1] == 0:
-    #     return True
-    # if box_pos[1] == state.height -1 and box_pos[0] == state.width -1:
-    #     return True
-
-
-    elif box_pos[0] == state.width - 1:
-        if box_pos[1] == state.height - 1:
+    elif position[0] == state.width - 1:
+        if position[1] == state.height - 1:
             return True
-        elif box_pos[1] == 0:
+        elif position[1] == 0:
             return True
-        elif left_pos in obst_list:
+        elif left in blockades:
             return True
-        elif right_pos in obst_list:
+        elif right in blockades:
             return True
-        elif up_pos in obst_list:
+        elif up in blockades:
             return True
-        elif down_pos in obst_list:
+        elif down in blockades:
             return True
-        return False
 
-################ DO NOT TOUCH ABOVE THIS ####################
-
-    elif box_pos[1] == state.height - 1:
-        if left_pos in obst_list:
+    elif position[1] == state.height - 1:
+        if left in blockades:
             return True
-        elif right_pos in obst_list:
+        elif right in blockades:
             return True
-        # if up_pos in obst_list:
-        #     return True
 
-        return False
-
-    elif box_pos[1] == 0:
-        if left_pos in obst_list:
+    elif position[1] == 0:
+        if left in blockades:
             return True
-        elif right_pos in obst_list:
+        elif right in blockades:
             return True
-        #
-        # if up_pos in obst_list:
-        #     retu
-        return False
-
-
-
-##### below this line might be double checking therefore may not be needed############
-    #
-    # if left_pos in state.obstacles:
-    #     if up_pos in state.obstacles:
-    #         return True
-    #     if down_pos in state.obstacles:
-    #         return True
-    #     return False
-    #
-    # if right_pos in state.obstacles:
-    #     if up_pos in state.obstacles:
-    #         return True
-    #     if down_pos in state.obstacles:
-    #         return True
-    #     return False
-
-
-    # possible_storage_pos = avail_storage(box_pos, state)
-
-    #
-    # x_list = [pos[0] for pos in possible_storage_pos]
-    # y_list = [pos[1] for pos in possible_storage_pos]
-    #
-    # if box_pos[0] == 0:
-    #     if not any(i == 0 for i in x_list):
-    #         return True
-    # if box_pos[0] == (state.width - 1):
-    #     if not any(i == (state.width - 1) for i in x_list):
-    #         return True
-    # if box_pos[1] == (state.height - 1):
-    #     if not any(i == state.height - 1 for i in y_list):
-    #         return True
-    # if box_pos[1] == 0:
-    #     if not any(i == 0 for i in y_list):
-    #         return True
-
-    return False
 
 def heur_alternate(state):
     # IMPLEMENT
@@ -252,10 +183,8 @@ def heur_alternate(state):
     # state and the goal.
     # Your function should return a numeric value for the estimate of the distance to the goal.
 
-    alternate = 0
-    # our cost consist of two components:
-    #  the cost of the box in current position to our final storage +
-    #  the cost of (closest) robert need to walk to position of the box
+    altn = 0
+    # box to goal distance + robot to the box distance = cost
     for box in state.boxes:
         avail_storages = avail_storage(box, state)
         if box not in avail_storages:
@@ -285,8 +214,8 @@ def heur_alternate(state):
                     closest = manhattan_distance(box, rob) + obstacles(rob, box, state) * 2
             cost += closest
          # add the distances from the robot to the box
-        alternate += cost
-        return alternate # return the alternate heuristic numeric value
+        altn += cost
+        return altn # return the altn heuristic numeric value
 
 #######################################################################################
 
