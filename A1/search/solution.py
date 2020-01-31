@@ -11,6 +11,8 @@
 from search import * #for search engines
 from sokoban import SokobanState, Direction, PROBLEMS #for Sokoban specific classes and problems
 
+#NOTE - tested at CDF, results match the output of local machine
+
 def sokoban_goal_state(state):
   '''
   @return: Whether all boxes are stored.
