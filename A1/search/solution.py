@@ -91,7 +91,7 @@ def obstacles(start, dest, state):
     blockades= state.obstacles.union(robots)
     for obstacle in blockades:
         if max(dest[0], start[0]) > obstacle[0] > min(start[0], dest[0]):
-            if max(dest[1], start[1])> obstacle[1]> min(start[1], dest[1]):
+            if max(dest[1], start[1]) > obstacle[1]> min(start[1], dest[1]):
                 total += 1
     return total
 
@@ -202,27 +202,6 @@ def heur_alternate(state):
         if box not in avail_storages:
             if check_deadlocked(box, state):
                 return float("inf")
-        # else:
-        #     cost = 0
-        #     # available = avail_storage(box, state)
-        #     cost_each_box = float('inf')
-        #     for possible in avail_storages:
-        #         curr_cost = manhattan_distance(box, possible) + obstacles(box, possible, state) * 2
-        #         if curr_cost < cost_each_box:
-        #             cost_each_box = curr_cost
-        #     cost += cost_each_box
-        #
-        # rob_dist = 0
-        #
-        # for rob in state.robots:
-        #     # find the distance of the closest storage for each robot
-        #     closest = float("inf")
-        #     # for box in state.boxes:
-        #     if (manhattan_distance(box, rob) + obstacles(rob, box, state) * 2) < closest:
-        #         closest = manhattan_distance(box, rob) + obstacles(rob, box, state) * 2
-        #     rob_dist += closest
-        #     # add the distances from the robot to the box
-        # altn += rob_dist
 
     else:
         # add the distances from the box to the goal
@@ -231,9 +210,7 @@ def heur_alternate(state):
             possible_positions = avail_storage(box, state)
             cost_each_box = float("inf")
             for possibility in possible_positions:
-                # manhattan_distance(possibility, box)
                 current_cost = manhattan_distance(box, possibility) + obstacles(box, possibility, state) * 2
-                # current_cost = (manhattan_distance(possibility, box) + obstacles(box, possibility, state)) * 2
                 if current_cost < cost_each_box:
                     cost_each_box = current_cost
             cost += cost_each_box
