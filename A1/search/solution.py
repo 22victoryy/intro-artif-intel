@@ -39,7 +39,7 @@ def heur_manhattan_distance(state):
     for box in state.boxes: # iterate through all the boxes
         man_distances = []  # empty list to store all the manhattan distances of the boxes
         for storage in state.storage: # iterate through the storages
-            #  (x1-x2) + (y1-y2)
+            #  (x1-y1) + (x2-y2)
             man_distances.append(abs(box[0] - storage[0]) + abs(box[1] - storage[1]))
         # add shortest manhattan distance to total dist
         total_dist += min(man_distances)
@@ -85,11 +85,11 @@ def obstacles(start, dest, state):
     #return numbers of obstacles from start to dest
     #robots on the way also considered as obstacles
     total = 0
-    cast_rob= frozenset(state.robots)
-    all_obs= state.obstacles.union(cast_rob)
-    for obst in all_obs:
-        if max(dest[0], start[0]) > obst[0] > min(start[0], dest[0]):
-            if max(dest[1], start[1])> obst[1]> min(start[1], dest[1]):
+    robots = frozenset(state.robots)
+    blockades= state.obstacles.union(robots)
+    for obstacle in blockades:
+        if max(dest[0], start[0]) > obstacle[0] > min(start[0], dest[0]):
+            if max(dest[1], start[1])> obstacle[1]> min(start[1], dest[1]):
                 total += 1
     return total
 
@@ -103,18 +103,17 @@ def avail_storage(box, state):
     :return:
     :rtype:
     """
-    # see the storage is avaliable,
-    # remove from the list if the any storage is already occupied.
-    possible = []
-    for place in state.storage:
-        possible.append(place)
+    # add all the storages
+    storages = []
+    for storage in state.storage:
+        storages.append(storage)
 
     # remove other boxes in the storage if there are occupied
-    for other_boxes in state.boxes:
-        if box != other_boxes:
-            if other_boxes in possible:
-                possible.remove(other_boxes)
-    return possible
+    for other in state.boxes:
+        if other in storages:
+            if box != other:
+                storages.remove(other)
+    return storages
 
 def check_deadlocked(position, state):
     """
@@ -142,36 +141,47 @@ def check_deadlocked(position, state):
             return True
         elif down in blockades:
             return True
-        elif left in blockades:
-            return True
+        # elif left in blockades:
+        #     return True
         elif right in blockades:
             return True
 
-    elif position[0] == state.width - 1:
+    if position[0] == state.width - 1:
         if position[1] == state.height - 1:
             return True
         elif position[1] == 0:
             return True
         elif left in blockades:
             return True
-        elif right in blockades:
-            return True
+        # elif right in blockades:
+        #     return True
         elif up in blockades:
             return True
         elif down in blockades:
             return True
 
-    elif position[1] == state.height - 1:
+    if position[1] == state.height - 1:
+        if position[0] == state.width - 1:
+            return True
+        if position[0] == 0:
+            return True
         if left in blockades:
             return True
         elif right in blockades:
+            return True
+        elif up in blockades:
             return True
 
-    elif position[1] == 0:
+    if position[1] == 0:
+        if position[0] == 0:
+            return True
         if left in blockades:
             return True
         elif right in blockades:
             return True
+        elif down in blockades:
+            return True
+
 
 def heur_alternate(state):
     # IMPLEMENT
@@ -190,10 +200,31 @@ def heur_alternate(state):
         if box not in avail_storages:
             if check_deadlocked(box, state):
                 return float("inf")
+        # else:
+        #     cost = 0
+        #     # available = avail_storage(box, state)
+        #     cost_each_box = float('inf')
+        #     for possible in avail_storages:
+        #         curr_cost = manhattan_distance(box, possible) + obstacles(box, possible, state) * 2
+        #         if curr_cost < cost_each_box:
+        #             cost_each_box = curr_cost
+        #     cost += cost_each_box
+        #
+        # rob_dist = 0
+        #
+        # for rob in state.robots:
+        #     # find the distance of the closest storage for each robot
+        #     closest = float("inf")
+        #     # for box in state.boxes:
+        #     if (manhattan_distance(box, rob) + obstacles(rob, box, state) * 2) < closest:
+        #         closest = manhattan_distance(box, rob) + obstacles(rob, box, state) * 2
+        #     rob_dist += closest
+        #     # add the distances from the robot to the box
+        # altn += rob_dist
+
     else:
-        #add the distances from the box to the goal
+        # add the distances from the box to the goal
         cost = 0
-        # for box in state.boxes:
         for box in state.boxes:
             possible_positions = avail_storage(box, state)
             cost_each_box = float("inf")
@@ -210,12 +241,12 @@ def heur_alternate(state):
             closest = float("inf")
             for box in state.boxes:
                 if (manhattan_distance(box, rob) + obstacles(rob, box, state) * 2) < closest:
-                # if (abs(box[0] + rob[0]) + obstacles(rob, box, state) * 2) < closest:
                     closest = manhattan_distance(box, rob) + obstacles(rob, box, state) * 2
             cost += closest
-         # add the distances from the robot to the box
+        # add the distances from the robot to the box
         altn += cost
-        return altn # return the altn heuristic numeric value
+
+        return altn
 
 #######################################################################################
 
