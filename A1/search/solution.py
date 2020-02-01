@@ -12,7 +12,7 @@ from search import * #for search engines
 from sokoban import SokobanState, Direction, PROBLEMS #for Sokoban specific classes and problems
 
 #NOTE - tested at CDF, results match the output of local machine
-
+#
 def sokoban_goal_state(state):
   '''
   @return: Whether all boxes are stored.
@@ -37,16 +37,16 @@ def heur_manhattan_distance(state):
     # access all the storages in the boxes
     # manhattan distance = (x1-x2) + (y2-y1) coords
 
-    total_dist = 0
+    man_heur = 0
     for box in state.boxes: # iterate through all the boxes
         man_distances = []  # empty list to store all the manhattan distances of the boxes
         for storage in state.storage: # iterate through the storages
             #  (x1-y1) + (x2-y2)
             man_distances.append(abs(box[0] - storage[0]) + abs(box[1] - storage[1]))
         # add shortest manhattan distance to total dist
-        total_dist += min(man_distances)
+        man_heur += min(man_distances)
 
-    return total_dist
+    return man_heur
 
 #SOKOBAN HEURISTICS
 def trivial_heuristic(state):
@@ -58,20 +58,6 @@ def trivial_heuristic(state):
     if box not in state.storage:
         count += 1
   return count
-
-###################################################################
-
-def manhattan_distance(x, y):
-    """
-    :param x:
-    :type x:
-    :param y:
-    :type y:
-    :return:
-    :rtype:
-    """
-    #return the manhattan distance between x and y
-    return abs(x[0]-y[0])+abs(x[1]-y[1])
 
 def obstacles(start, dest, state):
     """
@@ -88,7 +74,7 @@ def obstacles(start, dest, state):
     #robots on the way also considered as obstacles
     total = 0
     robots = frozenset(state.robots)
-    blockades= state.obstacles.union(robots)
+    blockades = state.obstacles.union(robots)
     for obstacle in blockades:
         if max(dest[0], start[0]) > obstacle[0] > min(start[0], dest[0]):
             if max(dest[1], start[1]) > obstacle[1]> min(start[1], dest[1]):
@@ -129,7 +115,7 @@ def check_deadlocked(position, state):
     # check if the box is deadlocked
     blockades = state.obstacles.union(state.boxes)
 
-    #(x, y) --> box pos
+    #(x, y) --> box positions, (x, y)
     up = (position[0], position[1] + 1)
     down = (position[0], position[1] - 1)
     left = (position[0] - 1, position[1])
@@ -143,8 +129,6 @@ def check_deadlocked(position, state):
             return True
         elif down in blockades:
             return True
-        # elif left in blockades:
-        #     return True
         elif right in blockades:
             return True
 
@@ -155,8 +139,6 @@ def check_deadlocked(position, state):
             return True
         elif left in blockades:
             return True
-        # elif right in blockades:
-        #     return True
         elif up in blockades:
             return True
         elif down in blockades:
@@ -165,9 +147,9 @@ def check_deadlocked(position, state):
     if position[1] == state.height - 1:
         if position[0] == state.width - 1:
             return True
-        if position[0] == 0:
+        elif position[0] == 0:
             return True
-        if left in blockades:
+        elif left in blockades:
             return True
         elif right in blockades:
             return True
@@ -177,7 +159,7 @@ def check_deadlocked(position, state):
     if position[1] == 0:
         if position[0] == 0:
             return True
-        if left in blockades:
+        elif left in blockades:
             return True
         elif right in blockades:
             return True
@@ -195,39 +177,37 @@ def heur_alternate(state):
     # state and the goal.
     # Your function should return a numeric value for the estimate of the distance to the goal.
 
-    altn = 0
-    # box to goal distance + robot to the box distance = cost
+    # box to goal distance + robot to the box distance = altn_heur
     for box in state.boxes:
         avail_storages = avail_storage(box, state)
         if box not in avail_storages:
             if check_deadlocked(box, state):
                 return float("inf")
-
     else:
         # add the distances from the box to the goal
-        cost = 0
+        altn_heur = 0
         for box in state.boxes:
-            possible_positions = avail_storage(box, state)
-            cost_each_box = float("inf")
-            for possibility in possible_positions:
-                current_cost = manhattan_distance(box, possibility) + obstacles(box, possibility, state) * 2
-                if current_cost < cost_each_box:
-                    cost_each_box = current_cost
-            cost += cost_each_box
+            box_cost = float("inf")
+            available = avail_storage(box, state)
+            for storages in available:
+                current_cost = abs(box[0] - storages[0]) + abs(box[1] - storages[1]) + \
+                               obstacles(box, storages, state) * 2
 
-        for rob in state.robots:
+                if current_cost < box_cost:
+                    box_cost = current_cost
+
+            altn_heur += box_cost
+
+
+        for robot in state.robots:
             # find the distance of the closest storage for each robot
             closest = float("inf")
             for box in state.boxes:
-                if (manhattan_distance(box, rob) + obstacles(rob, box, state) * 2) < closest:
-                    closest = manhattan_distance(box, rob) + obstacles(rob, box, state) * 2
-            cost += closest
-        # add the distances from the robot to the box
-        altn += cost
+                if (abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + obstacles(robot, box, state) * 2) < closest:
+                    closest = abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + obstacles(robot, box, state) * 2
+            altn_heur += closest
 
-        return altn
-
-#######################################################################################
+        return altn_heur
 
 def heur_zero(state):
     '''Zero Heuristic can be used to make A* search perform uniform cost search'''
@@ -259,43 +239,39 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):
     '''INPUT: a sokoban state that represents the start state and a timebound (number of seconds)'''
     '''OUTPUT: A goal state (if a goal is found), else False'''
 
-    state_inf = float("inf")
+    state_inf = float('inf')
 
-    # Initialize time
-    time = os.times()[0]
-    end_time = time + timebound
-    bound_limit = timebound
+    # initialise time_start
+    time_start = os.times()[0]  # search start time_start
+    end_time = time_start + timebound  # search end time_start
 
-    # Initialize fval with weight adjusted...not sure
     weight_fval = (lambda sN: fval_function(sN, weight)) #wrapped
 
-    # initialise search engine
+    # Initialize Searcher
     search_util = SearchEngine('custom', 'default')
     search_util.init_search(initial_state, sokoban_goal_state, heur_fn, weight_fval)
 
-    # Initialize cost bounds and variables
-    cost = (state_inf, state_inf, state_inf) #None..?
+    bound_limit = timebound  # timebound
 
-    # final state
-    final = search_util.search(timebound)
+    cost_bound = (state_inf, state_inf, state_inf)  # None...?
+    final = search_util.search(bound_limit)  # start searching with the time bound
 
-    not_found = False
-    # Perform search while within the timebound
-    while time < end_time:
-        if final == False:  # base case, final not found
-            return not_found
+    # cost_bound = None
+    soln = False
+
+    while time_start < end_time:
+        if final == False:  # base case, if soln not found
+            return soln
         else:
-            # subtract the time cost from the restricted timebound
-            diff_time = os.times()[0] - time
-            # time = os.times()[0]
-            bound_limit -= diff_time
+            time_passed = os.times()[0] - time_start
+            bound_limit -= time_passed
 
-            # if the cost of state is less than the current costbound...
-            if final.gval <= cost[0]:
-                cost = (final.gval, final.gval, final.gval)
-                not_found = final
-            final = search_util.search(bound_limit, cost)
-    return not_found
+            # prune
+            if final.gval <= cost_bound[0]:
+                cost_bound = (final.gval - 1, final.gval -1 , final.gval -1)
+                soln = final
+            final = search_util.search(bound_limit, cost_bound)
+    return soln
 
 
 def anytime_gbfs(initial_state, heur_fn, timebound = 10):
@@ -304,46 +280,37 @@ def anytime_gbfs(initial_state, heur_fn, timebound = 10):
   '''INPUT: a sokoban state that represents the start state and a timebound (number of seconds)'''
   '''OUTPUT: A goal state (if a goal is found), else False'''
   '''implementation of anytime gbfs algorithm'''
-
   state_inf = float('inf')
+
+  # initialise time_start
+  time_start = os.times()[0] # search start time_start
+  end_time = time_start + timebound  # search end time_start
 
   # Initialize Searcher
   search_util = SearchEngine('best_first', 'default')
   search_util.init_search(initial_state, sokoban_goal_state, heur_fn)
 
 
-  # initialise time_start
-  time_start = os.times()[0] # search start time_start
-  end_time = time_start + timebound  # search end time_start
-
   bound_limit = timebound  #timebound
 
-  final = search_util.search(bound_limit) # start searching with the timebound
-
-  cost_bound = (state_inf, state_inf, state_inf) # should I just reassign as None
-
-  # If search did not find a goalstate
-    # return False
-  # Otherwse, keep going
+  cost_bound = (state_inf, state_inf, state_inf) # None...?
+  final = search_util.search(bound_limit) # start searching with the time bound
 
   # cost_bound = None
-  not_found = False
+  soln = False
 
-  # Perform the search while the timebound has not been reached
   while time_start < end_time:
-    if final == False: # base case, if final not found
-        return not_found
+    if final == False: # base case, if soln not found
+        return soln
     else:
         time_passed = os.times()[0] - time_start
-
-        time_start = os.times()[0]
-
         bound_limit -= time_passed
 
+        # prune
         if final.gval <= cost_bound[0]:
             cost_bound = (final.gval, final.gval, final.gval)
-            not_found = final
+            soln = final
         final = search_util.search(bound_limit, cost_bound)
-  return not_found
+  return soln
 
 
