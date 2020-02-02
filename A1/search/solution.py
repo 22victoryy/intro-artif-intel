@@ -59,7 +59,7 @@ def trivial_heuristic(state):
         count += 1
   return count
 
-def obstacles(start, dest, state):
+def ob(start, dest, state):
     """
     :param start:
     :type start:
@@ -72,38 +72,60 @@ def obstacles(start, dest, state):
     """
     #return numbers of obstacles from start to dest
     #robots on the way also considered as obstacles
-    total = 0
-    robots = frozenset(state.robots)
-    blockades = state.obstacles.union(robots)
-    for obstacle in blockades:
-        if max(dest[0], start[0]) > obstacle[0] > min(start[0], dest[0]):
-            if max(dest[1], start[1]) > obstacle[1]> min(start[1], dest[1]):
-                total += 1
-    return total
+    num = 0
+    obs = state.obstacles.union(state.robots)
+
+    max_distx = max(dest[0], start[0])
+    min_distx = min(dest[0], start[0])
+    max_disty = max(dest[1], start[1])
+    min_disty = min(dest[1], start[1])
 
 
-def avail_storage(box, state):
+
+    for obstacle in obs:
+        if max_distx > obstacle[0] > min_distx and max_disty> obstacle[1]> min_disty:
+                num += 1
+    return num
+
+def fetch_storage(state):
     """
-    :param box:
-    :type box:
-    :param state:
-    :type state:
-    :return:
-    :rtype:
+    gets the storage.
     """
-    # add all the storages
     storages = []
-    for storage in state.storage:
-        storages.append(storage)
 
-    # remove other boxes in the storage if there are occupied
-    for other in state.boxes:
-        if other in storages:
-            if box != other:
-                storages.remove(other)
+    # convert frozenset to list to make it indexable
+    storage_list = list(state.storage)
+
+    i = 0
+    while i < len(storage_list):
+        strg = storage_list[i]
+        storages.append(strg)
+        i += 1
     return storages
 
-def check_deadlocked(position, state):
+
+def rm(box, state):
+    """
+    Empty the storage
+    """
+    storages = fetch_storage(state)
+
+    # box_list = list(state.boxes)
+    # i = 0
+    # while i < len(box_list):
+    #     if box_list[i] in storages:
+    #         if box_list[i] != box:
+    #             storages.remove(box_list[i])
+    #             i += 1
+    #
+
+    for etc in state.boxes:
+        if etc in storages:
+            if box != etc:
+                storages.remove(etc)
+    return storages
+
+def ch_dlock(position, state):
     """
     :param position:
     :type position:
@@ -121,50 +143,47 @@ def check_deadlocked(position, state):
     left = (position[0] - 1, position[1])
     right = (position[0] + 1, position[1])
 
-    #if there are walls,then any consecutive boxes are immovable
-    if position[0] == 0:
-        if position[1] == 0:
-            return True
-        elif up in blockades:
-            return True
-        elif down in blockades:
-            return True
-        elif right in blockades:
-            return True
 
-    if position[0] == state.width - 1:
-        if position[1] == state.height - 1:
-            return True
-        elif position[1] == 0:
-            return True
-        elif left in blockades:
-            return True
-        elif up in blockades:
-            return True
-        elif down in blockades:
-            return True
+    if position[0] == 0 and position[1] == 0:
+        return True
+    elif position[0] == 0 and up in blockades:
+        return True
+    elif position[0] == 0 and down in blockades:
+        return True
+    elif position[0] == 0 and right in blockades:
+        return True
 
-    if position[1] == state.height - 1:
-        if position[0] == state.width - 1:
-            return True
-        elif position[0] == 0:
-            return True
-        elif left in blockades:
-            return True
-        elif right in blockades:
-            return True
-        elif up in blockades:
-            return True
+    elif position[1] == 0 and position[0] == 0:
+        return True
+    elif position[1] == 0 and left in blockades:
+        return True
+    elif position[1] == 0 and right in blockades:
+        return True
+    elif position[1] == 0 and down in blockades:
+        return True
 
-    if position[1] == 0:
-        if position[0] == 0:
-            return True
-        elif left in blockades:
-            return True
-        elif right in blockades:
-            return True
-        elif down in blockades:
-            return True
+
+    elif position[0] == state.width - 1 and position[1] == state.height - 1:
+        return True
+    elif position[0] == state.width - 1 and position[1] == 0:
+        return True
+    elif position[0] == state.width - 1 and left in blockades:
+        return True
+    elif position[0] == state.width - 1 and up in blockades:
+        return True
+    elif position[0] == state.width - 1 and down in blockades:
+        return True
+
+    elif position[1] == state.height - 1 and position[0] == state.width - 1:
+        return True
+    elif position[1] == state.height - 1 and position[0] == 0:
+        return True
+    elif position[1] == state.height - 1 and left in blockades:
+        return True
+    elif position[1] == state.height - 1 and right in blockades:
+        return True
+    elif position[1] == state.height - 1 and up in blockades:
+        return True
 
 
 def heur_alternate(state):
@@ -177,21 +196,19 @@ def heur_alternate(state):
     # state and the goal.
     # Your function should return a numeric value for the estimate of the distance to the goal.
 
-    # box to goal distance + robot to the box distance = altn_heur
     for box in state.boxes:
-        avail_storages = avail_storage(box, state)
+        avail_storages = rm(box, state)
         if box not in avail_storages:
-            if check_deadlocked(box, state):
+            if ch_dlock(box, state):
                 return float("inf")
     else:
-        # add the distances from the box to the goal
         altn_heur = 0
         for box in state.boxes:
             box_cost = float("inf")
-            available = avail_storage(box, state)
+            available = rm(box, state)
             for storages in available:
                 current_cost = abs(box[0] - storages[0]) + abs(box[1] - storages[1]) + \
-                               obstacles(box, storages, state) * 2
+                               ob(box, storages, state) * 2
 
                 if current_cost < box_cost:
                     box_cost = current_cost
@@ -200,11 +217,10 @@ def heur_alternate(state):
 
 
         for robot in state.robots:
-            # find the distance of the closest storage for each robot
             closest = float("inf")
             for box in state.boxes:
-                if (abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + obstacles(robot, box, state) * 2) < closest:
-                    closest = abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + obstacles(robot, box, state) * 2
+                if (abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2) < closest:
+                    closest = abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2
             altn_heur += closest
 
         return altn_heur
@@ -260,7 +276,7 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):
     soln = False
 
     while time_start < end_time:
-        if final == False:  # base case, if soln not found
+        if final == False:  # base
             return soln
         else:
             time_passed = os.times()[0] - time_start
@@ -268,7 +284,7 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):
 
             # prune
             if final.gval <= cost_bound[0]:
-                cost_bound = (final.gval - 1, final.gval -1 , final.gval -1)
+                cost_bound = (final.gval, final.gval , final.gval)
                 soln = final
             final = search_util.search(bound_limit, cost_bound)
     return soln
@@ -300,7 +316,7 @@ def anytime_gbfs(initial_state, heur_fn, timebound = 10):
   soln = False
 
   while time_start < end_time:
-    if final == False: # base case, if soln not found
+    if final == False: # base
         return soln
     else:
         time_passed = os.times()[0] - time_start
