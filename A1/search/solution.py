@@ -37,7 +37,6 @@ def heur_manhattan_distance(state):
 
     # access all the storages in the boxes
     # manhattan distance = (x1-x2) + (y2-y1) coords
-
     man_heur = 0
     for box in state.boxes: # iterate through all the boxes
         man_distances = []  # empty list to store all the manhattan distances of the boxes
@@ -46,7 +45,6 @@ def heur_manhattan_distance(state):
             man_distances.append(abs(box[0] - storage[0]) + abs(box[1] - storage[1]))
         # add shortest manhattan distance to total dist
         man_heur += min(man_distances)
-
     return man_heur
 
 #SOKOBAN HEURISTICS
@@ -210,6 +208,7 @@ def heur_alternate(state):
                     box_cost = curr_cost
             altn_heur += box_cost
 
+
         for robot in state.robots:
             if len(state.robots) < 10:
                 nearest_distance = state_inf
@@ -219,7 +218,6 @@ def heur_alternate(state):
                 altn_heur += nearest_distance
 
     return altn_heur
-
 
 def heur_zero(state):
     '''Zero Heuristic can be used to make A* search perform uniform cost search'''
@@ -257,7 +255,6 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):  #p
     # start the timer
     time_start = os.times()[0]  # usertime
     end_time = time_start + timebound  # search end time_start
-
     final = search_util.search(timebound)  # start searching with the time bound
 
     soln = False
@@ -268,8 +265,10 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):  #p
             timebound -= time_passed
 
             # prune...
-            if final.gval  <= cost_bound[0]:
-                # weight -= 1 # prune on the weight
+            if final.gval  < cost_bound[0]:
+                if weight > 1:
+                    weight / 1.1
+                # weight / 1.3 # prune on the weight
                 cost_bound = (final.gval, final.gval, final.gval)
                 soln = final
             final = search_util.search(timebound, cost_bound)
@@ -294,20 +293,19 @@ def anytime_gbfs(initial_state, heur_fn, timebound = 10):  #pruning? on gval?
   end_time = time_start + timebound  # search end time_start
 
   # instantiate search
-
   final = search_util.search(timebound) # start searching with the time bound
 
+  # tested on teaching labs on feb 3rd 14:17 PM, 17 pass, 16 better than the benchmark
   soln = False
   while time_start < end_time:
     if final is not False:
         cost_bound = (state_inf, state_inf, state_inf)
         time_passed = os.times()[0] - time_start
-
         timebound -= time_passed
 
         gvalue = final.gval
         if gvalue < cost_bound[0]:
-            gvalue -= 1 #prune on the gvalue
+            gvalue / 1.1 #prune on the gvalue
             cost_bound = (final.gval, final.gval, final.gval)
             soln = final
         final = search_util.search(timebound, cost_bound) # time passed
