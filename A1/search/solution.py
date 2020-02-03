@@ -283,7 +283,7 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):  #p
             # prune...
             if final.gval < cost_bound[0]:
                 if weight > 1:  #must prune on the weight
-                    weight / 1.3
+                    weight /= 1.3
                 cost_bound = (final.gval, final.gval, final.gval)
                 soln = final
             final = search_util.search(timebound, cost_bound)
@@ -320,7 +320,7 @@ def anytime_gbfs(initial_state, heur_fn, timebound = 10):  #pruning? on gval?
 
         gvalue = final.gval
         if gvalue < cost_bound[0]:
-            gvalue / 1.1 #prune on the gvalue
+            gvalue -= 1 #prune on the gvalue
             cost_bound = (final.gval, final.gval, final.gval)
             soln = final
         final = search_util.search(timebound, cost_bound) # time passed
