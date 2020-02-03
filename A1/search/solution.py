@@ -247,32 +247,32 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):  #p
     '''INPUT: a sokoban state that represents the start state and a timebound (number of seconds)'''
     '''OUTPUT: A goal state (if a goal is found), else False'''
 
-    state_inf = float('inf')
-    # initialise time_start
-    time_start = os.times()[0]  # usertime
-    end_time = time_start + timebound  # search end time_start
-
     weight_fval = (lambda sN: fval_function(sN, weight))
 
-    # Initialize Searcher
+    # cycle checking default
     search_util = SearchEngine('custom', 'default')
     search_util.init_search(initial_state, sokoban_goal_state, heur_fn, weight_fval)
 
-    bound_limit = timebound  # timebound
-    cost_bound = (state_inf, state_inf, state_inf)  # None...?
-    final = search_util.search(bound_limit)  # start searching with the time bound
+    state_inf = float('inf')
+
+    # start the timer
+    time_start = os.times()[0]  # usertime
+    end_time = time_start + timebound  # search end time_start
+
+    final = search_util.search(timebound)  # start searching with the time bound
 
     soln = False
     while time_start < end_time:
         if final is not False:
+            cost_bound = (state_inf, state_inf, state_inf)  # None...?
             time_passed = os.times()[0] - time_start
-            bound_limit -= time_passed
+            timebound -= time_passed
 
-            # prune
+            # prune...
             if final.gval <= cost_bound[0]:
                 cost_bound = (final.gval, final.gval, final.gval)
                 soln = final
-            final = search_util.search(bound_limit, cost_bound)
+            final = search_util.search(timebound, cost_bound)
         else:
             return soln
     return soln
@@ -287,29 +287,28 @@ def anytime_gbfs(initial_state, heur_fn, timebound = 10):  #pruning? on gval?
 
   state_inf = float('inf')
 
+  search_util = SearchEngine('best_first', 'default')
+  search_util.init_search(initial_state, sokoban_goal_state, heur_fn)
+
   time_start = os.times()[0] # user time
   end_time = time_start + timebound  # search end time_start
 
   # instantiate search
-  search_util = SearchEngine('best_first', 'default')
-  search_util.init_search(initial_state, sokoban_goal_state, heur_fn)
 
-  bound_limit = timebound  #timebound
-  cost_bound = (state_inf, state_inf, state_inf) # None...?
-  final = search_util.search(bound_limit) # start searching with the time bound
+  final = search_util.search(timebound) # start searching with the time bound
 
   soln = False
-
   while time_start < end_time:
     if final is not False:
         time_passed = os.times()[0] - time_start
-        bound_limit -= time_passed
+        timebound -= time_passed
 
+        cost_bound = (state_inf, state_inf, state_inf)  # None...?
         # prune
         if final.gval <= cost_bound[0]:
             cost_bound = (final.gval, final.gval, final.gval)
             soln = final
-        final = search_util.search(bound_limit, cost_bound)
+        final = search_util.search(timebound, cost_bound)
     else:
         return soln
   return soln
