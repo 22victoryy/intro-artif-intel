@@ -190,7 +190,6 @@ def heur_alternate(state):
     # add all those up to get the final numeral heuristic value
 
     # decrease complexity
-    altn_heur = 0
     for box in state.boxes:
         avail_storages = rm(box, state)
         if box not in avail_storages:
@@ -211,12 +210,12 @@ def heur_alternate(state):
                     box_cost = curr_cost
             altn_heur += box_cost
 
-    for robot in state.robots:
-        nearest_distance = state_inf
-        for box in state.boxes:
-            if (abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2) < nearest_distance:
-                nearest_distance = abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2
-        altn_heur += nearest_distance
+        for robot in state.robots:
+            nearest_distance = state_inf
+            for box in state.boxes:
+                if (abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2) < nearest_distance:
+                    nearest_distance = abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2
+            altn_heur += nearest_distance
 
     return altn_heur
 
@@ -248,6 +247,7 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):  #p
     '''Provides an implementation of anytime weighted a-star, as described in the HW1 handout'''
     '''INPUT: a sokoban state that represents the start state and a timebound (number of seconds)'''
     '''OUTPUT: A goal state (if a goal is found), else False'''
+
     state_inf = float('inf')
 
     # initialise time_start
@@ -264,10 +264,9 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):  #p
     cost_bound = (state_inf, state_inf, state_inf)  # None...?
     final = search_util.search(bound_limit)  # start searching with the time bound
 
-    cost_bound = None
     soln = False
     while time_start < end_time:
-        if final is not True:  # base
+        if final is False:  # base
             return soln
         else:
             time_passed = os.times()[0] - time_start
@@ -287,13 +286,14 @@ def anytime_gbfs(initial_state, heur_fn, timebound = 10):  #pruning? on gval?
   '''INPUT: a sokoban state that represents the start state and a timebound (number of seconds)'''
   '''OUTPUT: A goal state (if a goal is found), else False'''
   '''implementation of anytime gbfs algorithm'''
+
   state_inf = float('inf')
 
   # initialise time_start
   time_start = os.times()[0] # user time
   end_time = time_start + timebound  # search end time_start
 
-  # Initialize Searcher
+  # instantiate search
   search_util = SearchEngine('best_first', 'default')
   search_util.init_search(initial_state, sokoban_goal_state, heur_fn)
 
@@ -301,11 +301,10 @@ def anytime_gbfs(initial_state, heur_fn, timebound = 10):  #pruning? on gval?
   cost_bound = (state_inf, state_inf, state_inf) # None...?
   final = search_util.search(bound_limit) # start searching with the time bound
 
-  # cost_bound = None
   soln = False
 
   while time_start < end_time:
-    if final is not True: # base
+    if final is False: # base
         return soln
     else:
         time_passed = os.times()[0] - time_start
