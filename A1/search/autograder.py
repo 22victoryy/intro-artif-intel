@@ -12,7 +12,7 @@ test_manhattan = False
 test_fval_function = False
 test_anytime_gbfs = False
 test_alternate = True
-test_anytime_weighted_astar = False
+test_anytime_weighted_astar = False # redo this shit
 
 if test_time_astar:
 

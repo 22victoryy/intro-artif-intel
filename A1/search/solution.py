@@ -10,6 +10,7 @@
 
 from search import * #for search engines
 from sokoban import SokobanState, Direction, PROBLEMS #for Sokoban specific classes and problems
+import itertools
 
 #NOTE - tested at CDF, results match the output of local machine
 #
@@ -80,8 +81,6 @@ def ob(start, dest, state):
     max_disty = max(dest[1], start[1])
     min_disty = min(dest[1], start[1])
 
-
-
     for obstacle in obs:
         if max_distx > obstacle[0] > min_distx and max_disty> obstacle[1]> min_disty:
                 num += 1
@@ -103,36 +102,24 @@ def fetch_storage(state):
         i += 1
     return storages
 
-
 def rm(box, state):
     """
-    Empty the storage
+    Empty the storage from other boxes that are occupying them...
     """
     storages = fetch_storage(state)
+    box_list = list(state.boxes)
 
-    # box_list = list(state.boxes)
-    # i = 0
-    # while i < len(box_list):
-    #     if box_list[i] in storages:
-    #         if box_list[i] != box:
-    #             storages.remove(box_list[i])
-    #             i += 1
-    #
-
-    for etc in state.boxes:
-        if etc in storages:
-            if box != etc:
-                storages.remove(etc)
+    for i in box_list:
+        if i not in storages:
+            continue
+        else:
+            if i != box:
+                storages.remove(i)
     return storages
 
 def ch_dlock(position, state):
     """
-    :param position:
-    :type position:
-    :param state:
-    :type state:
-    :return:
-    :rtype:
+    Check deadlocks
     """
     # check if the box is deadlocked
     blockades = state.obstacles.union(state.boxes)
@@ -142,7 +129,6 @@ def ch_dlock(position, state):
     down = (position[0], position[1] - 1)
     left = (position[0] - 1, position[1])
     right = (position[0] + 1, position[1])
-
 
     if position[0] == 0 and position[1] == 0:
         return True
@@ -161,7 +147,6 @@ def ch_dlock(position, state):
         return True
     elif position[1] == 0 and down in blockades:
         return True
-
 
     elif position[0] == state.width - 1 and position[1] == state.height - 1:
         return True
@@ -196,32 +181,73 @@ def heur_alternate(state):
     # state and the goal.
     # Your function should return a numeric value for the estimate of the distance to the goal.
 
+    state_inf = float("inf")
+
     for box in state.boxes:
         avail_storages = rm(box, state)
         if box not in avail_storages:
             if ch_dlock(box, state):
-                return float("inf")
+                return state_inf
     else:
         altn_heur = 0
-        for box in state.boxes:
-            box_cost = float("inf")
+        # for box in state.boxes:
+        #     box_cost = state_inf
+        #
+        #     available = rm(box, state)
+        #
+        #     for storages in available:
+        #         curr_cost = abs(box[0] - storages[0]) + abs(box[1] - storages[1]) + \
+        #                     ob(box, storages, state) * 2
+        #
+        #         if curr_cost < box_cost:
+        #             box_cost = curr_cost
+        #     altn_heur += box_cost
+
+        # for robot in state.robots:
+        #     nearest_distance = state_inf
+        #     for box in state.boxes:
+        #         if (abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2) < nearest_distance:
+        #             nearest_distance = abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2
+        #     altn_heur += nearest_distance
+
+        for box, robot in itertools.product(state.boxes, state.robots):
+            box_cost = state_inf
+
             available = rm(box, state)
+
             for storages in available:
-                current_cost = abs(box[0] - storages[0]) + abs(box[1] - storages[1]) + \
-                               ob(box, storages, state) * 2
+                curr_cost = abs(box[0] - storages[0]) + abs(box[1] - storages[1]) + \
+                            ob(box, storages, state) * 2
 
-                if current_cost < box_cost:
-                    box_cost = current_cost
-
+                if curr_cost < box_cost:
+                    box_cost = curr_cost
             altn_heur += box_cost
 
+            nearest_distance = state_inf
+            if (abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2) < nearest_distance:
+                    nearest_distance = abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2
+            altn_heur += nearest_distance
 
-        for robot in state.robots:
-            closest = float("inf")
-            for box in state.boxes:
-                if (abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2) < closest:
-                    closest = abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2
-            altn_heur += closest
+        #
+        # for box in state.boxes:
+        #     box_cost = state_inf
+        #
+        #     available = rm(box, state)
+        #
+        #     for storages in available:
+        #         curr_cost = abs(box[0] - storages[0]) + abs(box[1] - storages[1]) + \
+        #                     ob(box, storages, state) * 2
+        #
+        #         if curr_cost < box_cost:
+        #             box_cost = curr_cost
+        #     altn_heur += box_cost
+        #
+        # for robot in state.robots:
+        #     nearest_distance = state_inf
+        #     for box in state.boxes:
+        #         if (abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2) < nearest_distance:
+        #             nearest_distance = abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2
+        #     altn_heur += nearest_distance
 
         return altn_heur
 
@@ -264,7 +290,7 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):
     weight_fval = (lambda sN: fval_function(sN, weight)) #wrapped
 
     # Initialize Searcher
-    search_util = SearchEngine('custom', 'default')
+    search_util = SearchEngine('custom', 'full')
     search_util.init_search(initial_state, sokoban_goal_state, heur_fn, weight_fval)
 
     bound_limit = timebound  # timebound
