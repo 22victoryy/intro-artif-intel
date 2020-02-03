@@ -191,7 +191,9 @@ def heur_alternate(state):
     # decrease complexity
     for box in state.boxes:
         avail_storages = rm(box, state)
-        if box not in avail_storages:
+        if box in avail_storages:
+            continue
+        else:
             if ch_dlock(box, state):
                 return state_inf
     else:
@@ -200,7 +202,6 @@ def heur_alternate(state):
             box_cost = state_inf
 
             available = rm(box, state)
-
             for storages in available:
                 curr_cost = abs(box[0] - storages[0]) + abs(box[1] - storages[1]) + \
                             ob(box, storages, state) * 2
@@ -210,11 +211,12 @@ def heur_alternate(state):
             altn_heur += box_cost
 
         for robot in state.robots:
-            nearest_distance = state_inf
-            for box in state.boxes:
-                if (abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2) < nearest_distance:
-                    nearest_distance = abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2
-            altn_heur += nearest_distance
+            if len(state.robots) < 10:
+                nearest_distance = state_inf
+                for box in state.boxes:
+                    if (abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2) < nearest_distance:
+                        nearest_distance = abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2
+                altn_heur += nearest_distance
 
     return altn_heur
 
@@ -246,14 +248,11 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):  #p
     '''Provides an implementation of anytime weighted a-star, as described in the HW1 handout'''
     '''INPUT: a sokoban state that represents the start state and a timebound (number of seconds)'''
     '''OUTPUT: A goal state (if a goal is found), else False'''
+    state_inf = float('inf')
 
-    weight_fval = (lambda sN: fval_function(sN, weight))
-
-    # cycle checking default
+    weight_fval = (lambda sN: fval_function(sN, weight)) # weight
     search_util = SearchEngine('custom', 'default')
     search_util.init_search(initial_state, sokoban_goal_state, heur_fn, weight_fval)
-
-    state_inf = float('inf')
 
     # start the timer
     time_start = os.times()[0]  # usertime
@@ -264,12 +263,13 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):  #p
     soln = False
     while time_start < end_time:
         if final is not False:
-            cost_bound = (state_inf, state_inf, state_inf)  # None...?
+            cost_bound = (state_inf, state_inf, state_inf)
             time_passed = os.times()[0] - time_start
             timebound -= time_passed
 
             # prune...
-            if final.gval <= cost_bound[0]:
+            if final.gval  <= cost_bound[0]:
+                # weight -= 1 # prune on the weight
                 cost_bound = (final.gval, final.gval, final.gval)
                 soln = final
             final = search_util.search(timebound, cost_bound)
@@ -300,15 +300,17 @@ def anytime_gbfs(initial_state, heur_fn, timebound = 10):  #pruning? on gval?
   soln = False
   while time_start < end_time:
     if final is not False:
+        cost_bound = (state_inf, state_inf, state_inf)
         time_passed = os.times()[0] - time_start
+
         timebound -= time_passed
 
-        cost_bound = (state_inf, state_inf, state_inf)  # None...?
-        # prune
-        if final.gval <= cost_bound[0]:
+        gvalue = final.gval
+        if gvalue < cost_bound[0]:
+            gvalue -= 1 #prune on the gvalue
             cost_bound = (final.gval, final.gval, final.gval)
             soln = final
-        final = search_util.search(timebound, cost_bound)
+        final = search_util.search(timebound, cost_bound) # time passed
     else:
         return soln
   return soln
