@@ -198,25 +198,41 @@ def heur_alternate(state):
         altn_heur = 0
         for box in state.boxes:
             box_cost = state_inf
+            # manhattan distance of other boxes that arent deadlocked or already in the storage
+            available = rm(box, state)  # this takes out the boxes from the storage so that we can move it
 
-            available = rm(box, state)
             for storages in available:
                 curr_cost = abs(box[0] - storages[0]) + abs(box[1] - storages[1]) + \
                             ob(box, storages, state) * 2
 
+
                 if curr_cost < box_cost:
                     box_cost = curr_cost
+                else:
+                    continue
             altn_heur += box_cost
 
-
+        # if len(state.robots) < 3:  # runtime is too much if there are too many robots
         for robot in state.robots:
-            if len(state.robots) < 10:
                 nearest_distance = state_inf
+                # nearest distance for the robot to get to the box....
                 for box in state.boxes:
                     if (abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2) < nearest_distance:
                         nearest_distance = abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2
+                    else:
+                        continue
                 altn_heur += nearest_distance
+        # elif len(state.robots) < 5:
+        #     for robot in state.robots:
+        #             nearest_distance = state_inf
+        #             # nearest distance for the robot to get to the box....
+        #             for box in state.boxes:
+        #                 if (abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2) < nearest_distance:
+        #                     nearest_distance = abs(box[0] - robot[0]) + abs(box[1] - robot[1]) + ob(robot, box, state) * 2
+        #             altn_heur += nearest_distance
 
+
+  # altermate heuristic => steps taken from robot to box, box to goal
     return altn_heur
 
 def heur_zero(state):
@@ -265,10 +281,9 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):  #p
             timebound -= time_passed
 
             # prune...
-            if final.gval  < cost_bound[0]:
-                if weight > 1:
-                    weight / 1.1
-                # weight / 1.3 # prune on the weight
+            if final.gval < cost_bound[0]:
+                if weight > 1:  #must prune on the weight
+                    weight / 1.3
                 cost_bound = (final.gval, final.gval, final.gval)
                 soln = final
             final = search_util.search(timebound, cost_bound)
