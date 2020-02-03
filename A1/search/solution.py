@@ -184,7 +184,6 @@ def heur_alternate(state):
     # iterate through all the boxes, if box free check deadlocked else exit loop
     # for all boxes, calculate the manhattan distance from box to storage, and add the number of obstacles it needs to
     # bypass....
-
     # for robots, calculate the manhattan distance of robot and box, adding the number of obstacles it needs to bypass
 
     # add all those up to get the final numeral heuristic value
@@ -249,7 +248,6 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):  #p
     '''OUTPUT: A goal state (if a goal is found), else False'''
 
     state_inf = float('inf')
-
     # initialise time_start
     time_start = os.times()[0]  # usertime
     end_time = time_start + timebound  # search end time_start
@@ -266,9 +264,7 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):  #p
 
     soln = False
     while time_start < end_time:
-        if final is False:  # base
-            return soln
-        else:
+        if final is not False:
             time_passed = os.times()[0] - time_start
             bound_limit -= time_passed
 
@@ -277,6 +273,8 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):  #p
                 cost_bound = (final.gval, final.gval, final.gval)
                 soln = final
             final = search_util.search(bound_limit, cost_bound)
+        else:
+            return soln
     return soln
 
 
@@ -289,7 +287,6 @@ def anytime_gbfs(initial_state, heur_fn, timebound = 10):  #pruning? on gval?
 
   state_inf = float('inf')
 
-  # initialise time_start
   time_start = os.times()[0] # user time
   end_time = time_start + timebound  # search end time_start
 
@@ -304,9 +301,7 @@ def anytime_gbfs(initial_state, heur_fn, timebound = 10):  #pruning? on gval?
   soln = False
 
   while time_start < end_time:
-    if final is False: # base
-        return soln
-    else:
+    if final is not False:
         time_passed = os.times()[0] - time_start
         bound_limit -= time_passed
 
@@ -315,5 +310,7 @@ def anytime_gbfs(initial_state, heur_fn, timebound = 10):  #pruning? on gval?
             cost_bound = (final.gval, final.gval, final.gval)
             soln = final
         final = search_util.search(bound_limit, cost_bound)
+    else:
+        return soln
   return soln
 
