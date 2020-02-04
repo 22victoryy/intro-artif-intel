@@ -119,7 +119,8 @@ def ch_dlock(position, state):
     Check deadlocks
     """
     # check if the box is deadlocked
-    ob = state.obstacles.union(state.boxes)
+    obs = state.obstacles.union(state.boxes)
+    oblist = list(obs)
 
     #(x, y) --> box positions, (x, y)
     up = (position[0], position[1] + 1)
@@ -129,42 +130,42 @@ def ch_dlock(position, state):
 
     if position[0] == 0 and position[1] == 0:
         return True
-    elif position[0] == 0 and up in ob:
+    elif position[0] == 0 and up in oblist:
         return True
-    elif position[0] == 0 and down in ob:
+    elif position[0] == 0 and down in oblist:
         return True
-    elif position[0] == 0 and right in ob:
+    elif position[0] == 0 and right in oblist:
         return True
 
     elif position[1] == 0 and position[0] == 0:
         return True
-    elif position[1] == 0 and left in ob:
+    elif position[1] == 0 and left in oblist:
         return True
-    elif position[1] == 0 and right in ob:
+    elif position[1] == 0 and right in oblist:
         return True
-    elif position[1] == 0 and down in ob:
+    elif position[1] == 0 and down in oblist:
         return True
 
     elif position[0] == state.width - 1 and position[1] == state.height - 1:
         return True
     elif position[0] == state.width - 1 and position[1] == 0:
         return True
-    elif position[0] == state.width - 1 and left in ob:
+    elif position[0] == state.width - 1 and left in oblist:
         return True
-    elif position[0] == state.width - 1 and up in ob:
+    elif position[0] == state.width - 1 and up in oblist:
         return True
-    elif position[0] == state.width - 1 and down in ob:
+    elif position[0] == state.width - 1 and down in oblist:
         return True
 
     elif position[1] == state.height - 1 and position[0] == state.width - 1:
         return True
     elif position[1] == state.height - 1 and position[0] == 0:
         return True
-    elif position[1] == state.height - 1 and left in ob:
+    elif position[1] == state.height - 1 and left in oblist:
         return True
-    elif position[1] == state.height - 1 and right in ob:
+    elif position[1] == state.height - 1 and right in oblist:
         return True
-    elif position[1] == state.height - 1 and up in ob:
+    elif position[1] == state.height - 1 and up in oblist:
         return True
 
 def heur_alternate(state):
@@ -204,7 +205,6 @@ def heur_alternate(state):
             for storages in available:
                 curr_cost = abs(box[0] - storages[0]) + abs(box[1] - storages[1]) + \
                             ob(box, storages, state) * 2
-
 
                 if curr_cost < box_cost:
                     box_cost = curr_cost
@@ -279,6 +279,7 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):  #p
             cost_bound = (state_inf, state_inf, state_inf)
             time_passed = os.times()[0] - time_start
             timebound -= time_passed
+            # weight *= 999
 
             # prune...
             if final.gval < cost_bound[0]:
@@ -327,4 +328,7 @@ def anytime_gbfs(initial_state, heur_fn, timebound = 10):  #pruning? on gval?
     else:
         return soln
   return soln
+# astar smaller than gbfs
+# gvalues 16 5 21 10 8 36 16 41 14 90 35 30 33 31 29 80 void void void 158 gbfs
+# gvalues 16 5 21 10 10
 

@@ -162,7 +162,8 @@ if test_anytime_gbfs:
         index = i
       else:
         index = 0
-      final.print_path()
+      print(final.gval)
+      # final.print_path()
       if final.gval <= len_benchmark[index] or len_benchmark[index] == -99:
         benchmark += 1
       solved += 1
@@ -180,7 +181,6 @@ if test_anytime_weighted_astar:
 
   len_benchmark = [18, 4, 21, 10, 8, -99, 16, 41, 16, -99, 39, 38, -99, 35, 29, -99, -99, -99, -99, -99]
 
-  output = []
 
   ##############################################################
   # TEST ANYTIME WEIGHTED A STAR
@@ -200,7 +200,9 @@ if test_anytime_weighted_astar:
         index = i
       else:
         index = 0
-      final.print_path()
+
+      # final.print_path()
+      print(final.gval)
       if final.gval <= len_benchmark[index] or len_benchmark[index] == -99:
         benchmark += 1
       solved += 1
