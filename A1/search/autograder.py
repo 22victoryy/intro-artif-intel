@@ -10,7 +10,7 @@ test_time_astar = True
 test_time_gbfs = True
 test_manhattan = False
 test_fval_function = False
-test_anytime_gbfs = False # Complexity
+test_anytime_gbfs = True # Complexity
 test_alternate =  False
 test_anytime_weighted_astar = False# Complexity, pruning
 

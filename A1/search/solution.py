@@ -74,50 +74,26 @@ def trivial_heuristic(state):
     return count
 
 
-def ob(start, dest, state):
-    """
-    :param start:
-    :type start:
-    :param dest:
-    :type dest:
-    :param state:
-    :type state:
-    :return:
-    :rtype:
-    """
-    # return numbers of obstacles from start to dest
-    # robots on the way also considered as obstacles
-    obs = state.obstacles.union(state.robots)
-
-    max_distx = max(dest[0], start[0])
-    min_distx = min(dest[0], start[0])
-    max_disty = max(dest[1], start[1])
-    min_disty = min(dest[1], start[1])
-
-    return sum(1 for x in obs if max_distx > x[0] > min_distx and max_disty > x[1] > min_disty)
-
-
-def fetch_storage(state):
-    """
-    gets the storage.
-    """
-    storage_list = list(state.storage)
-    return [x for x in storage_list]
-
-
 def rm(box, state):
     """
     Empty the storage from other boxes that are occupying them...
     """
-    storages_list = fetch_storage(state)
+    # storages_list = fetch_storage(state)
+    storages_list = [x for x in state.storage]
     box_list = list(state.boxes)
 
     for i in box_list:
         if i not in storages_list:
             continue
         else:
-            if i != box:
-                storages_list.remove(i)
+        # print([x for x in storages_list] == storages_list)
+            if i in storages_list:
+                if i != box:
+                    storages_list.remove(i)
+    # print([i  for i in box_list if i in storages_list2 if i!=box] == storages_list)
+
+    # print(storages_list)
+    # print([x for x in box_list if x in storages_list if box == x])
     return storages_list
 
 
@@ -167,6 +143,8 @@ def heur_alternate(state):
 
     # add all those up to get the final numeral heuristic value
 
+    obs = state.obstacles.union(state.robots)
+
     i = 0
     boxes = list(state.boxes)
     while i < len(boxes):
@@ -186,9 +164,13 @@ def heur_alternate(state):
             spaces = rm(boxes[j], state)
             k = 0
             while k < len(spaces):
+                max_distx = max(boxes[j][0], spaces[k][0])
+                min_distx = min(boxes[j][0], spaces[k][0])
+                max_disty = max(boxes[j][1], spaces[k][1])
+                min_disty = min(boxes[j][1], spaces[k][1])
+                num_obs = sum(1 for x in obs if max_distx > x[0] > min_distx and max_disty > x[1] > min_disty)
                 # iterate through all the spaces available
-                curr_cost = abs(boxes[j][0] - spaces[k][0]) + abs(boxes[j][1] - spaces[k][1]) + ob(boxes[j],
-                                                                                                   spaces[k], state) * 2
+                curr_cost = abs(boxes[j][0] - spaces[k][0]) + abs(boxes[j][1] - spaces[k][1]) + num_obs * 2
                 if curr_cost < cost:
                     cost = curr_cost
                 else:
@@ -204,10 +186,13 @@ def heur_alternate(state):
             boxes = list(state.boxes)
             m = 0
             while m < len(boxes):
-                if abs(boxes[m][0] - robots[n][0]) + abs(boxes[m][1] - robots[n][1]) + ob(robots[n], boxes[m], state) \
-                        * 2 < cost:
-                    cost = abs(boxes[m][0] - robots[n][0]) + abs(boxes[m][1] - robots[n][1]) + ob(robots[n], boxes[m],
-                                                                                                  state) * 2
+                max_distx = max(robots[n][0], boxes[m][0])
+                min_distx = min(robots[n][0], boxes[m][0])
+                max_disty = max(robots[n][1], boxes[m][1])
+                min_disty = min(robots[n][1], boxes[m][1])
+                num_obs = sum(1 for x in obs if max_distx > x[0] > min_distx and max_disty > x[1] > min_disty)
+                if abs(boxes[m][0] - robots[n][0]) + abs(boxes[m][1] - robots[n][1]) + num_obs < cost:
+                    cost = abs(boxes[m][0] - robots[n][0]) + abs(boxes[m][1] - robots[n][1]) + num_obs * 2
                 else:
                     pass
                 m += 1
@@ -253,10 +238,9 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):  # 
     search_util = SearchEngine('custom', 'default')
     search_util.init_search(initial_state, sokoban_goal_state, heur_fn, weight_fval)
 
-    # start the timer
     time_start = os.times()[0]  # usertime
-    end_time = time_start + timebound  # search end time_start
-    final = search_util.search(timebound)  # start searching with the time bound
+    end_time = time_start + timebound  # endtime
+    final = search_util.search(timebound)
 
     # teaching labs, 16/20, 13 better than bench mark
     soln = False
@@ -271,11 +255,11 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound=10):  # 
             if final.gval < cost_bound[0]:
                 if weight > 1:  # must prune on the weight
                     weight /= 1.3
-                cost_bound = (final.gval, final.gval, final.gval)
-                soln = final
+            cost_bound = (final.gval, final.gval, final.gval)
+            soln = final
             final = search_util.search(timebound, cost_bound)
         else:
-            return soln
+            break
     return soln
 
 
@@ -285,7 +269,6 @@ def anytime_gbfs(initial_state, heur_fn, timebound=10):  # pruning? on gval?
     '''INPUT: a sokoban state that represents the start state and a timebound (number of seconds)'''
     '''OUTPUT: A goal state (if a goal is found), else False'''
     '''implementation of anytime gbfs algorithm'''
-
     state_inf = float('inf')
 
     search_util = SearchEngine('best_first', 'default')
@@ -307,11 +290,11 @@ def anytime_gbfs(initial_state, heur_fn, timebound=10):  # pruning? on gval?
 
             if gvalue < cost_bound[0]:
                 gvalue -= 1  # prune on the gvalue
-                cost_bound = (final.gval, final.gval, final.gval)
                 soln = final
+            cost_bound = (final.gval, final.gval, final.gval)
             final = search_util.search(timebound, cost_bound)  # time passed
         else:
-            return soln
+            break
     return soln
 # astar smaller than gbfs
 # gvalues 16 5 21 10 8 36 16 41 14 90 35 30 33 31 29 80 void void void 158 gbfs
