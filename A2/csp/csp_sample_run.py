@@ -25,7 +25,7 @@ c2 = Constraint('C2', [w, x, y, z])
 
 varDoms = []
 for v in [w, x, y, z]:
-    varDoms.append(v.domain())    
+    varDoms.append(v.domain())
 
 sat_tuples = []
 for t in itertools.product(*varDoms):
@@ -43,10 +43,10 @@ btracker = BT(simpleCSP)
 #btracker.trace_on()
 
 print("Plain Bactracking on simple CSP")
-btracker.bt_search(prop_BT)
+btracker.bt_search(ord_mrv())
 print("=======================================================")
 #print("Forward Checking on simple CSP")
-#btracker.bt_search(prop_FC)
+# btracker.bt_search(prop_FC)
 #print("=======================================================")
 #print("GAC on simple CSP")
 #btracker.bt_search(prop_GAC)
@@ -54,7 +54,7 @@ print("=======================================================")
 #Now n-Queens example
 
 def queensCheck(qi, qj, i, j):
-    '''Return true if i and j can be assigned to the queen in row qi and row qj 
+    '''Return true if i and j can be assigned to the queen in row qi and row qj
        respectively. Used to find satisfying tuples.
     '''
     return i != j and abs(i-j) != abs(qi-qj)
@@ -70,17 +70,17 @@ def nQueens(n):
     for i in dom:
         vars.append(Variable('Q{}'.format(i), dom))
 
-    cons = []    
+    cons = []
     for qi in range(len(dom)):
         for qj in range(qi+1, len(dom)):
-            con = Constraint("C(Q{},Q{})".format(qi+1,qj+1),[vars[qi], vars[qj]]) 
+            con = Constraint("C(Q{},Q{})".format(qi+1,qj+1),[vars[qi], vars[qj]])
             sat_tuples = []
             for t in itertools.product(dom, dom):
                 if queensCheck(qi, qj, t[0], t[1]):
                     sat_tuples.append(t)
             con.add_satisfying_tuples(sat_tuples)
             cons.append(con)
-    
+
     csp = CSP("{}-Queens".format(n), vars)
     for c in cons:
         csp.add_constraint(c)
@@ -97,7 +97,7 @@ def solve_nQueens(n, propType, trace=False):
         solver.bt_search(prop_FC)
     elif propType == 'GAC':
         solver.bt_search(prop_GAC)
-        
+
 #trace = True
 trace = False
 print("Plain Bactracking on 8-queens")
