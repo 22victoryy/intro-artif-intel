@@ -43,7 +43,7 @@ btracker = BT(simpleCSP)
 #btracker.trace_on()
 
 print("Plain Bactracking on simple CSP")
-btracker.bt_search(ord_mrv())
+btracker.bt_search(prop_BT)
 print("=======================================================")
 #print("Forward Checking on simple CSP")
 # btracker.bt_search(prop_FC)

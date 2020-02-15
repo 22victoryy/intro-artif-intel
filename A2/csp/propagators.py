@@ -88,7 +88,7 @@ def prop_BT(csp, newVar=None):
                 return False, []
     return True, []
 
-def FC_Check(constraint, variable):
+def FC_Check(constraint, variable, pruned):
     """
     Forward checking helper function that checks if var satisfies the constraints.
     Otherwise, prune the var and add to the prune list.
@@ -96,6 +96,7 @@ def FC_Check(constraint, variable):
     DWO = False
     for var in variable.cur_domain():
         if not constraint.has_support(variable, var):
+            pruned.append((variable, var))
             variable.prune_value(var)
     if variable.cur_domain_size() == 0:
         return DWO
@@ -104,16 +105,34 @@ def FC_Check(constraint, variable):
     # finished helper function
 
 
-
-
-
 def prop_FC(csp, newVar=None):
     '''Do forward checking. That is check constraints with
        only one uninstantiated variable. Remember to keep
        track of all pruned variable,value pairs and return '''
     #IMPLEMENT
-    # if not newVar:
-    #     print(newVar)
+    ok  = False
+    pruned = []
+
+
+
+    if not newVar:
+        return False
+    else:
+        for constraint in csp.get_cons_with_var(newVar):
+            if constraint.get_n_unasgn() == 1:
+                ok = FC_Check(constraint, constraint.get_unasgn_vars()[0], pruned)
+                # DWO for var in constraint, return False and pruned for restore
+                if ok == False:
+                    return False, pruned
+    if ok:
+        return True, pruned
+
+
+
+
+
+
+
 
 
 
