@@ -1,8 +1,10 @@
 #Look for #IMPLEMENT tags in this file.
+# Do this later
 '''
 All models need to return a CSP object, and a list of lists of Variable objects
 representing the board. The returned list of lists is used to access the
 solution.
+
 
 For example, after these three lines of code
 
@@ -23,6 +25,7 @@ cell of the Futoshiki puzzle.
 
 '''
 from cspbase import *
+from propagators import *
 import itertools
 
 def futoshiki_csp_model_1(futo_grid):

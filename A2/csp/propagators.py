@@ -94,6 +94,7 @@ def prop_FC(csp, newVar=None):
        track of all pruned variable,value pairs and return '''
     #IMPLEMENT
 
+
 def prop_GAC(csp, newVar=None):
     '''Do GAC propagation. If newVar is None we do initial GAC enforce
        processing all constraints. Otherwise we do GAC enforce with
@@ -102,6 +103,20 @@ def prop_GAC(csp, newVar=None):
 
 def ord_mrv(csp):
     ''' return variable according to the Minimum Remaining Values heuristic '''
+    """
+    ord mrv returns the variable with the most constrained current domain
+    """
     #IMPLEMENT
-    
+    min_size = float('inf')
+    mrv = None
+    for var in csp.get_all_unasgn_vars():
+        if var.cur_domain_size() < min_size:
+            min_size = var.cur_domain_size()
+        mrv = var
+    return mrv
+
+
+
+
+
 
