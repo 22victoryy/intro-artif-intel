@@ -99,8 +99,8 @@ def FC_Check(constraint, variable, pruned):
             pruned.append((variable, var))
             variable.prune_value(var)
     if variable.cur_domain_size() == 0:
-        return DWO
-    return True
+        return DWO, pruned
+    return True, pruned
 
     # finished helper function
 
@@ -110,25 +110,26 @@ def prop_FC(csp, newVar=None):
        only one uninstantiated variable. Remember to keep
        track of all pruned variable,value pairs and return '''
     #IMPLEMENT
-    ok  = False
+    # # ok  = False
     pruned = []
 
-
-
+    # for new variables, if var in scope and unassigned is 1
     if not newVar:
-        return False
+        for c in csp.get_all_cons():
+            if c.get_n_unasgn() == 1:
+                var = c.get_unasgn_vars()[0]
+                FC_Check(c, var, pruned)
+
+        # return False, pruned
     else:
         for constraint in csp.get_cons_with_var(newVar):
             if constraint.get_n_unasgn() == 1:
-                ok = FC_Check(constraint, constraint.get_unasgn_vars()[0], pruned)
+               FC_Check(constraint, constraint.get_unasgn_vars()[0], pruned)
                 # DWO for var in constraint, return False and pruned for restore
-                if ok == False:
-                    return False, pruned
-    if ok:
-        return True, pruned
-
-
-
+                # if ok == False:
+                #     return False, pruned
+        else:
+            return True, pruned
 
 
 
