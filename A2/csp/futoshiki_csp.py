@@ -36,6 +36,7 @@ def futoshiki_csp_model_1(futo_grid):
     :rtype:
     """
     ##IMPLEMENT
+    # print(futo_grid)
 
 
 def futoshiki_csp_model_2(futo_grid):
@@ -46,4 +47,5 @@ def futoshiki_csp_model_2(futo_grid):
     :rtype:
     """
     ##IMPLEMENT
+
 

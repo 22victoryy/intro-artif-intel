@@ -188,10 +188,10 @@ def ord_mrv(csp):
     #IMPLEMENT
     min_size = float('inf')
     mrv = None
-    for var in csp.get_all_unasgn_vars():
-        if var.cur_domain_size() < min_size:
-            min_size = var.cur_domain_size()
-        mrv = var
+    for v in csp.get_all_unasgn_vars():
+        if v.cur_domain_size() < min_size:
+            min_size = v.cur_domain_size()
+        mrv = v
     return mrv
 
 
