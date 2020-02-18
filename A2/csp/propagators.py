@@ -72,6 +72,8 @@ var_ordering == a function with the following template
     of the heuristic it implements.
    '''
 
+from collections import deque
+
 def prop_BT(csp, newVar=None):
     '''Do plain backtracking propagation. That is, do no
     propagation at all. Just check fully instantiated constraints'''
@@ -115,10 +117,9 @@ def prop_FC(csp, newVar=None):
 
     # for new variables, if var in scope and unassigned is 1
     if not newVar:
-        for c in csp.get_all_cons():
-            if c.get_n_unasgn() == 1:
-                var = c.get_unasgn_vars()[0]
-                FC_Check(c, var, pruned)
+        for constraint in csp.get_all_cons():
+            if constraint.get_n_unasgn() == 1:
+                FC_Check(constraint, constraint.get_unasgn_vars()[0], pruned)
 
         # return False, pruned
     else:
@@ -128,14 +129,8 @@ def prop_FC(csp, newVar=None):
                 # DWO for var in constraint, return False and pruned for restore
                 # if ok == False:
                 #     return False, pruned
-        else:
-            return True, pruned
-
-
-
-
-
-
+        # else:
+        #     return True, pruned
 
 
 def prop_GAC(csp, newVar=None):
@@ -143,6 +138,47 @@ def prop_GAC(csp, newVar=None):
        processing all constraints. Otherwise we do GAC enforce with
        constraints containing newVar on GAC Queue'''
     #IMPLEMENT
+    c_queue = []
+    pruned = []
+
+    if not newVar:
+        for c in csp.get_all_cons():
+            c_queue.append(c)
+    else:
+        for c in csp.get_cons_with_var(newVar):
+            c_queue.append(c)
+
+    GAC_Enforce(csp, c_queue, pruned)
+
+
+
+def GAC_Enforce(csp, c_queue, pruned):
+    """
+    Prune values through the GAC queue
+    # """
+
+    DWO = False
+    while len(c_queue) != 0:
+        c = c_queue.pop()
+        for v in c.get_unasgn_vars():
+            for d in v.cur_domain():
+                if not c.has_support(v, d):
+                    pruned.append((v, d))
+                    v.prune_value(d)
+
+                    if v.cur_domain_size == 0:
+                        c_queue.clear()
+                        return DWO, pruned
+                    else:
+                        for c_ in csp.get_cons_with_var(v):
+                            if c_ not in c_queue:
+                                c_queue.append(c_)
+    return True, pruned
+
+
+
+
+
 
 def ord_mrv(csp):
     ''' return variable according to the Minimum Remaining Values heuristic '''
