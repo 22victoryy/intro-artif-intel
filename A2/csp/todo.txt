@@ -1,2 +1,4 @@
 1. Missing test cases for futoshiki csp models 1,2, and mrv
-2. TODO implement mrv, fc, gac
+2. TODO implement mrv, fc, gac, csp1, csp2
+3 fc, gac done
+4. TODO test mrv, implement csp1, csp2
