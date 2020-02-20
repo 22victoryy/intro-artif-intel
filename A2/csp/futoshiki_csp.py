@@ -273,3 +273,6 @@ def all_diff_checker(v, vals):
         result = result and (vals[i] != vals[j])
 
     return result
+
+
+
