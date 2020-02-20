@@ -48,6 +48,7 @@ def futoshiki_csp_model_1(futo_grid):
         num_cols = len(futo_grid[0])
 
     # domain if Variable is 0 initially
+    
     dom = []
     for i in range(num_rows):
         dom.append(i + 1)
