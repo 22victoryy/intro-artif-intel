@@ -178,8 +178,6 @@ def GAC_Enforce(csp, c_queue, pruned):
 
 
 
-
-
 def ord_mrv(csp):
     ''' return variable according to the Minimum Remaining Values heuristic '''
     """
@@ -189,9 +187,9 @@ def ord_mrv(csp):
     min_size = float('inf')
     mrv = None
     for v in csp.get_all_unasgn_vars():
-        if v.cur_domain_size() < min_size:
+        if min_size < 0 or v.cur_domain_size() < min_size:
             min_size = v.cur_domain_size()
-        mrv = v
+            mrv = v
     return mrv
 
 

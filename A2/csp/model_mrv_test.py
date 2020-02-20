@@ -10,7 +10,7 @@ answer_1 = [1,2,3,3,1,2,2,3,1]
 board_2 = [[1,'>',0,'.',3],[0,'.',0,'.',0],[3,'<',0,'.',1]]
 
 if __name__ == "__main__":
-    
+
     if test_model:
         score = 1
         #1st model test
@@ -22,7 +22,7 @@ if __name__ == "__main__":
             for j in range(len(var_array)):
                 sol.append(var_array[i][j].get_assigned_value())
         if sol == answer_1:
-            print("Passed first model test")
+            print("Passed first model test, eyy")
         else:
             print("Failed first model test: wrong solution")
         #2nd model test
@@ -34,7 +34,7 @@ if __name__ == "__main__":
                 if var_array2[i][j].get_assigned_value() is not None:
                     score = 0
         if score == 1:
-            print("Passed second model test")
+            print("Passed second model test, eyy")
         else:
             print("Failed second model test: 'solved' unsolvable problem")
 
@@ -58,11 +58,11 @@ if __name__ == "__main__":
 
         if var:
             if((var.name) == simpleCSP.vars[0].name):
-                print("Passed First Ord MRV Test")
+                print("Passed First Ord MRV Test, eyy")
             else:
-                print("Failed First Ord MRV Test") 
+                print("Failed First Ord MRV Test")
         else:
-           print("No Variable Returned from Ord MRV") 
+           print("No Variable Returned from Ord MRV")
 
         a = Variable('A', [1,2,3,4,5])
         b = Variable('B', [1,2,3,4])
@@ -77,8 +77,8 @@ if __name__ == "__main__":
 
         if var:
             if((var.name) == simpleCSP.vars[len(simpleCSP.vars)-1].name):
-                print("Passed Second Ord MRV Test")
+                print("Passed Second Ord MRV Test, eyy")
             else:
-                print("Failed Second Ord MRV Test") 
+                print("Failed Second Ord MRV Test")
         else:
            print("No Variable Returned from Ord MRV")
