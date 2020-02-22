@@ -2,7 +2,7 @@ from cspbase import *
 from futoshiki_csp import *
 from propagators import *
 
-test_ord_mrv = True;
+test_ord_mrv = False
 test_model = True;
 
 board_1 = [[1,'<',0,'.',0],[0,'.',0,'.',2],[2,'.',0,'>',0]]
@@ -27,7 +27,7 @@ if __name__ == "__main__":
             print("Failed first model test: wrong solution")
         #2nd model test
         csp2, var_array2 = futoshiki_csp_model_1(board_2)
-        solver = BT(csp)
+        solver = BT(csp2)
         solver.bt_search(prop_BT)
         for i in range(len(var_array)):
             for j in range(len(var_array)):
