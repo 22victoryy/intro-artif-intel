@@ -130,7 +130,7 @@ def prop_FC(csp, newVar=None):
                 # if ok == False:
                 #     return False, pruned
         # else:
-        #     return True, pruned
+    return True, pruned
 
 
 def prop_GAC(csp, newVar=None):
@@ -148,7 +148,7 @@ def prop_GAC(csp, newVar=None):
         for c in csp.get_cons_with_var(newVar):
             c_queue.append(c)
 
-    GAC_Enforce(csp, c_queue, pruned)
+    return GAC_Enforce(csp, c_queue, pruned)
 
 
 

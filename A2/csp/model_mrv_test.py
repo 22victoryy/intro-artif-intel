@@ -3,7 +3,7 @@ from futoshiki_csp import *
 from propagators import *
 
 test_ord_mrv = False
-test_model = True;
+test_model = True
 
 board_1 = [[1,'<',0,'.',0],[0,'.',0,'.',2],[2,'.',0,'>',0]]
 answer_1 = [1,2,3,3,1,2,2,3,1]
@@ -22,19 +22,20 @@ if __name__ == "__main__":
             for j in range(len(var_array)):
                 sol.append(var_array[i][j].get_assigned_value())
         if sol == answer_1:
-            print("Passed first model test, eyy")
+            print("Passed first model test")
         else:
             print("Failed first model test: wrong solution")
         #2nd model test
-        csp2, var_array2 = futoshiki_csp_model_1(board_2)
+        csp2, var_array2 = futoshiki_csp_model_2(board_2)
         solver = BT(csp2)
+        # solver.bt_search(prop_FC)
         solver.bt_search(prop_BT)
         for i in range(len(var_array)):
             for j in range(len(var_array)):
                 if var_array2[i][j].get_assigned_value() is not None:
                     score = 0
         if score == 1:
-            print("Passed second model test, eyy")
+            print("Passed second model test")
         else:
             print("Failed second model test: 'solved' unsolvable problem")
 
