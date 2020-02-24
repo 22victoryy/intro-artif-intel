@@ -147,7 +147,7 @@ def futoshiki_csp_model_1(futo_grid):
         csp.add_constraint(c)  # Add the constraints to the csp
 
     return csp, var_array
-
+################################################################################################################
 
 def futoshiki_csp_model_2(futo_grid):
     """
@@ -210,6 +210,9 @@ def futoshiki_csp_model_2(futo_grid):
         col_vars = []
         col_var_doms = []
         row_var_doms = []
+
+
+        #############
         for j in range(n):
             # get domains of all vs in the same row
             row_var_doms.append(var_array[i][j].cur_domain())
@@ -242,12 +245,20 @@ def futoshiki_csp_model_2(futo_grid):
                     con.add_satisfying_tuples(sat_tuples)
                     constraints.append(con)
 
+        #######################
+
         # create all-diff row constraint
         con = Constraint("C(Row-{})".format(i), row_vars)
         sat_tuples = []
         for t in itertools.product(*row_var_doms):
-            if all_diff_checker(row_vars, t):
+            # all diff
+            result = True
+            for k in range(len(row_vars)):
+                for l in range(k + 1, len(row_vars)):
+                    result = result and (t[k] != t[l])
+            if result:
                 sat_tuples.append(t)
+
 
         con.add_satisfying_tuples(sat_tuples)
         constraints.append(con)
@@ -256,8 +267,16 @@ def futoshiki_csp_model_2(futo_grid):
         con = Constraint("C(Col-{})".format(i), col_vars)
         sat_tuples = []
         for t in itertools.product(*col_var_doms):
-            if all_diff_checker(col_vars, t):
+            # all diff
+
+
+            result = True
+            for k in range(len(col_vars)):
+                for l in range(k + 1, len(col_vars)):
+                    result = result and (t[k] != t[l])
+            if result:
                 sat_tuples.append(t)
+
 
         con.add_satisfying_tuples(sat_tuples)
         constraints.append(con)
@@ -269,22 +288,4 @@ def futoshiki_csp_model_2(futo_grid):
 
     return csp, var_array
 
-
-######################################################################################################################
-
-
-
-# used by model 2
-def all_diff_checker(v, vals):
-    """
-    s
-    """
-    result = True
-    for i in range(len(v)):
-      for j in range(i+1, len(v)):
-        result = result and (vals[i] != vals[j])
-
-    return result
-
-
-
+##############################################################################################################
