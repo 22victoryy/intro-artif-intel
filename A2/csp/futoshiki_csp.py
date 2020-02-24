@@ -29,6 +29,16 @@ from propagators import *
 import itertools
 
 
+# Domain, variables, constraints
+    # 1. Define variables
+    # 2. Define constraints
+    # 3. Add to the csp
+    # cspbase.py contains the variable class, and the constraint class
+    # use variable class to define the variables,
+    # use constraint class define the constraints
+    # add to the csp --> last step
+
+
 def futoshiki_csp_model_1(futo_grid):
     """
     A Futoshiki Model takes as input a Futoshiki board, and returns a CSP object, consisting of a variable
@@ -39,15 +49,6 @@ def futoshiki_csp_model_1(futo_grid):
 
    All appropriate constraints will be added to the board as well.
     """
-    # Domain, variables, constraints
-    # 1. Define variables
-    # 2. Define constraints
-    # 3. Add to the csp
-    # cspbase.py contains the variable class, and the constraint class
-    # use variable class to define the variables,
-    # use constraint class define the constraints
-    # add to the csp --> last step
-
     rows = len(futo_grid)
     cols = 0
 
@@ -99,54 +100,45 @@ def futoshiki_csp_model_1(futo_grid):
             for x in range(j + 1, n):
 
                 # row constraints
-                var1 = var_array[i][j]
-                var2 = var_array[i][x]
-                con = Constraint("C({}{},{}{})".format(i, j, i, x), [var1, var2])
+                row_var1 = var_array[i][j]
+                row_var2 = var_array[i][x]
+                temp_cons = Constraint("{}{},{}{}".format(i, j, i, x), [row_var1, row_var2])
                 set_tuples = []
 
                 # iterate over two objects
-                for t in itertools.product(var1.cur_domain(), var2.cur_domain()):
+                for t in itertools.product(row_var1.cur_domain(), row_var2.cur_domain()):
 
-                    adjacent = t[1] != t[0]
-
-                    # check if var1 and var2 are adjacent cells
-                    if (i, j)[1] + 1 == (i, x)[1]:
-                        adjacent = adjacent
-                    if adjacent:
+                    if t[0] != t[1]:
                         set_tuples.append(t)
 
 
-                con.add_satisfying_tuples(set_tuples)
-                constraints.append(con)
+                temp_cons.add_satisfying_tuples(set_tuples)
+                constraints.append(temp_cons)
 
-
-    for i in range(n):
-        for j in range(n):
-            for x in range(j + 1, n):
 
                 # column constraints
-                var1 = var_array[j][i]
-                var2 = var_array[x][i]
-                con = Constraint("C({}{},{}{})".format(j, i, x, i), [var1, var2])
+                col_var1 = var_array[j][i]
+                col_var2 = var_array[x][i]
+                temp_cons = Constraint("{}{},{}{}".format(j, i, x, i), [col_var1, col_var2])
                 set_tuples = []
 
-                for t in itertools.product(var1.cur_domain(), var2.cur_domain()):
+                for t in itertools.product(col_var1.cur_domain(), col_var2.cur_domain()):
 
-                    adjacent = t[0] != t[1]
-
-                    if (j, i)[1] + 1 == (x, i)[1] + 1:
-                        adjacent = adjacent
-                    if adjacent:
+                    if t[0] != t[1]:
                         set_tuples.append(t)
 
-                con.add_satisfying_tuples(set_tuples)
-                constraints.append(con)
+                temp_cons.add_satisfying_tuples(set_tuples)
+                constraints.append(temp_cons)
+
+
 
     csp = CSP("{}x{}".format(n, n), variables)
+
     for c in constraints:
         csp.add_constraint(c)  # Add the constraints to the csp
 
     return csp, var_array
+
 ################################################################################################################
 
 def futoshiki_csp_model_2(futo_grid):
@@ -230,56 +222,30 @@ def futoshiki_csp_model_2(futo_grid):
                 # between variables that have an inequality
                 if inq_arr[i][j] != '.':
                     con = Constraint("C(V{}{},V{}{})".format(i, j, i, j + 1), [var1, var2])
-                    sat_tuples = []
+                    # different scope
+                    set_tuples = []
                     for t in itertools.product(var1.cur_domain(), var2.cur_domain()):
 
-                        equal = True
+                        if not (inq_arr[i][j] == '<' or inq_arr == '>'):
+                            set_tuples.append(t)
 
-                        if inq_arr[i][j] == '<':
-                            equal = (t[0] < t[1])
-                        elif inq_arr == '>':
-                            equal = (t[0] > t[1])
-                        if equal:
-                            sat_tuples.append(t)
-
-                    con.add_satisfying_tuples(sat_tuples)
+                    con.add_satisfying_tuples(set_tuples)
                     constraints.append(con)
 
-        #######################
+##############################################################################################################
 
         # create all-diff row constraint
-        con = Constraint("C(Row-{})".format(i), row_vars)
-        sat_tuples = []
-        for t in itertools.product(*row_var_doms):
-            # all diff
-            result = True
-            for k in range(len(row_vars)):
-                for l in range(k + 1, len(row_vars)):
-                    result = result and (t[k] != t[l])
-            if result:
-                sat_tuples.append(t)
+        con_row = Constraint("C(Row-{})".format(i), row_vars)
 
-
-        con.add_satisfying_tuples(sat_tuples)
-        constraints.append(con)
+        con.add_satisfying_tuples(set_tuples)
+        constraints.append(con_row)
 
         # create all-diff column constraints
-        con = Constraint("C(Col-{})".format(i), col_vars)
-        sat_tuples = []
-        for t in itertools.product(*col_var_doms):
-            # all diff
+        con_col = Constraint("C(Col-{})".format(i), col_vars)
 
 
-            result = True
-            for k in range(len(col_vars)):
-                for l in range(k + 1, len(col_vars)):
-                    result = result and (t[k] != t[l])
-            if result:
-                sat_tuples.append(t)
-
-
-        con.add_satisfying_tuples(sat_tuples)
-        constraints.append(con)
+        con.add_satisfying_tuples(set_tuples)
+        constraints.append(con_col)
 
     csp = CSP("{}x{}".format(n, n), variables)
 

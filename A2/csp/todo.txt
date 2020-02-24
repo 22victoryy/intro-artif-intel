@@ -5,3 +5,21 @@
 5. test mrv done
 6. TODO csp1,2 must be refactored
 7. NOTE: board2 on the sample test cannot be resolved.
+
+
+
+
+
+                # column constraints
+                # var1 = var_array[j][i]
+                # var2 = var_array[x][i]
+                # con = Constraint("{}{},{}{}".format(j, i, x, i), [var1, var2])
+                # set_tuples = []
+                #
+                # for t in itertools.product(var1.cur_domain(), var2.cur_domain()):
+                #
+                #     if t[0] != t[1]:
+                #         set_tuples.append(t)
+                #
+                # con.add_satisfying_tuples(set_tuples)
+                # constraints.append(con)
