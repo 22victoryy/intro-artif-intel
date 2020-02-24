@@ -16,6 +16,9 @@ if __name__ == "__main__":
         #1st model test
         csp, var_array = futoshiki_csp_model_1(board_1)
         solver = BT(csp)
+
+        # BT propagation // Test FC, GACC
+
         solver.bt_search(prop_BT)
         sol = []
         for i in range(len(var_array)):
@@ -29,6 +32,9 @@ if __name__ == "__main__":
         csp2, var_array2 = futoshiki_csp_model_2(board_2)
         solver = BT(csp2)
         # solver.bt_search(prop_FC)
+
+        # BT propagation // test FC, GAC
+
         solver.bt_search(prop_BT)
         for i in range(len(var_array)):
             for j in range(len(var_array)):

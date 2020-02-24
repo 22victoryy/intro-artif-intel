@@ -2,3 +2,6 @@
 2. TODO implement mrv, fc, gac, csp1, csp2
 3 fc, gac done
 4. TODO test mrv, implement csp1, csp2
+5. test mrv done
+6. TODO csp1,2 must be refactored
+7. NOTE: board2 on the sample test cannot be resolved.

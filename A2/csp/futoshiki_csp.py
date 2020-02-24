@@ -28,38 +28,57 @@ from cspbase import *
 from propagators import *
 import itertools
 
+
 def futoshiki_csp_model_1(futo_grid):
     """
-    :param futo_grid:
-    :type futo_grid:
-    :return:
-    :rtype:
+    A Futoshiki Model takes as input a Futoshiki board, and returns a CSP object, consisting of a variable
+    corresponding to each cell of the board.
+
+    The variable domain of that cell is {1,...,n} if the board is unfilled at that position, and equal to i if the
+    board has a fixed number i at that cell.
+
+   All appropriate constraints will be added to the board as well.
     """
-    ##IMPLEMENT
-    # print(futo_grid)
-    # Create Variable Objects
-    vs = []
+    # Domain, variables, constraints
+    # 1. Define variables
+    # 2. Define constraints
+    # 3. Add to the csp
+    # cspbase.py contains the variable class, and the constraint class
+    # use variable class to define the variables,
+    # use constraint class define the constraints
+    # add to the csp --> last step
+
+    rows = len(futo_grid)
+    cols = 0
+
+    # increments domain for the rows
+    domain = []
+    i = 0
+    while i < len(range(rows)):
+        domain.append(i + 1)
+        print()
+        i += 1
+
+    # define the space
+    if rows >= 0:
+        cols = len(futo_grid[0])
+
+    # define variables
+    
+
+
+
     var_array = []
     inequality_array = []
-    num_rows = len(futo_grid)
-    num_cols = 0
+    vs = []
 
-    if num_rows > 0:
-        num_cols = len(futo_grid[0])
-
-    # domain if Variable is 0 initially
-
-    dom = []
-    for i in range(num_rows):
-        dom.append(i + 1)
-
-    for i in range(num_rows):
+    for i in range(rows):
         row = []
         row_inequality = []
-        for j in range(num_cols):
+        for j in range(cols):
             if j % 2 == 0:
                 if futo_grid[i][j] == 0:
-                    var = Variable("V{}{}".format(i, j // 2), dom)
+                    var = Variable("V{}{}".format(i, j // 2), domain)
                 else:  # cell has fixed value
                     fixed = [futo_grid[i][j]]
                     var = Variable("V{}{}".format(i, j // 2), fixed)
@@ -72,6 +91,9 @@ def futoshiki_csp_model_1(futo_grid):
 
         inequality_array.append(row_inequality)
         var_array.append(row)
+
+####################################################################################################################
+
 
     # Create Constraint objects for the model
     cons = []
@@ -217,6 +239,7 @@ def futoshiki_csp_model_2(futo_grid):
     return csp, var_array
 
 
+# This checker is used by csp1
 def checker(inequality, var1_tup, var2_tup, val1, val2):
     """
     :param inequality:
@@ -242,7 +265,7 @@ def checker(inequality, var1_tup, var2_tup, val1, val2):
 
     return result
 
-
+# This is used by model 1, checker
 def inequality_checker(inequality, val1, val2):
     """
     :param inequality:
@@ -264,6 +287,7 @@ def inequality_checker(inequality, val1, val2):
 
     return result
 
+# used by model 2
 def all_diff_checker(v, vals):
     """
     s
