@@ -63,8 +63,7 @@ def futoshiki_csp_model_1(futo_grid):
         domain.append(i + 1)
         i += 1
 
-
-    vs = []
+    variables = []
     var_array = []
     inequality_array = []
 
@@ -83,12 +82,10 @@ def futoshiki_csp_model_1(futo_grid):
                     var = Variable("V{}{}".format(j, k // 2), fixed)
 
                 row.append(var)
-                vs.append(var)
+                variables.append(var)
             else:
                 row_inq.append(futo_grid[j][k])
             k += 1
-
-                # need condition to get the inq
 
         inequality_array.append(row_inq)
         var_array.append(row)
@@ -112,7 +109,7 @@ def futoshiki_csp_model_1(futo_grid):
                 con = Constraint("C(V{}{},V{}{})".format(i, j, i, x), [var1, var2])
                 sat_tuples = []
                 for t in itertools.product(var1.cur_domain(), var2.cur_domain()):
-                    if checker(inequality_array[i][j], (i, j), (i, x), t[0], t[1]):
+                    if checker((i, j), (i, x), t[0], t[1]):
                         sat_tuples.append(t)
 
                 con.add_satisfying_tuples(sat_tuples)
@@ -125,13 +122,13 @@ def futoshiki_csp_model_1(futo_grid):
                 con = Constraint("C(V{}{},V{}{})".format(j, i, x, i), [var1, var2])
                 sat_tuples = []
                 for t in itertools.product(var1.cur_domain(), var2.cur_domain()):
-                    if checker('.', (j, i), (x, i), t[0], t[1]):
+                    if checker((j, i), (x, i), t[0], t[1]):
                         sat_tuples.append(t)
 
                 con.add_satisfying_tuples(sat_tuples)
                 cons.append(con)
 
-    csp = CSP("{}x{}-futoshiki".format(n, n), vs)
+    csp = CSP("{}x{}".format(n, n), variables)
 
     for c in cons:
         csp.add_constraint(c)
@@ -146,40 +143,49 @@ def futoshiki_csp_model_2(futo_grid):
     :return:
     :rtype:
     """
-    # Create Variable Objects
-    vs = []
+
+    rows = len(futo_grid)
+    cols = 0
+
+    # define the space
+    if rows >= 0:
+        cols = len(futo_grid[0])
+
+    # increments domain for the rows
+    # do stuff for the variables and constraints
+    domain = []
+    i = 0
+    while i < len(range(rows)):
+        domain.append(i + 1)
+        i += 1
+
+    variables = []
     var_array = []
     inequality_array = []
-    num_rows = len(futo_grid)
 
-    if num_rows > 0:
-        num_cols = len(futo_grid[0])
-
-    # domain if Variable is 0 initially
-    dom = []
-    for i in range(num_rows):
-        dom.append(i + 1)
-
-
-    for i in range(num_rows):
+    j = 0
+    while j < len(range(rows)):
         row = []
-        row_inequality = []
-        for j in range(num_cols):
-            if j % 2 == 0:
-                if futo_grid[i][j] == 0:
-                    var = Variable("V{}{}".format(i, j // 2), dom)
-                else:  # cell has fixed value
-                    fixed = [futo_grid[i][j]]
-                    var = Variable("V{}{}".format(i, j // 2), fixed)
+        row_inq = []
+
+        k = 0
+        while k < len(range(cols)):
+            if k % 2 == 0:
+                if futo_grid[j][k] == 0:
+                    var = Variable("V{}{}".format(j, k // 2), domain)
+                else:
+                    fixed = [futo_grid[j][k]]
+                    var = Variable("V{}{}".format(j, k // 2), fixed)
 
                 row.append(var)
-                vs.append(var)
-
+                variables.append(var)
             else:
-                row_inequality.append(futo_grid[i][j])
+                row_inq.append(futo_grid[j][k])
+            k += 1
 
-        inequality_array.append(row_inequality)
+        inequality_array.append(row_inq)
         var_array.append(row)
+        j += 1
 
 ###############################################################################################################
 
@@ -238,7 +244,7 @@ def futoshiki_csp_model_2(futo_grid):
         con.add_satisfying_tuples(sat_tuples)
         cons.append(con)
 
-    csp = CSP("{}x{}-futoshiki".format(n, n), vs)
+    csp = CSP("{}x{}".format(n, n), variables)
 
     for c in cons:
         csp.add_constraint(c)
@@ -249,7 +255,7 @@ def futoshiki_csp_model_2(futo_grid):
 ######################################################################################################################
 
 # This checker is used by csp1
-def checker(inequality, var1_tup, var2_tup, val1, val2):
+def checker(var1, var2, val1, val2):
     """
     :param inequality:
     :type inequality:
@@ -267,14 +273,17 @@ def checker(inequality, var1_tup, var2_tup, val1, val2):
 
     result = val1 != val2
 
-    # check if var1 and var2 are adjacent cells
-    if var1_tup[1] + 1 == var2_tup[1]:
 
-        result = result and inequality_checker(inequality,val1,val2)
+    # check if var1 and var2 are adjacent cells
+    if var1[1] + 1 == var2[1]:
+
+        result = result
 
     return result
 
-# This is used by model 1, checker
+
+
+# This is used by model 2, checker
 def inequality_checker(inequality, val1, val2):
     """
     :param inequality:

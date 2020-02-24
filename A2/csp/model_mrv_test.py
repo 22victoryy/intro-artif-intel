@@ -33,9 +33,11 @@ if __name__ == "__main__":
         else:
             print("Failed first model test: wrong solution")
         #2nd model test
+
         csp2, var_array2 = futoshiki_csp_model_2(board_2)
         solver = BT(csp2)
         # solver.bt_search(prop_FC)
+        print('hi')
 
         # BT propagation // test FC, GAC
 
