@@ -38,7 +38,6 @@ import itertools
     # use constraint class define the constraints
     # add to the csp --> last step
 
-
 def futoshiki_csp_model_1(futo_grid):
     """
     A Futoshiki Model takes as input a Futoshiki board, and returns a CSP object, consisting of a variable
@@ -57,7 +56,6 @@ def futoshiki_csp_model_1(futo_grid):
         cols = len(futo_grid[0])
 
     # increments domain for the rows
-    # do stuff for the variables and constraints
     domain = []
     i = 0
     while i < len(range(rows)):
@@ -66,26 +64,24 @@ def futoshiki_csp_model_1(futo_grid):
 
     variables = []
     var_array = [] # get the assigned value from var_array
-    inq_arr = []
 
     j = 0
     while j < len(range(rows)):
         row = []
-        inq = []
+        # inq = []
         k = 0
         while k < len(range(cols)):
-            if k % 2 == 0:
-                if futo_grid[j][k] == 0:
-                    var = Variable("{}{}".format(j, k // 2), domain)
-                else:
-                    fixed = [futo_grid[j][k]]
-                    var = Variable("{}{}".format(j, k // 2), fixed)
+
+            if k % 2 == 0 and futo_grid[j][k] == 0:
+                var = Variable("{}{}".format(j, k // 2), domain)
                 row.append(var)
                 variables.append(var)
-            else:
-                inq.append(futo_grid[j][k])
+            elif k % 2 == 0 and futo_grid[j][k] != 0:
+                fixed = [futo_grid[j][k]]
+                var = Variable("{}{}".format(j, k // 2), fixed)
+                row.append(var)
+                variables.append(var)
             k += 1
-        inq_arr.append(inq)
         var_array.append(row)
         j += 1
 
@@ -102,7 +98,13 @@ def futoshiki_csp_model_1(futo_grid):
                 # row constraints
                 row_var1 = var_array[i][j]
                 row_var2 = var_array[i][x]
-                temp_cons = Constraint("{}{},{}{}".format(i, j, i, x), [row_var1, row_var2])
+
+                col_var1 = var_array[j][i]
+                col_var2 = var_array[x][i]
+
+                row_cons = Constraint("{}{},{}{}".format(i, j, i, x), [row_var1, row_var2])
+                col_cons = Constraint("{}{},{}{}".format(j, i, x, i), [col_var1, col_var2])
+
                 set_tuples = []
 
                 # iterate over two objects
@@ -111,28 +113,19 @@ def futoshiki_csp_model_1(futo_grid):
                     if t[0] != t[1]:
                         set_tuples.append(t)
 
-
-                temp_cons.add_satisfying_tuples(set_tuples)
-                constraints.append(temp_cons)
-
-
-                # column constraints
-                col_var1 = var_array[j][i]
-                col_var2 = var_array[x][i]
-                temp_cons = Constraint("{}{},{}{}".format(j, i, x, i), [col_var1, col_var2])
-                set_tuples = []
-
                 for t in itertools.product(col_var1.cur_domain(), col_var2.cur_domain()):
 
                     if t[0] != t[1]:
                         set_tuples.append(t)
 
-                temp_cons.add_satisfying_tuples(set_tuples)
-                constraints.append(temp_cons)
+                row_cons.add_satisfying_tuples(set_tuples)
+                constraints.append(row_cons)
 
-
+                col_cons.add_satisfying_tuples(set_tuples)
+                constraints.append(col_cons)
 
     csp = CSP("{}x{}".format(n, n), variables)
+    # print(variables)
 
     for c in constraints:
         csp.add_constraint(c)  # Add the constraints to the csp
@@ -189,50 +182,33 @@ def futoshiki_csp_model_2(futo_grid):
         var_array.append(row)
         j += 1
 
-###############################################################################################################
-
     # Create Constraint objects for the model
     constraints = []
     n = len(var_array)
 
-    # constraints
 
     for i in range(n):
         row_vars = list(var_array[i])
         col_vars = []
-        col_var_doms = []
-        row_var_doms = []
 
-
-        #############
         for j in range(n):
-            # get domains of all vs in the same row
-            row_var_doms.append(var_array[i][j].cur_domain())
-
-            # collect colunm variables and there respective domains
-            col_vars.append(var_array[j][i])
-            col_var_doms.append(var_array[j][i].cur_domain())
 
             # create binary inequality constraints
             if j < len(inq_arr[i]):
                 var1 = var_array[i][j]
                 var2 = var_array[i][j + 1]
 
-                # if statement is used in order to create binary constraints
-                # between variables that have an inequality
+                # create binary constraints between variables that have an inequality
                 if inq_arr[i][j] != '.':
                     con = Constraint("C(V{}{},V{}{})".format(i, j, i, j + 1), [var1, var2])
                     # different scope
                     set_tuples = []
                     for t in itertools.product(var1.cur_domain(), var2.cur_domain()):
-
                         if not (inq_arr[i][j] == '<' or inq_arr == '>'):
                             set_tuples.append(t)
 
                     con.add_satisfying_tuples(set_tuples)
                     constraints.append(con)
-
-##############################################################################################################
 
         # create all-diff row constraint
         con_row = Constraint("C(Row-{})".format(i), row_vars)
