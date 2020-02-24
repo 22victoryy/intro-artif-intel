@@ -5,7 +5,7 @@ from propagators import *
 test_ord_mrv = False
 test_model = True
 
-board_1 = [[1,'<',0,'.',0],[0,'.',0,'.',2],[2,'.',0,'>',0]]  # 3 x 3
+board_1 = [[1,'<',0,'.',0],[0,'.',0,'.',2],[2,'.',0,'>',0]]  # 3 x 3, 2d arr..
 answer_1 = [1,2,3,3,1,2,2,3,1]
 board_2 = [[1,'>',0,'.',3],[0,'.',0,'.',0],[3,'<',0,'.',1]]  # 3 x 3
 
@@ -37,7 +37,6 @@ if __name__ == "__main__":
         csp2, var_array2 = futoshiki_csp_model_2(board_2)
         solver = BT(csp2)
         # solver.bt_search(prop_FC)
-        print('hi')
 
         # BT propagation // test FC, GAC
 
