@@ -103,6 +103,8 @@ def futoshiki_csp_model_1(futo_grid):
                 var = Variable("{}{}".format(j, k // 2), [futo_grid[j][k]])
                 row = [*row, var]
                 variables = [*variables, var]
+            else:
+                pass
             k += 1
         var_array = [*var_array, row]
         j += 1
@@ -196,16 +198,9 @@ def futoshiki_csp_model_2(futo_grid):
                                                                                      alldiff == '>')]
                     constraint.add_satisfying_tuples(set_tuples)
                     constraints = [*constraints, constraint]
+            else:
+                pass
             b += 1
-
-        row_cons = Constraint("{}".format(a), list(var_array[a]))
-        col_cons = Constraint("{}".format(a), [])
-
-        constraint.add_satisfying_tuples(set_tuples)
-        constraint.add_satisfying_tuples(set_tuples)
-
-        constraints = [*constraints, row_cons]
-        constraints = [*constraints, col_cons]
         a += 1
 
     csp = CSP("{}x{}".format(len(var_array), len(var_array)), variables)
