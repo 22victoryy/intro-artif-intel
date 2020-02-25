@@ -6,7 +6,27 @@ test_ord_mrv = False
 test_model = True
 
 board_1 = [[1,'<',0,'.',0],[0,'.',0,'.',2],[2,'.',0,'>',0]]  # 3 x 3, 2d arr..
+# board_1 = [[0, '>', 0, '.', 0, '>', 0, '>', 0],
+#           [4, '.', 0, '.', 0, '.', 0, '.', 2],
+#           [0, '.', 0, '.', 4, '.', 0, '.', 0],
+#           [0, '.', 0, '.', 0, '.', 0, '<', 4],
+#           [0, '<', 0, '<', 0, '.', 0, '.', 0],
+#           ]
+# board_1 = [[0,'>',0,'.',2,'.',0,'.',9,'.',0,'.',0,'.',6,'.',0],
+#      [0,'.',4,'.',0,'.',0,'.',0,'.',1,'.',0,'.',0,'.',8],
+#      [0,'.',7,'.',0,'<',4,'.',2,'.',0,'.',0,'.',0,'.',3],
+#      [5,'.',0,'.',0,'.',0,'.',0,'.',0,'.',3,'.',0,'.',0],
+#      [0,'.',0,'.',1,'.',0,'.',6,'.',0,'.',5,'.',0,'.',0],
+#      [0,'.',0,'<',3,'.',0,'.',0,'.',0,'.',0,'.',0,'.',6],
+#      [1,'.',0,'.',0,'.',0,'.',5,'.',7,'.',0,'.',4,'.',0],
+#      [6,'>',0,'.',0,'.',9,'.',0,'<',0,'.',0,'.',2,'.',0],
+#      [0,'.',2,'.',0,'.',0,'.',8,'.',0,'<',1,'.',0,'.',0]]
+
+
+
 answer_1 = [1,2,3,3,1,2,2,3,1]
+
+
 board_2 = [[1,'>',0,'.',3],[0,'.',0,'.',0],[3,'<',0,'.',1]]  # 3 x 3
 
 # the autograder will test boards 4,5,6,7,8,9
@@ -23,7 +43,7 @@ if __name__ == "__main__":
 
         # BT propagation // Test FC, GACC
 
-        solver.bt_search(prop_BT)
+        solver.bt_search(prop_GAC)
         sol = []
         for i in range(len(var_array)):
             for j in range(len(var_array)):
@@ -32,17 +52,17 @@ if __name__ == "__main__":
             print("Passed first model test")
         else:
             print("Failed first model test: wrong solution")
-        #2nd model test
+        # 2nd model test
 
         csp2, var_array2 = futoshiki_csp_model_2(board_2)
         solver = BT(csp2)
-        # solver.bt_search(prop_FC)
+        solver.bt_search(prop_BT)
 
         # BT propagation // test FC, GAC
 
-        solver.bt_search(prop_BT)
-        for i in range(len(var_array)):
-            for j in range(len(var_array)):
+        # solver.bt_search(prop_BT)
+        for i in range(len(var_array2)):
+            for j in range(len(var_array2)):
                 if var_array2[i][j].get_assigned_value() is not None:
                     score = 0
         if score == 1:

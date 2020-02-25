@@ -50,14 +50,13 @@ def futoshiki_csp_model_1(futo_grid):
 
    All appropriate constraints will be added to the board as well.
     """
-
     rows = len(futo_grid)
     cols = len(futo_grid[0])
 
     domain = [i + 1 for i in range(rows)]
 
     variables = []
-    var_array = []  # get the assigned value from var_array
+    var_array = []
 
     j = 0
     while j < len(range(rows)):
@@ -78,60 +77,45 @@ def futoshiki_csp_model_1(futo_grid):
         var_array.append(row)
         j += 1
 
-
-#####################################################################################################################
-
-
-    # Create Constraint objects for the model
     constraints = []
 
-    for i in range(len(var_array)):
-        for j in range(len(var_array)):
-            for k in range(j + 1, len(var_array)):
+    a = 0
+    while a < len(var_array):
+        b = 0
+        while b < len(var_array):
 
-                row_cons = Constraint("{}{},{}{}".format(i, j, i, k), [var_array[i][j], var_array[i][k]])
-                col_cons = Constraint("{}{},{}{}".format(j, i, k, i), [var_array[j][i], var_array[k][i]])
+            c = b + 1
+            while c in range(b + 1, len(var_array)):
 
-                set_tuples = []
+                row_cons = Constraint("{}{},{}{}".format(a, b, a, c), [var_array[a][b], var_array[a][c]])
+                col_cons = Constraint("{}{},{}{}".format(b, a, c, a), [var_array[b][a], var_array[c][a]])
+                satisfied = []
 
-                # # iterate over two objects
-                for t in itertools.product(var_array[i][j].cur_domain(), var_array[i][k].cur_domain()):
+                for it in itertools.product(var_array[a][b].cur_domain(), var_array[a][c].cur_domain()):
 
-                    if t[0] != t[1]:
-                        set_tuples.append(t)
+                    if it[0] != it[1]:
+                        satisfied.append(it)
 
-                for t in itertools.product(var_array[j][i].cur_domain(), var_array[k][i].cur_domain()):
+                for it in itertools.product(var_array[b][a].cur_domain(), var_array[c][a].cur_domain()):
 
-                    if t[0] != t[1]:
-                        set_tuples.append(t)
+                    if it[0] != it[1]:
+                        satisfied.append(it)
 
-                row_cons.add_satisfying_tuples(set_tuples)
+                row_cons.add_satisfying_tuples(satisfied)
                 constraints.append(row_cons)
 
-                col_cons.add_satisfying_tuples(set_tuples)
+                col_cons.add_satisfying_tuples(satisfied)
                 constraints.append(col_cons)
+                c += 1
+            b += 1
+        a += 1
 
     csp = CSP("{}x{}".format(len(var_array), len(var_array)), variables)
-    # print(variables)
 
     for c in constraints:
         csp.add_constraint(c)  # Add the constraints to the csp
 
     return csp, var_array
-
-
-
-
-
-
-
-
-
-
-
-
-
-################################################################################################################
 
 def futoshiki_csp_model_2(futo_grid):
     """
@@ -153,7 +137,7 @@ def futoshiki_csp_model_2(futo_grid):
     j = 0
     while j < len(range(rows)):
         row = []
-        inq = []
+        diff = []
         k = 0
         while k < len(range(cols)):
             if k % 2 == 0:
@@ -166,50 +150,47 @@ def futoshiki_csp_model_2(futo_grid):
                 row.append(var)
                 variables.append(var)
             else:
-                inq.append(futo_grid[j][k])
+                diff.append(futo_grid[j][k])
             k += 1
-        alldiff.append(inq)
+        alldiff.append(diff)
         var_array.append(row)
         j += 1
 
-
-###################################################################################################################
-    # Create Constraint objects for the model
     constraints = []
 
-    for i in range(len(var_array)):
-        row_vars = list(var_array[i])
+    x = 0
+    while x < len(var_array):
+        row_vars = list(var_array[x])
         col_vars = []
-
-        for j in range(len(var_array)):
-
-            # create binary inequality constraints
-            if j < len(alldiff[i]):
+        y = 0
+        while y < len(var_array):
+            if y < len(alldiff[x]):
 
                 # create binary constraints between variables that have an inequality
-                if alldiff[i][j] != '.':
-                    con = Constraint("{}{},{}{}".format(i, j, i, j + 1), [var_array[i][j], var_array[i][j + 1]])
+                if alldiff[x][y] != '.':
+                    con = Constraint("{}{},{}{}".format(x, y, x, y + 1), [var_array[x][y], var_array[x][y + 1]])
 
                     # different scope
                     set_tuples = []
-                    for t in itertools.product(var_array[i][j].cur_domain(), var_array[i][j + 1].cur_domain()):
-                        if not (alldiff[i][j] == '<' or alldiff == '>'):
+                    for t in itertools.product(var_array[x][y].cur_domain(), var_array[x][y + 1].cur_domain()):
+                        if not (alldiff[x][y] == '<' or alldiff == '>'):
                             set_tuples.append(t)
 
                     con.add_satisfying_tuples(set_tuples)
                     constraints.append(con)
+            y += 1
 
-        # create all-diff row constraint
-        con_row = Constraint("Row{}".format(i), row_vars)
+        con_row = Constraint("Row{}".format(x), row_vars)
 
         con.add_satisfying_tuples(set_tuples)
         constraints.append(con_row)
 
-        # create all-diff column constraints
-        con_col = Constraint("Col{})".format(i), col_vars)
+        con_col = Constraint("Col{})".format(x), col_vars)
 
         con.add_satisfying_tuples(set_tuples)
         constraints.append(con_col)
+
+        x += 1
 
     csp = CSP("{}x{}".format(len(var_array), len(var_array)), variables)
 
@@ -218,4 +199,4 @@ def futoshiki_csp_model_2(futo_grid):
 
     return csp, var_array
 
-##############################################################################################################
+

@@ -90,7 +90,7 @@ def prop_BT(csp, newVar=None):
                 return False, []
     return True, []
 
-def FC_Check(constraint, variable, pruned):
+def fw_checking(constraint, variable, pruned):
     """
     Forward checking helper function that checks if var satisfies the constraints.
     Otherwise, prune the var and add to the prune list.
@@ -119,13 +119,13 @@ def prop_FC(csp, newVar=None):
     if not newVar:
         for constraint in csp.get_all_cons():
             if constraint.get_n_unasgn() == 1:
-                FC_Check(constraint, constraint.get_unasgn_vars()[0], pruned)
+                fw_checking(constraint, constraint.get_unasgn_vars()[0], pruned)
 
         # return False, pruned
     else:
         for constraint in csp.get_cons_with_var(newVar):
             if constraint.get_n_unasgn() == 1:
-               FC_Check(constraint, constraint.get_unasgn_vars()[0], pruned)
+               fw_checking(constraint, constraint.get_unasgn_vars()[0], pruned)
                 # DWO for var in constraint, return False and pruned for restore
                 # if ok == False:
                 #     return False, pruned
@@ -148,11 +148,10 @@ def prop_GAC(csp, newVar=None):
         for c in csp.get_cons_with_var(newVar):
             c_queue.append(c)
 
-    return GAC_Enforce(csp, c_queue, pruned)
+    return gac_enforce(csp, c_queue, pruned)
 
 
-
-def GAC_Enforce(csp, c_queue, pruned):
+def gac_enforce(csp, c_queue, pruned):
     """
     Prune values through the GAC queue
     # """
