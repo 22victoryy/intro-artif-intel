@@ -5,7 +5,6 @@ All models need to return a CSP object, and a list of lists of Variable objects
 representing the board. The returned list of lists is used to access the
 solution.
 
-
 For example, after these three lines of code
 
     csp, var_array = futoshiki_csp_model_1(board)
@@ -27,7 +26,6 @@ cell of the Futoshiki puzzle.
 from cspbase import *
 from propagators import *
 import itertools
-
 
 # Domain, variables, constraints
     # 1. Define variables
@@ -78,40 +76,47 @@ def futoshiki_csp_model_1(futo_grid):
    variable array --> [[v1, v2, v3],[v1, v2, v3],[v1, v2, v3]]
     """
     grid = len(futo_grid)
-    elem = len(futo_grid[0])
-    #
-    # print(grid)
-    # print(elem)
-    constraints = []
+
     variables = []
     var_array = []
+    alldiff = []
+
+    csp = CSP('futoshiki_model_2')
 
     domain = [i + 1 for i in range(grid)]
 
     j = 0
-    while j < len(range(grid)):
+    while j < len(range(0, grid)):
         row = []
+        diff = []
         k = 0
-        while k < len(range(elem)):
-            print(futo_grid)
-            print(futo_grid[j][k])
-            if k % 2 == 0 and futo_grid[j][k] == 0:
-                var = Variable("{}{}".format(j, k // 2), domain)
+
+        while k < len(range(0, len(futo_grid[j]))):
+            if futo_grid[j][k] == 0:
+                var = Variable("{}{}".format(j, k / 2), domain)
+                csp.add_var(var)
                 row = [*row, var]
                 variables = [*variables, var]
             elif k % 2 == 0 and futo_grid[j][k] != 0:
-                var = Variable("{}{}".format(j, k // 2), [futo_grid[j][k]])
+                var = Variable("{}{}".format(j, k / 2), [futo_grid[j][k]])
+                csp.add_var(var)
                 row = [*row, var]
                 variables = [*variables, var]
             else:
-                pass
+                diff = [*diff, futo_grid[j][k]]
             k += 1
+        alldiff = [*alldiff, diff]
         var_array = [*var_array, row]
         j += 1
 
+
+
+
     a = 0
-    while a < len(var_array):
+    while a  < len(var_array):
         b = 0
+
+
         while b < len(var_array):
             c = b + 1
             while c in range(b + 1, len(var_array)):
@@ -119,31 +124,43 @@ def futoshiki_csp_model_1(futo_grid):
                 row_cons = Constraint("{}{},{}{}".format(a, b, a, c), [var_array[a][b], var_array[a][c]])
                 col_cons = Constraint("{}{},{}{}".format(b, a, c, a), [var_array[b][a], var_array[c][a]])
 
-                #
-                satisfied_row = [it for it in itertools.product(var_array[a][b].cur_domain(),
-                                                                                     # taken from propagors_test.py
-                                                                var_array[a][c].cur_domain()) if it[0] != it[1]]
-                                                                                    # taken from propagors_test.py
-                satisfied_column = [it for it in itertools.product(var_array[b][a].cur_domain(),
-                                                                   var_array[c][a].cur_domain()) if it[0] != it[1]]
-                satisfied = satisfied_row + satisfied_column
+                if alldiff[a][b] == '<':
+                    con = Constraint('LEQ[{},{}]<[{},{}]'.format(a, b, a, c + 1), [var_array[a][b], var_array[a][c]])
+                    sat_tuples = [t for t in itertools.product(var_array[a][b].domain(), var_array[a][c].domain()) if t[0] < t[1]]
+                    con.add_satisfying_tuples(sat_tuples)
+                    csp.add_constraint(con)
+                elif alldiff[a][b] == '>':
+                    con = Constraint('GEQ[{},{}]>[{},{}]'.format(a, b, a, b + 1), [var_array[a][b], var_array[a][c]])
+                    sat_tuples = [t for t in itertools.product(var_array[a][b].domain(), var_array[a][c].domain()) if t[0] > t[1]]
+                    con.add_satisfying_tuples(sat_tuples)
+                    csp.add_constraint(con)
 
+                satisfied_row = [it for it in itertools.product(var_array[a][b].cur_domain(),
+                                                                var_array[a][c].cur_domain()) if it[0] != it[1] and
+                                 it[0] < it[1] or it[0] > it[1]]
+
+
+
+                satisfied_column = [it for it in itertools.product(var_array[b][a].cur_domain(),
+                                                                   var_array[c][a].cur_domain()) if it[0] != it[1] and
+                                    it[0] > it[1] or it[0] < it[1]]
+
+
+
+                satisfied = satisfied_row + satisfied_column
                 row_cons.add_satisfying_tuples(satisfied)
                 col_cons.add_satisfying_tuples(satisfied)
 
-                constraints = [*constraints, row_cons]
-                constraints = [*constraints, col_cons]
+                csp.add_constraint(row_cons)
+                csp.add_constraint(col_cons)
+
                 c += 1
             b += 1
         a += 1
 
-    csp = CSP("{}x{}".format(len(var_array), len(var_array)), variables)
-
-    for c in constraints:
-        csp.add_constraint(c)  # Add the constraints to the csp
-
     # test script return type: csp, var_array
     return csp, var_array
+
 
 def futoshiki_csp_model_2(futo_grid):
     """
@@ -153,28 +170,30 @@ def futoshiki_csp_model_2(futo_grid):
     :rtype:
     """
     grid = len(futo_grid)
-    elem = len(futo_grid[0])
 
     variables = []
     var_array = []
     alldiff = []
-    constraints = []
+
+    csp = CSP('futoshiki_model_2')
 
     domain = [i + 1 for i in range(grid)]
 
     j = 0
-    while j < len(range(grid)):
-        # row = [a for a in constraint if a  > 0 or ]
+    while j < len(range(0, grid)):
         row = []
         diff = []
         k = 0
-        while k < len(range(elem)):
-            if k % 2 == 0 and futo_grid[j][k] == 0:
-                var = Variable("{}{}".format(j, k // 2), domain)
+
+        while k < len(range(0, len(futo_grid[j]))):
+            if futo_grid[j][k] == 0:
+                var = Variable("{}{}".format(j, k / 2), domain)
+                csp.add_var(var)
                 row = [*row, var]
                 variables = [*variables, var]
             elif k % 2 == 0 and futo_grid[j][k] != 0:
-                var = Variable("{}{}".format(j, k // 2), [futo_grid[j][k]])
+                var = Variable("{}{}".format(j, k / 2), [futo_grid[j][k]])
+                csp.add_var(var)
                 row = [*row, var]
                 variables = [*variables, var]
             else:
@@ -188,27 +207,49 @@ def futoshiki_csp_model_2(futo_grid):
     while a < len(var_array):
         b = 0
         while b < len(var_array):
-            # . --> ineqality constraint
-            if b < len(alldiff[a]) and alldiff[a][b] != '.':
-                    constraint = Constraint("{}{},{}{}".format(a, b, a, b + 1), [var_array[a][b], var_array[a][b + 1]])
 
-                                                                                # taken from propagors_test.py
-                    set_tuples = [t for t in itertools.product(var_array[a][b].cur_domain(), var_array[a][b + 1].
-                                                               cur_domain()) if not (alldiff[a][b] == '<' or
-                                                                                     alldiff == '>')]
-                    constraint.add_satisfying_tuples(set_tuples)
-                    constraints = [*constraints, constraint]
-            else:
-                pass
+            if b < len(alldiff[a]) and alldiff[a][b] != '.':
+                inq_constraint = Constraint("[{}{}],[{}{}]".format(a, b, a, b + 1), [var_array[a][b], var_array[a][b + 1]])
+                sat_tuples = [t for t in itertools.product(var_array[a][b].cur_domain(), var_array[a][b + 1].
+                                                           cur_domain()) if t[0]!=t[1]]
+
+                inq_constraint.add_satisfying_tuples(sat_tuples)
+                csp.add_constraint(inq_constraint)
+
+            if b < len(alldiff[a]) and alldiff[a][b] == '<':
+                inq_constraint = Constraint("[{}{}],[{}{}]".format(a, b, a, b + 1), [var_array[a][b], var_array[a][b + 1]])
+                sat_tuples = [t for t in itertools.product(var_array[a][b].cur_domain(), var_array[a][b + 1].
+                                                           cur_domain()) if t[0] < t[1]]
+
+                inq_constraint.add_satisfying_tuples(sat_tuples)
+                csp.add_constraint(inq_constraint)
+
+            if b < len(alldiff[a]) and alldiff[a][b] == '>':
+                inq_constraint = Constraint("[{}{}],[{}{}]".format(a, b, a, b + 1), [var_array[a][b], var_array[a][b + 1]])
+                sat_tuples = [t for t in itertools.product(var_array[a][b].cur_domain(), var_array[a][b + 1].
+                                                           cur_domain()) if t[0] > t[1]]
+                inq_constraint.add_satisfying_tuples(sat_tuples)
+                csp.add_constraint(inq_constraint)
             b += 1
+
+        for row in range(len(var_array)):
+            row_con = Constraint('{}'.format(row), var_array[row])
+
+            sat_tuples = [it for it in itertools.permutations(domain, len(var_array)) for col in range(len(var_array))
+                          if it[col] in var_array[row][col].domain()]
+
+            row_con.add_satisfying_tuples(sat_tuples)
+            csp.add_constraint(row_con)
+
+        for col in range(len(var_array)):
+            col_con = Constraint('{}'.format(col), [i[col] for i in var_array])
+
+            sat_tuples = [it for it in itertools.permutations(domain, len(var_array))
+                          for row in range(len(var_array)) if it[row] in var_array[row][col].domain()]
+
+            col_con.add_satisfying_tuples(sat_tuples)
+            csp.add_constraint(col_con)
         a += 1
 
-    csp = CSP("{}x{}".format(len(var_array), len(var_array)), variables)
-
-    for c in constraints:
-        csp.add_constraint(c)
-
-    # test script return type: csp, var_array
     return csp, var_array
-
 

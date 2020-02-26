@@ -32,7 +32,6 @@ board_2 = [[1,'>',0,'.',3],[0,'.',0,'.',0],[3,'<',0,'.',1]]  # 3 x 3
 # the autograder will test boards 4,5,6,7,8,9
 # test gac, fc s
 
-
 if __name__ == "__main__":
 
     if test_model:

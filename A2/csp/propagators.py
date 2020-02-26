@@ -100,12 +100,11 @@ def fw_checking(constraint, variable, pruned):
         if not constraint.has_support(variable, var):
             pruned.append((variable, var))
             variable.prune_value(var)
-    if variable.cur_domain_size() == 0:
+    if variable.cur_domain_size() is 0:
         return DWO, pruned
     return True, pruned
 
     # finished helper function
-
 
 def prop_FC(csp, newVar=None):
     '''Do forward checking. That is check constraints with
@@ -116,20 +115,17 @@ def prop_FC(csp, newVar=None):
     pruned = []
 
     # for new variables, if var in scope and unassigned is 1
-    if not newVar:
+    if newVar:
+        for constraint in csp.get_cons_with_var(newVar):
+            if constraint.get_n_unasgn() == 1:
+                fw_checking(constraint, constraint.get_unasgn_vars()[0], pruned)
+        # return False, pruned
+    else:
         for constraint in csp.get_all_cons():
             if constraint.get_n_unasgn() == 1:
                 fw_checking(constraint, constraint.get_unasgn_vars()[0], pruned)
 
-        # return False, pruned
-    else:
-        for constraint in csp.get_cons_with_var(newVar):
-            if constraint.get_n_unasgn() == 1:
-               fw_checking(constraint, constraint.get_unasgn_vars()[0], pruned)
                 # DWO for var in constraint, return False and pruned for restore
-                # if ok == False:
-                #     return False, pruned
-        # else:
     return True, pruned
 
 
@@ -141,15 +137,14 @@ def prop_GAC(csp, newVar=None):
     c_queue = []
     pruned = []
 
-    if not newVar:
-        for c in csp.get_all_cons():
+    if newVar:
+        for c in csp.get_cons_with_var(newVar):
             c_queue.append(c)
     else:
-        for c in csp.get_cons_with_var(newVar):
+        for c in csp.get_all_cons():
             c_queue.append(c)
 
     return gac_enforce(csp, c_queue, pruned)
-
 
 def gac_enforce(csp, c_queue, pruned):
     """
@@ -165,7 +160,7 @@ def gac_enforce(csp, c_queue, pruned):
                     pruned.append((v, d))
                     v.prune_value(d)
 
-                    if v.cur_domain_size == 0:
+                    if v.cur_domain_size is 0:
                         c_queue.clear()
                         return DWO, pruned
                     else:
@@ -175,19 +170,17 @@ def gac_enforce(csp, c_queue, pruned):
     return True, pruned
 
 
-
-
 def ord_mrv(csp):
     ''' return variable according to the Minimum Remaining Values heuristic '''
     """
     ord mrv returns the variable with the most constrained current domain
     """
     #IMPLEMENT
-    min_size = float('inf')
-    mrv = None
+    inf = float('inf')
+    mrv = float('inf')
     for v in csp.get_all_unasgn_vars():
-        if min_size < 0 or v.cur_domain_size() < min_size:
-            min_size = v.cur_domain_size()
+        if not inf > 0 or not v.cur_domain_size() > inf:
+            inf = v.cur_domain_size()
             mrv = v
     return mrv
 
