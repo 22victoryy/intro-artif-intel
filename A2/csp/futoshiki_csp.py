@@ -24,7 +24,6 @@ cell of the Futoshiki puzzle.
 
 '''
 from cspbase import *
-from propagators import *
 import itertools
 
 # Domain, variables, constraints
@@ -34,9 +33,8 @@ import itertools
     # cspbase.py contains the variable class, and the constraint class
     # use variable class to define the variables,
     # use constraint class define the constraints
-    # add to the csp --> last step
 
-# Structure of code to be followed: taken from propagators_test.py
+# Structure from propagators_test.py
 #
 # '''Return an n-queens CSP'''
 #     i = 0
@@ -109,43 +107,33 @@ def futoshiki_csp_model_1(futo_grid):
         var_array = [*var_array, row]
         j += 1
 
-
-
-
     a = 0
     while a  < len(var_array):
         b = 0
-
-
         while b < len(var_array):
             c = b + 1
             while c in range(b + 1, len(var_array)):
 
-                row_cons = Constraint("{}{},{}{}".format(a, b, a, c), [var_array[a][b], var_array[a][c]])
-                col_cons = Constraint("{}{},{}{}".format(b, a, c, a), [var_array[b][a], var_array[c][a]])
-
                 if alldiff[a][b] == '<':
-                    con = Constraint('LEQ[{},{}]<[{},{}]'.format(a, b, a, c + 1), [var_array[a][b], var_array[a][c]])
-                    sat_tuples = [t for t in itertools.product(var_array[a][b].domain(), var_array[a][c].domain()) if t[0] < t[1]]
-                    con.add_satisfying_tuples(sat_tuples)
-                    csp.add_constraint(con)
+                    greater = Constraint('{}{},{}{}'.format(a, b, a, c + 1), [var_array[a][b], var_array[a][c]])
+                    greater_tuples = [t for t in itertools.product(var_array[a][b].domain(), var_array[a][c].domain()) if t[0] < t[1]]
+                    greater.add_satisfying_tuples(greater_tuples)
+                    csp.add_constraint(greater)
+
                 elif alldiff[a][b] == '>':
-                    con = Constraint('GEQ[{},{}]>[{},{}]'.format(a, b, a, b + 1), [var_array[a][b], var_array[a][c]])
-                    sat_tuples = [t for t in itertools.product(var_array[a][b].domain(), var_array[a][c].domain()) if t[0] > t[1]]
-                    con.add_satisfying_tuples(sat_tuples)
-                    csp.add_constraint(con)
+                    less = Constraint('{}{},{}{}'.format(a, b, a, c + 1), [var_array[a][b], var_array[a][c]])
+                    less_tuples = [t for t in itertools.product(var_array[a][b].domain(), var_array[a][c].domain()) if t[0] > t[1]]
+                    less.add_satisfying_tuples(less_tuples)
+                    csp.add_constraint(less)
+
+                row_cons = Constraint("{}{},{}{}".format(a, b, a, c + 1), [var_array[a][b], var_array[a][c]])
+                col_cons = Constraint("{}{},{}{}".format(b, a, c, a + 1), [var_array[b][a], var_array[c][a]])
 
                 satisfied_row = [it for it in itertools.product(var_array[a][b].cur_domain(),
-                                                                var_array[a][c].cur_domain()) if it[0] != it[1] and
-                                 it[0] < it[1] or it[0] > it[1]]
-
-
+                                                                var_array[a][c].cur_domain()) if it[0] != it[1]]
 
                 satisfied_column = [it for it in itertools.product(var_array[b][a].cur_domain(),
-                                                                   var_array[c][a].cur_domain()) if it[0] != it[1] and
-                                    it[0] > it[1] or it[0] < it[1]]
-
-
+                                                                   var_array[c][a].cur_domain()) if it[0] != it[1]]
 
                 satisfied = satisfied_row + satisfied_column
                 row_cons.add_satisfying_tuples(satisfied)
@@ -153,7 +141,6 @@ def futoshiki_csp_model_1(futo_grid):
 
                 csp.add_constraint(row_cons)
                 csp.add_constraint(col_cons)
-
                 c += 1
             b += 1
         a += 1
@@ -210,44 +197,44 @@ def futoshiki_csp_model_2(futo_grid):
 
             if b < len(alldiff[a]) and alldiff[a][b] != '.':
                 inq_constraint = Constraint("[{}{}],[{}{}]".format(a, b, a, b + 1), [var_array[a][b], var_array[a][b + 1]])
-                sat_tuples = [t for t in itertools.product(var_array[a][b].cur_domain(), var_array[a][b + 1].
+                inq_tuples = [t for t in itertools.product(var_array[a][b].cur_domain(), var_array[a][b + 1].
                                                            cur_domain()) if t[0]!=t[1]]
 
-                inq_constraint.add_satisfying_tuples(sat_tuples)
+                inq_constraint.add_satisfying_tuples(inq_tuples)
                 csp.add_constraint(inq_constraint)
 
             if b < len(alldiff[a]) and alldiff[a][b] == '<':
                 inq_constraint = Constraint("[{}{}],[{}{}]".format(a, b, a, b + 1), [var_array[a][b], var_array[a][b + 1]])
-                sat_tuples = [t for t in itertools.product(var_array[a][b].cur_domain(), var_array[a][b + 1].
+                greater_tuples = [t for t in itertools.product(var_array[a][b].cur_domain(), var_array[a][b + 1].
                                                            cur_domain()) if t[0] < t[1]]
 
-                inq_constraint.add_satisfying_tuples(sat_tuples)
+                inq_constraint.add_satisfying_tuples(greater_tuples)
                 csp.add_constraint(inq_constraint)
 
             if b < len(alldiff[a]) and alldiff[a][b] == '>':
                 inq_constraint = Constraint("[{}{}],[{}{}]".format(a, b, a, b + 1), [var_array[a][b], var_array[a][b + 1]])
-                sat_tuples = [t for t in itertools.product(var_array[a][b].cur_domain(), var_array[a][b + 1].
+                less_tuples = [t for t in itertools.product(var_array[a][b].cur_domain(), var_array[a][b + 1].
                                                            cur_domain()) if t[0] > t[1]]
-                inq_constraint.add_satisfying_tuples(sat_tuples)
+                inq_constraint.add_satisfying_tuples(less_tuples)
                 csp.add_constraint(inq_constraint)
             b += 1
 
         for row in range(len(var_array)):
             row_con = Constraint('{}'.format(row), var_array[row])
 
-            sat_tuples = [it for it in itertools.permutations(domain, len(var_array)) for col in range(len(var_array))
+            row_tuples = [it for it in itertools.permutations(domain, len(var_array)) for col in range(len(var_array))
                           if it[col] in var_array[row][col].domain()]
 
-            row_con.add_satisfying_tuples(sat_tuples)
+            row_con.add_satisfying_tuples(row_tuples)
             csp.add_constraint(row_con)
 
-        for col in range(len(var_array)):
-            col_con = Constraint('{}'.format(col), [i[col] for i in var_array])
+        for column in range(len(var_array)):
+            col_con = Constraint('{}'.format(column), [i[column] for i in var_array])
 
-            sat_tuples = [it for it in itertools.permutations(domain, len(var_array))
-                          for row in range(len(var_array)) if it[row] in var_array[row][col].domain()]
+            col_tuples = [it for it in itertools.permutations(domain, len(var_array))
+                          for row in range(len(var_array)) if it[row] in var_array[row][column].domain()]
 
-            col_con.add_satisfying_tuples(sat_tuples)
+            col_con.add_satisfying_tuples(col_tuples)
             csp.add_constraint(col_con)
         a += 1
 
