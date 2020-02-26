@@ -116,13 +116,13 @@ def futoshiki_csp_model_1(futo_grid):
 
                 if alldiff[a][b] == '<':
                     greater = Constraint('{}{},{}{}'.format(a, b, a, c + 1), [var_array[a][b], var_array[a][c]])
-                    greater_tuples = [t for t in itertools.product(var_array[a][b].domain(), var_array[a][c].domain()) if t[0] < t[1]]
+                    greater_tuples = [it for it in itertools.product(var_array[a][b].domain(), var_array[a][c].domain()) if it[0] < it[1]]
                     greater.add_satisfying_tuples(greater_tuples)
                     csp.add_constraint(greater)
 
                 elif alldiff[a][b] == '>':
                     less = Constraint('{}{},{}{}'.format(a, b, a, c + 1), [var_array[a][b], var_array[a][c]])
-                    less_tuples = [t for t in itertools.product(var_array[a][b].domain(), var_array[a][c].domain()) if t[0] > t[1]]
+                    less_tuples = [it for it in itertools.product(var_array[a][b].domain(), var_array[a][c].domain()) if it[0] > it[1]]
                     less.add_satisfying_tuples(less_tuples)
                     csp.add_constraint(less)
 
