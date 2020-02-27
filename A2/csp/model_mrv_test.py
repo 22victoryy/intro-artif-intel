@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
         # BT propagation // Test FC, GACC
 
-        solver.bt_search(prop_GAC)
+        solver.bt_search(prop_BT)
         sol = []
         for i in range(len(var_array)):
             for j in range(len(var_array)):

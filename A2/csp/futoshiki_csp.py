@@ -91,12 +91,12 @@ def futoshiki_csp_model_1(futo_grid):
 
         while k < len(range(0, len(futo_grid[j]))):
             if futo_grid[j][k] == 0:
-                var = Variable("{}{}".format(j, k / 2), domain)
+                var = Variable("{}{}".format(j, k), domain)
                 csp.add_var(var)
                 row = [*row, var]
                 variables = [*variables, var]
             elif k % 2 == 0 and futo_grid[j][k] != 0:
-                var = Variable("{}{}".format(j, k / 2), [futo_grid[j][k]])
+                var = Variable("{}{}".format(j, k), [futo_grid[j][k]])
                 csp.add_var(var)
                 row = [*row, var]
                 variables = [*variables, var]
@@ -106,6 +106,10 @@ def futoshiki_csp_model_1(futo_grid):
         alldiff = [*alldiff, diff]
         var_array = [*var_array, row]
         j += 1
+    # print(type(var_array[0][0]))
+    print(variables)
+    # print(var_array)
+
 
     a = 0
     while a  < len(var_array):
@@ -174,12 +178,12 @@ def futoshiki_csp_model_2(futo_grid):
 
         while k < len(range(0, len(futo_grid[j]))):
             if futo_grid[j][k] == 0:
-                var = Variable("{}{}".format(j, k / 2), domain)
+                var = Variable("{}{}".format(j, k), domain)
                 csp.add_var(var)
                 row = [*row, var]
                 variables = [*variables, var]
             elif k % 2 == 0 and futo_grid[j][k] != 0:
-                var = Variable("{}{}".format(j, k / 2), [futo_grid[j][k]])
+                var = Variable("{}{}".format(j, k), [futo_grid[j][k]])
                 csp.add_var(var)
                 row = [*row, var]
                 variables = [*variables, var]
@@ -189,6 +193,8 @@ def futoshiki_csp_model_2(futo_grid):
         alldiff = [*alldiff, diff]
         var_array = [*var_array, row]
         j += 1
+
+    print(var_array)
 
     a = 0
     while a < len(var_array):
