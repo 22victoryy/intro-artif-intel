@@ -9,11 +9,49 @@ import time
 # You can use the functions in othello_shared to write your AI
 from othello_shared import find_lines, get_possible_moves, get_score, play_move
 
+# Minimax Hints: Use the get possible moves(board, color) function in othello shared.py, which returns a
+# list of (column, row) tuples representing the legal moves for player color. Use the play move(board, color,
+# move) function in othello shared.py, which computes the successor board state that results from player
+# color playing move (a (column, row) tuple). Pay attention to which player should make a move for min
+# nodes and max nodes at the beginning of each function. If a state is already in the dictionary and do not explore it again.
+# The starter code is structured so that if you type $python3 othello gui.py -d 6 -a agent.py -m
+# -c, the game manager will call your agent’s MINIMAX routines with the ’caching’ flag on. If instead you
+# remove the -m and type $python3 othello gui.py -d 6 -a agent.py -c, the game manager will
+# call your agent’s ALPHA-BETA routines with the ’caching’ flag on.
+
+
+# 6. We can try to speed up the AI even more by caching states we’ve seen before. To do this, we will want to
+# alter your program so that it responds to the -c flag at the command line. To implement state caching you
+# will need to create a dictionary in your AI player (this can just be stored in a global variable on the top level
+# of the file) that maps board states to their minimax value. Modify your minimax and alpha-beta pruning
+# functions to store states in that dictionary after their minimax value is known. Then check the dictionary,
+
+
+
+
+# 7. Alpha-beta pruning works better if nodes that lead to a better utility are explored first. To do this, in the
+# Alpha-beta pruning functions, we will want to order successor states according to the following heuristic:
+# the nodes for which the number of the AI player’s disks minus the number of the opponent’s disks is high-
+# est should be explored first. Note that this is the same as the utility function, and it is okay to call the utility
+# function to compute this value. This should provide another small speed-up.
+# Alter your program so that it executes node ordering when the -o flag is placed on the command line. The
+# starter code is already structured so that if you type $python3 othello gui.py -d 6 -a agent.py
+# -o, the game manager will call your agent’s ALPHA-BETA routines with an ’ordering’ parameter that is
+# equal to 1.
+
+
 def eprint(*args, **kwargs): #you can use this for debugging, as it will print to sterr and not stdout
     print(*args, file=sys.stderr, **kwargs)
     
 # Method to compute utility value of terminal state
 def compute_utility(board, color):
+    """
+    1. this is part of minimax, must write this first
+    The function get score(board) returns a tuple (number of dark disks, number of light disks).
+    :param board:
+    :param color:
+    :return:
+    """
     #IMPLEMENT
     return 0 #change this!
 
@@ -24,18 +62,35 @@ def compute_heuristic(board, color): #not implemented, optional
 
 ############ MINIMAX ###############################
 def minimax_min_node(board, color, limit, caching = 0):
+    """
+    2. helper to implement recursive minimax
+    :param board:
+    :param color:
+    :param limit:
+    :param caching:
+    :return:
+    """
     #IMPLEMENT
     return ((0,0),0)
 
 def minimax_max_node(board, color, limit, caching = 0): #returns highest possible utility
+    """
+    2. helper to implement recursive minimax
+    :param board:
+    :param color:
+    :param limit:
+    :param caching:
+    :return:
+    """
     #IMPLEMENT
     return ((0,0),0)
 
 def select_move_minimax(board, color, limit, caching = 0):
     """
+    3. Write this function using compute utility
     Given a board and a player color, decide on a move. 
     The return value is a tuple of integers (i,j), where
-    i is the column and j is the row on the board.  
+    i is the column and j is the row on the board.  Use 1 and 2 recursively
 
     Note that other parameters are accepted by this function:
     If limit is a positive integer, your code should enfoce a depth limit that is equal to the value of the parameter.
@@ -49,15 +104,39 @@ def select_move_minimax(board, color, limit, caching = 0):
 
 ############ ALPHA-BETA PRUNING #####################
 def alphabeta_min_node(board, color, alpha, beta, limit, caching = 0, ordering = 0):
+    """
+    4. helper for select_move_alphabeta
+    :param board:
+    :param color:
+    :param alpha:
+    :param beta:
+    :param limit:
+    :param caching:
+    :param ordering:
+    :return:
+    """
     #IMPLEMENT
     return ((0,0),0) #change this!
 
 def alphabeta_max_node(board, color, alpha, beta, limit, caching = 0, ordering = 0):
+    """
+    4. helper for select_move_alphabeta
+    :param board:
+    :param color:
+    :param alpha:
+    :param beta:
+    :param limit:
+    :param caching:
+    :param ordering:
+    :return:
+    """
     #IMPLEMENT
     return ((0,0),0) #change this!
 
 def select_move_alphabeta(board, color, limit, caching = 0, ordering = 0):
     """
+    5. Implement, same way as selective_move_minimax
+
     Given a board and a player color, decide on a move. 
     The return value is a tuple of integers (i,j), where
     i is the column and j is the row on the board.  
