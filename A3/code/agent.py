@@ -1,5 +1,5 @@
 """
-An AI player for Othello. 
+An AI player for Othello.
 """
 
 import random
@@ -42,7 +42,7 @@ from othello_shared import find_lines, get_possible_moves, get_score, play_move
 
 def eprint(*args, **kwargs): #you can use this for debugging, as it will print to sterr and not stdout
     print(*args, file=sys.stderr, **kwargs)
-    
+
 # Method to compute utility value of terminal state
 def compute_utility(board, color):
     """
@@ -53,7 +53,16 @@ def compute_utility(board, color):
     :return:
     """
     #IMPLEMENT
-    return 0 #change this!
+    score = get_score(board)
+
+    return score[0] - score[1] if color == 1 else score[1] - score[0]
+    
+
+    # if color == 1:
+    #     return score[0] - score[1]
+    # else:
+    #     return score[1] - score[0]
+
 
 # Better heuristic value of board
 def compute_heuristic(board, color): #not implemented, optional
@@ -88,16 +97,16 @@ def minimax_max_node(board, color, limit, caching = 0): #returns highest possibl
 def select_move_minimax(board, color, limit, caching = 0):
     """
     3. Write this function using compute utility
-    Given a board and a player color, decide on a move. 
+    Given a board and a player color, decide on a move.
     The return value is a tuple of integers (i,j), where
     i is the column and j is the row on the board.  Use 1 and 2 recursively
 
     Note that other parameters are accepted by this function:
     If limit is a positive integer, your code should enfoce a depth limit that is equal to the value of the parameter.
-    Search only to nodes at a depth-limit equal to the limit.  If nodes at this level are non-terminal return a heuristic 
+    Search only to nodes at a depth-limit equal to the limit.  If nodes at this level are non-terminal return a heuristic
     value (see compute_utility)
     If caching is ON (i.e. 1), use state caching to reduce the number of state evaluations.
-    If caching is OFF (i.e. 0), do NOT use state caching to reduce the number of state evaluations.    
+    If caching is OFF (i.e. 0), do NOT use state caching to reduce the number of state evaluations.
     """
     #IMPLEMENT
     return (0,0) #change this!
@@ -137,18 +146,18 @@ def select_move_alphabeta(board, color, limit, caching = 0, ordering = 0):
     """
     5. Implement, same way as selective_move_minimax
 
-    Given a board and a player color, decide on a move. 
+    Given a board and a player color, decide on a move.
     The return value is a tuple of integers (i,j), where
-    i is the column and j is the row on the board.  
+    i is the column and j is the row on the board.
 
     Note that other parameters are accepted by this function:
     If limit is a positive integer, your code should enfoce a depth limit that is equal to the value of the parameter.
-    Search only to nodes at a depth-limit equal to the limit.  If nodes at this level are non-terminal return a heuristic 
+    Search only to nodes at a depth-limit equal to the limit.  If nodes at this level are non-terminal return a heuristic
     value (see compute_utility)
     If caching is ON (i.e. 1), use state caching to reduce the number of state evaluations.
-    If caching is OFF (i.e. 0), do NOT use state caching to reduce the number of state evaluations.    
-    If ordering is ON (i.e. 1), use node ordering to expedite pruning and reduce the number of state evaluations. 
-    If ordering is OFF (i.e. 0), do NOT use node ordering to expedite pruning and reduce the number of state evaluations. 
+    If caching is OFF (i.e. 0), do NOT use state caching to reduce the number of state evaluations.
+    If ordering is ON (i.e. 1), use node ordering to expedite pruning and reduce the number of state evaluations.
+    If ordering is OFF (i.e. 0), do NOT use node ordering to expedite pruning and reduce the number of state evaluations.
     """
     #IMPLEMENT
     return (0,0) #change this!
@@ -163,11 +172,11 @@ def run_ai():
     """
     print("Othello AI") # First line is the name of this AI
     arguments = input().split(",")
-    
-    color = int(arguments[0]) #Player color: 1 for dark (goes first), 2 for light. 
+
+    color = int(arguments[0]) #Player color: 1 for dark (goes first), 2 for light.
     limit = int(arguments[1]) #Depth limit
     minimax = int(arguments[2]) #Minimax or alpha beta
-    caching = int(arguments[3]) #Caching 
+    caching = int(arguments[3]) #Caching
     ordering = int(arguments[4]) #Node-ordering (for alpha-beta only)
 
     if (minimax == 1): eprint("Running MINIMAX")
@@ -208,7 +217,7 @@ def run_ai():
                 movei, movej = select_move_minimax(board, color, limit, caching)
             else: #else run alphabeta
                 movei, movej = select_move_alphabeta(board, color, limit, caching, ordering)
-            
+
             print("{} {}".format(movei, movej))
 
 if __name__ == "__main__":
