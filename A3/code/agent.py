@@ -56,7 +56,7 @@ def compute_utility(board, color):
     score = get_score(board)
 
     return score[0] - score[1] if color == 1 else score[1] - score[0]
-    
+
 
     # if color == 1:
     #     return score[0] - score[1]
