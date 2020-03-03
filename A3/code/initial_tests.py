@@ -18,16 +18,16 @@ bigboards = [((0, 0, 0, 0, 0, 0), (0, 0, 2, 2, 0, 0), (0, 1, 1, 2, 2, 0), (2, 2,
 ((0, 0, 0, 0, 0, 0), (0, 0, 0, 2, 0, 0), (0, 1, 2, 1, 1, 0), (0, 2, 2, 2, 0, 0), (0, 1, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0))]
 
 #Select what to test
-test_compute_utility = True
+test_compute_utility = False # done, this is good
 test_alphabeta_min_node = True
 test_alphabeta_max_node = True
 test_minimax_min_node = True
 test_minimax_max_node = True
 test_caching_big = True
 test_ordering = True
-test_select_move_minimax = True
-test_select_move_alphabeta = True
-test_select_move_equal = True
+test_select_move_minimax = False
+test_select_move_alphabeta = False
+test_select_move_equal = False
 
 if test_compute_utility:
 
@@ -40,7 +40,7 @@ if test_compute_utility:
       value1 = compute_utility(board, 1)
       value2 = compute_utility(board, 2)
       if (value1 == correctvalues[i] and value2 == correctvalues[i]*-1):
-        correct+=1  
+        correct+=1
 
     print("You computed correct utilities for {} of {} small boards".format(correct, len(correctvalues)))
 
@@ -53,7 +53,7 @@ if test_select_move_minimax:
       value1 = select_move_minimax(board, 1)
       value2 = select_move_minimax(board, 2)
       if (value1 == correctmoves_1[i] and value2 == correctmoves_2[i]):
-        correct+=1  
+        correct+=1
     print('Testing Minimax (no Depth Limit)')
     print("You computed correct minimax moves for {} of {} small boards".format(correct, len(correctmoves_1)))
 
@@ -66,10 +66,10 @@ if test_select_move_alphabeta:
       value1 = select_move_alphabeta(board, 1)
       value2 = select_move_alphabeta(board, 2)
       if (value1 == correctmoves_1[i] and value2 == correctmoves_2[i]):
-        correct+=1  
+        correct+=1
     print('Testing Alphabeta (no Depth Limit)')
     print("You computed correct alphabeta moves for {} of {} small boards".format(correct, len(correctmoves_1)))
-  
+
 if test_select_move_equal:
     correctmoves_1 = [(0,0),(2,3),(0,0),(3,0),(3,1), (0,3)]
     correctmoves_2 = [(3,3),(0,0),(3,3),(0,2),(3,1),(3,0)]
@@ -81,7 +81,7 @@ if test_select_move_equal:
       value1_ab = select_move_alphabeta(board, 1)
       value2_ab = select_move_alphabeta(board, 2)
       if (value1_minimax == value1_ab == correctmoves_1[i] and value2_minimax == value2_ab == correctmoves_2[i]):
-        correct+=1  
+        correct+=1
     print('Testing Minimax and Alphabeta Moves Equality (no Depth Limit)')
     print("You computed correct moves for {} of {} small boards".format(correct, len(correctmoves_1)))
 
@@ -89,7 +89,7 @@ if test_caching_big:
 
     print('Testing Caching Big')
     check_1 = 0
-    check_2 = 0  
+    check_2 = 0
     for i in range(0,len(bigboards)):
 
       start_time_1 = os.times()[0]
@@ -104,16 +104,16 @@ if test_caching_big:
         check_1 += 1
 
       if (with_cache == no_cache):
-         check_2 += 1       
+         check_2 += 1
 
-    print("State caching improved the time of your alpha-beta for {} of {} boards".format(check_1, len(bigboards))) 
+    print("State caching improved the time of your alpha-beta for {} of {} boards".format(check_1, len(bigboards)))
     print("Move choice with and without caching is the same for {} of {} boards".format(check_2, len(bigboards)))
-    
+
 if test_ordering:
 
     print('Testing Ordering')
     check_1 = 0
-    check_2 = 0  
+    check_2 = 0
     for i in range(0,len(bigboards)):
 
       start_time_1 = os.times()[0]
@@ -130,11 +130,11 @@ if test_ordering:
       if (with_order == no_order):
          print(with_order)
          print(no_order)
-         check_2 += 1       
+         check_2 += 1
 
-    print("Node ordering improved the ordering of your alpha-beta for {} of {} boards".format(check_1, len(bigboards))) 
-    print("Move choice with and without ordering is the same for {} of {} boards".format(check_2, len(bigboards))) 
-    
+    print("Node ordering improved the ordering of your alpha-beta for {} of {} boards".format(check_1, len(bigboards)))
+    print("Move choice with and without ordering is the same for {} of {} boards".format(check_2, len(bigboards)))
+
 
 if test_alphabeta_min_node:
 
@@ -153,10 +153,10 @@ if test_alphabeta_min_node:
       if (answer[0] == move[0] and answer[1] == move[1]):
         correct+=1
       if (answer_value == value):
-        correctval+=1      
+        correctval+=1
 
-    print("You computed correct alpha-beta min moves for {} of {} boards".format(correct, len(bigboards))) 
-    print("You computed correct alpha-beta min values for {} of {} boards".format(correctval, len(bigboards))) 
+    print("You computed correct alpha-beta min moves for {} of {} boards".format(correct, len(bigboards)))
+    print("You computed correct alpha-beta min values for {} of {} boards".format(correctval, len(bigboards)))
 
 
 if test_alphabeta_max_node:
@@ -177,10 +177,10 @@ if test_alphabeta_max_node:
       if (answer[0] == move[0] and answer[1] == move[1]):
         correct+=1
       if (answer_value == value):
-        correctval+=1      
+        correctval+=1
 
-    print("You computed correct alpha-beta max moves for {} of {} boards".format(correct, len(selected))) 
-    print("You computed correct alpha-beta max values for {} of {} boards".format(correctval, len(selected))) 
+    print("You computed correct alpha-beta max moves for {} of {} boards".format(correct, len(selected)))
+    print("You computed correct alpha-beta max values for {} of {} boards".format(correctval, len(selected)))
 
 
 if test_minimax_min_node:
@@ -203,14 +203,14 @@ if test_minimax_min_node:
       if (answer[0] == move[0] and answer[1] == move[1]):
         correct+=1
       if (answer_value == value):
-        correctval+=1      
+        correctval+=1
 
-    print("You computed correct minimax min moves for {} of {} boards".format(correct, len(bigboards))) 
-    print("You computed correct minimax min values for {} of {} boards".format(correctval, len(bigboards))) 
+    print("You computed correct minimax min moves for {} of {} boards".format(correct, len(bigboards)))
+    print("You computed correct minimax min values for {} of {} boards".format(correctval, len(bigboards)))
 
 if test_minimax_max_node:
 
-    print('Testing Minimax Max Node')  
+    print('Testing Minimax Max Node')
     answers = [((0,0),0),((1,1),4),((3,0),6),((0,0),0),((5,2), 6),((0,0), 0)]
     correct = 0
     correctval = 0
@@ -226,7 +226,7 @@ if test_minimax_max_node:
       if (answer[0] == move[0] and answer[1] == move[1]):
         correct+=1
       if (answer_value == value):
-        correctval+=1      
+        correctval+=1
 
-    print("You computed correct minimax max moves for {} of {} boards".format(correct, len(selected))) 
-    print("You computed correct minimax max values for {} of {} boards".format(correctval, len(selected))) 
+    print("You computed correct minimax max moves for {} of {} boards".format(correct, len(selected)))
+    print("You computed correct minimax max values for {} of {} boards".format(correctval, len(selected)))

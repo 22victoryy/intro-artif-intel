@@ -57,13 +57,6 @@ def compute_utility(board, color):
 
     return score[0] - score[1] if color == 1 else score[1] - score[0]
 
-
-    # if color == 1:
-    #     return score[0] - score[1]
-    # else:
-    #     return score[1] - score[0]
-
-
 # Better heuristic value of board
 def compute_heuristic(board, color): #not implemented, optional
     #IMPLEMENT
