@@ -100,7 +100,7 @@ def minimax_min_node(board, color, limit, caching = 0):
     # Else if there are moves, get their utility and return the min
     else:
         # Get the maximum utility possible to use as a starting point for min
-        min_utility = len(board) * len(board)
+        min_utility = float('inf')
         min_move = None
         # new_utiltiy = None
 
@@ -111,15 +111,10 @@ def minimax_min_node(board, color, limit, caching = 0):
             next_move = play_move(board, other_color, each[0], each[1])
             # print(next_move)
 
-            if next_move in cached_params:
-                move, new_utiltiy = cached_params[next_move]
-
-            else:
-                # If the new utility is less than the current min, update min_utiltiy
-                move, new_utiltiy = minimax_max_node(next_move, color, limit - 1)
+            move, new_utiltiy = minimax_max_node(next_move, color, limit - 1)
                 # do something here
 
-                cached_params[next_move] = (move, new_utiltiy)
+            cached_params[next_move] = (move, new_utiltiy)
                 # print(cached_params)
 
             if new_utiltiy < min_utility:
@@ -128,7 +123,7 @@ def minimax_min_node(board, color, limit, caching = 0):
 
         # After checking every move, return the minimum utility
         # print(min_utility)
-    print(min_move)
+    # print(min_move)
     return (min_move, min_utility)
 
 
@@ -156,23 +151,17 @@ def minimax_max_node(board, color, limit, caching = 0): #returns highest possibl
     # Else if there are moves, get their utility and return the min
     else:
         # Store the minimum utility possible to use as a starting point for min
-        max_utility = -1 * len(board) * len(board)
+        max_utility = float('-inf')
         max_move = None
 
         # For each possible move, get the min utiltiy
         for each in all_moves:
-
             # Get the next board from that move
             next_move = play_move(board, color, each[0], each[1])
 
-            # First check the cache for the board
-            if next_move in cached_params:
-                move, new_utiltiy = cached_params[next_move]
 
-            else:
-                # If the new utility is greater than the current max, update max_utility
-                move, new_utiltiy = minimax_min_node(next_move, color, limit -1)
-                cached_params[next_move] = (move, new_utiltiy)
+            move, new_utiltiy = minimax_min_node(next_move, color, limit -1)
+            cached_params[next_move] = (move, new_utiltiy)
 
             if new_utiltiy > max_utility:
                 max_utility = new_utiltiy

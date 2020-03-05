@@ -18,18 +18,18 @@ bigboards = [((0, 0, 0, 0, 0, 0), (0, 0, 2, 2, 0, 0), (0, 1, 1, 2, 2, 0), (2, 2,
 ((0, 0, 0, 0, 0, 0), (0, 0, 0, 2, 0, 0), (0, 1, 2, 1, 1, 0), (0, 2, 2, 2, 0, 0), (0, 1, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0))]
 
 #Select what to test
-test_compute_utility = True
+test_compute_utility = False # done
 test_alphabeta_min_node_1 = False
 test_alphabeta_max_node_1 = False
-test_minimax_min_node_1 = True
-test_minimax_max_node_1 = True
+test_minimax_min_node_1 = True # done
+test_minimax_max_node_1 = True # done
 test_alphabeta_min_node_2 = False
 test_alphabeta_max_node_2 = False
-test_minimax_min_node_2 = True
-test_minimax_max_node_2 = True
+test_minimax_min_node_2 = True # done
+test_minimax_max_node_2 = True # done
 test_caching_big = False
 test_ordering = False
-test_select_move_minimax = True
+test_select_move_minimax = False # done
 test_select_move_alphabeta = False
 test_select_move_equal = False
 
@@ -205,6 +205,7 @@ if test_minimax_min_node_1:
       answer_value = answers[i][1]
 
       if (answer[0] == move[0] and answer[1] == move[1]):
+        print(move)
         correct+=1
       if (answer_value == value):
         correctval+=1
