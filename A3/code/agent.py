@@ -223,7 +223,6 @@ def alphabeta_min_node(board, color, alpha, beta, limit, caching = 0, ordering =
         min_move = None
 
         all_moves_sorted = []
-
         # Get the utility of all the moves
         for each in all_moves:
             # Get the next board from that move
@@ -283,7 +282,7 @@ def alphabeta_max_node(board, color, alpha, beta, limit, caching = 0, ordering =
     # Else if there are moves, get their utility and return the min
     else:
         # Store the minimum utility possible to use as a starting point for min
-        max_utility = -1 * len(board) * len(board)
+        max_utility = float('-inf')
         max_move = None
 
         all_moves_sorted = []
@@ -301,8 +300,6 @@ def alphabeta_max_node(board, color, alpha, beta, limit, caching = 0, ordering =
 
         # For each possible move, get the min utiltiy
         for each in all_moves_sorted:
-
-
             # If the new utility is greater than the current max, update max_utility
             move, new_utiltiy = alphabeta_min_node(each[1], color, alpha, beta, limit -1)
             cached_params[each[1]] = (move, new_utiltiy)
@@ -340,7 +337,10 @@ def select_move_alphabeta(board, color, limit, caching = 0, ordering = 0):
     If ordering is OFF (i.e. 0), do NOT use node ordering to expedite pruning and reduce the number of state evaluations.
     """
     #IMPLEMENT
-    return (0,0) #change this!
+    alpha = float('-inf')
+    beta = -1 * alpha
+    move, utiltiy = alphabeta_max_node(board, color, alpha, beta, limit)
+    return move
 
 ####################################################
 def run_ai():
