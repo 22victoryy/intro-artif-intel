@@ -27,6 +27,7 @@ from othello_shared import find_lines, get_possible_moves, get_score, play_move
 # functions to store states in that dictionary after their minimax value is known. Then check the dictionary,
 
 
+# board_utilities = {}
 
 
 # 7. Alpha-beta pruning works better if nodes that lead to a better utility are explored first. To do this, in the
@@ -39,6 +40,7 @@ from othello_shared import find_lines, get_possible_moves, get_score, play_move
 # -o, the game manager will call your agent’s ALPHA-BETA routines with an ’ordering’ parameter that is
 # equal to 1.
 
+cached_params = {}
 
 def eprint(*args, **kwargs): #you can use this for debugging, as it will print to sterr and not stdout
     print(*args, file=sys.stderr, **kwargs)
@@ -64,6 +66,8 @@ def compute_heuristic(board, color): #not implemented, optional
 
 ############ MINIMAX ###############################
 def minimax_min_node(board, color, limit, caching = 0):
+# def minimax_min_node(board, color):
+
     """
     2. helper to implement recursive minimax
     :param board:
@@ -72,8 +76,64 @@ def minimax_min_node(board, color, limit, caching = 0):
     :param caching:
     :return:
     """
+    # if terminal
+        # return false
     #IMPLEMENT
-    return ((0,0),0)
+
+    # return ((0,0),0)
+
+    if color == 1:
+        other_color = 2
+    else:
+        other_color = 1
+
+    # Get the allowed moves
+    all_moves = get_possible_moves(board, other_color)
+    # print(all_moves)
+
+    # If there are no moves left, return the utility
+    if len(all_moves) == 0:
+        return None, compute_utility(board, color)
+
+    # Else if there are moves, get their utility and return the min
+    else:
+        # Get the maximum utility possible to use as a starting point for min
+        min_utility = len(board) * len(board)
+        min_move = None
+
+        # For each possible move, get the max utiltiy
+        for each in all_moves:
+
+            # Get the next board from that move
+            next_board = play_move(board, other_color, each[0], each[1])
+
+            # First check the cache for the board
+            if next_board in cached_params:
+                move, new_utiltiy = cached_params[next_board]
+
+            else:
+                # If the new utility is less than the current min, update min_utiltiy
+                move, new_utiltiy = minimax_max_node(next_board, color, limit)
+                # print((min_move, min_utility))
+                # do something here
+                # if board in cached_params:
+                #     return cached_params[board]
+                # if not get_possible_moves(board, color):
+                #     return compute_utility(board, color)
+
+                cached_params[next_board] = (move, new_utiltiy)
+                # print(cached_params)
+
+            if new_utiltiy < min_utility:
+                min_utility = new_utiltiy
+                min_move = each
+
+        # After checking every move, return the minimum utility
+        return (min_move, min_utility)
+
+
+
+
 
 def minimax_max_node(board, color, limit, caching = 0): #returns highest possible utility
     """
@@ -86,6 +146,21 @@ def minimax_max_node(board, color, limit, caching = 0): #returns highest possibl
     """
     #IMPLEMENT
     return ((0,0),0)
+    # Get the allowed moves
+    # if color == 1:
+    #     opponent = 2
+    # else:
+    #     opponent = 1
+    # if board in cached_params:
+    #     return cached_params[board]
+    # if not get_possible_moves(board, color):
+    #     return compute_utility(board, color)
+    # v = float("-Inf")
+    # for move in get_possible_moves(board, color):
+    #     # new_move = play_move(board,color,move[0],move[1])
+    #     v = max(v, minimax_min_node(play_move(board, color, move[0], move[1]), opponent, limit))
+    # return v
+
 
 def select_move_minimax(board, color, limit, caching = 0):
     """
