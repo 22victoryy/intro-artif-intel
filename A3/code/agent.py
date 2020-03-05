@@ -238,14 +238,10 @@ def alphabeta_min_node(board, color, alpha, beta, limit, caching = 0, ordering =
         # For each possible move, get the max utiltiy
         for each in all_moves_sorted:
 
-            # First check the cache for the board
-            if each[1] in cached_params:
-                move, new_utiltiy = cached_params[each[1]]
 
-            else:
-                # If the new utility is less than the current min, update min_utiltiy
-                move, new_utiltiy = alphabeta_max_node(each[1], color, alpha, beta, limit -1)
-                cached_params[each[1]] = (move, new_utiltiy)
+            # If the new utility is less than the current min, update min_utiltiy
+            move, new_utiltiy = alphabeta_max_node(each[1], color, alpha, beta, limit -1)
+            cached_params[each[1]] = (move, new_utiltiy)
 
             if new_utiltiy < min_utility:
                 min_utility = new_utiltiy
@@ -274,7 +270,57 @@ def alphabeta_max_node(board, color, alpha, beta, limit, caching = 0, ordering =
     :return:
     """
     #IMPLEMENT
-    return ((0,0),0) #change this!
+    # Get the allowed moves
+    # Get the allowed moves
+    all_moves = get_possible_moves(board, color)
+
+    # If there are no moves left, return the utility
+    if len(all_moves) == 0:
+        return None, compute_utility(board, color)
+    if limit == 0:
+        return None, compute_utility(board, color)
+
+    # Else if there are moves, get their utility and return the min
+    else:
+        # Store the minimum utility possible to use as a starting point for min
+        max_utility = -1 * len(board) * len(board)
+        max_move = None
+
+        all_moves_sorted = []
+
+        # Get the utility of all the moves
+        for each in all_moves:
+            # Get the next board from that move
+            next_board = play_move(board, color, each[0], each[1])
+
+            # Add the moves to the list
+            all_moves_sorted.append((each, next_board))
+
+        # Sort the list by utility (reversed so when iterated, it starts at the greatest value)
+        all_moves_sorted.sort(key=lambda util: compute_utility(util[1], color), reverse=True)
+
+        # For each possible move, get the min utiltiy
+        for each in all_moves_sorted:
+
+
+            # If the new utility is greater than the current max, update max_utility
+            move, new_utiltiy = alphabeta_min_node(each[1], color, alpha, beta, limit -1)
+            cached_params[each[1]] = (move, new_utiltiy)
+
+            if new_utiltiy > max_utility:
+                max_utility = new_utiltiy
+                max_move = each[0]
+
+            if max_utility >= beta:
+                return max_move, max_utility
+
+            if max_utility > alpha:
+                alpha = max_utility
+
+        # After checking every move, return the maximum utility
+        return max_move, max_utility
+
+
 
 def select_move_alphabeta(board, color, limit, caching = 0, ordering = 0):
     """

@@ -20,7 +20,7 @@ bigboards = [((0, 0, 0, 0, 0, 0), (0, 0, 2, 2, 0, 0), (0, 1, 1, 2, 2, 0), (2, 2,
 #Select what to test
 test_compute_utility = False # done
 test_alphabeta_min_node_1 = True
-test_alphabeta_max_node_1 = False
+test_alphabeta_max_node_1 = True
 test_minimax_min_node_1 = False # done
 test_minimax_max_node_1 = False # done
 test_alphabeta_min_node_2 = True
