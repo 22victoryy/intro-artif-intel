@@ -237,7 +237,6 @@ def alphabeta_min_node(board, color, alpha, beta, limit, caching = 0, ordering =
         # For each possible move, get the max utiltiy
         for each in all_moves_sorted:
 
-
             # If the new utility is less than the current min, update min_utiltiy
             move, new_utiltiy = alphabeta_max_node(each[1], color, alpha, beta, limit -1)
             cached_params[each[1]] = (move, new_utiltiy)
