@@ -342,6 +342,9 @@ def select_move_alphabeta(board, color, limit, caching = 0, ordering = 0):
     move, utiltiy = alphabeta_max_node(board, color, alpha, beta, limit)
     return move
 
+
+
+
 ####################################################
 def run_ai():
     """
