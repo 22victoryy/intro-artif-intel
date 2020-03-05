@@ -19,18 +19,18 @@ bigboards = [((0, 0, 0, 0, 0, 0), (0, 0, 2, 2, 0, 0), (0, 1, 1, 2, 2, 0), (2, 2,
 
 #Select what to test
 test_compute_utility = False # done
-test_alphabeta_min_node_1 = False
+test_alphabeta_min_node_1 = True
 test_alphabeta_max_node_1 = False
-test_minimax_min_node_1 = True # done
-test_minimax_max_node_1 = True # done
-test_alphabeta_min_node_2 = False
-test_alphabeta_max_node_2 = False
-test_minimax_min_node_2 = True # done
-test_minimax_max_node_2 = True # done
+test_minimax_min_node_1 = False # done
+test_minimax_max_node_1 = False # done
+test_alphabeta_min_node_2 = True
+test_alphabeta_max_node_2 = True
+test_minimax_min_node_2 = False # done
+test_minimax_max_node_2 = False # done
 test_caching_big = False
 test_ordering = False
 test_select_move_minimax = False # done
-test_select_move_alphabeta = False
+test_select_move_alphabeta = True
 test_select_move_equal = False
 
 if test_compute_utility:
