@@ -29,7 +29,7 @@ test_minimax_min_node_2 = True
 test_minimax_max_node_2 = True
 test_caching_big = False
 test_ordering = False
-test_select_move_minimax = False
+test_select_move_minimax = True
 test_select_move_alphabeta = False
 test_select_move_equal = False
 
