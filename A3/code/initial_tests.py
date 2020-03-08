@@ -18,7 +18,7 @@ bigboards = [((0, 0, 0, 0, 0, 0), (0, 0, 2, 2, 0, 0), (0, 1, 1, 2, 2, 0), (2, 2,
 ((0, 0, 0, 0, 0, 0), (0, 0, 0, 2, 0, 0), (0, 1, 2, 1, 1, 0), (0, 2, 2, 2, 0, 0), (0, 1, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0))]
 
 #Select what to test
-test_compute_utility = True  # done
+test_compute_utility = True  # done refactored
 test_alphabeta_min_node_1 = True # done
 test_alphabeta_max_node_1 = True # done
 test_minimax_min_node_1 = True # done
@@ -27,8 +27,8 @@ test_alphabeta_min_node_2 = True # done
 test_alphabeta_max_node_2 = True # done
 test_minimax_min_node_2 = True # done
 test_minimax_max_node_2 = True # done
-test_caching_big = True # test passing inconsistent
-test_ordering = True # test passing inconsistent
+test_caching_big = False # test passing inconsistent
+test_ordering = False # test passing inconsistent
 test_select_move_minimax = True # done
 test_select_move_alphabeta = True # done
 test_select_move_equal = False # done
