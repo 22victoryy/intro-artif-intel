@@ -120,6 +120,7 @@ def minimax_max_node(board, color, limit, caching = 0):
 
     return (max_move, max_until)
 
+ # this part probably needs fixing
 def select_move_minimax(board, color, limit, caching = 0):
     """
     3. Write this function using compute utility
@@ -161,11 +162,9 @@ def alphabeta_min_node(board, color, alpha, beta, limit, caching = 0, ordering =
         min_move = None
 
         sorted_moves = [(each, play_move(board, other_color, each[0], each[1])) for each in moves]
-
         sorted_moves.sort(key=lambda util: compute_utility(util[1], color))
 
         for each in sorted_moves:
-
             move, new_until = alphabeta_max_node(each[1], color, alpha, beta, limit -1)
             cached_params[each[1]] = (move, new_until)
 
@@ -203,7 +202,6 @@ def alphabeta_max_node(board, color, alpha, beta, limit, caching = 0, ordering =
         max_move = None
 
         sorted_moves = [(each, play_move(board, color, each[0], each[1])) for each in moves]
-
         sorted_moves.sort(key=lambda util: compute_utility(util[1], color), reverse=True)
 
         for each in sorted_moves:
@@ -223,7 +221,7 @@ def alphabeta_max_node(board, color, alpha, beta, limit, caching = 0, ordering =
         return (max_move, max_utility)
 
 
-
+ # this part probably needs fixing, office hours
 def select_move_alphabeta(board, color, limit, caching = 0, ordering = 0):
     """
     5. Implement, same way as selective_move_minimax
@@ -243,7 +241,7 @@ def select_move_alphabeta(board, color, limit, caching = 0, ordering = 0):
     """
     alpha = float('-inf')
     beta = -1 * alpha
-    return alphabeta_max_node(board, color, alpha, beta, limit)[0]
+    return alphabeta_min_node(board, color, alpha, beta, limit)[0]
 
 
 
