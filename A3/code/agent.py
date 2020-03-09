@@ -84,8 +84,12 @@ def minimax_min_node(board, color, limit, caching = 0):
         # change to while
         for each in moves:
 
-            move, new_utiltiy = minimax_max_node(play_move(board, other_color, each[0], each[1]), color, limit - 1)
-            cached_params[play_move(board, other_color, each[0], each[1])] = (move, new_utiltiy)
+
+            if caching == 1:
+                cached_params[play_move(board, other_color, each[0], each[1])] = (move, new_utiltiy)
+            else:
+                (move, new_utiltiy) = minimax_max_node(play_move(board, other_color, each[0], each[1]), color, limit - 1)
+
                 # print(cached_params)
 
             if new_utiltiy < min_utility:
@@ -113,9 +117,10 @@ def minimax_max_node(board, color, limit, caching = 0):
         max_move = None
 
         for each in moves:
-            move, new_until = minimax_min_node(play_move(board, color, each[0], each[1]), color, limit -1)
-            cached_params[play_move(board, color, each[0], each[1])] = (move, new_until)
-
+            if caching == 1:
+                cached_params[play_move(board, color, each[0], each[1])] = (move, new_until)
+            else:
+                move, new_until = minimax_min_node(play_move(board, color, each[0], each[1]), color, limit - 1)
             if new_until > max_until:
                 max_until = new_until
                 max_move = each
@@ -137,18 +142,18 @@ def select_move_minimax(board, color, limit, caching = 0):
     If caching is OFF (i.e. 0), do NOT use state caching to reduce the number of state evaluations.
     """
     #IMPLEMENT
-    # return minimax_max_node(board, color, limit)[0]
-    moves = get_possible_moves(board, color)
-
-    utilities = []
-    for move in moves:
-        successor_state = play_move(board, color, move[0], move[1])
-        u = minimax_min_node(successor_state, color, limit, caching)[1]
-        utilities.append(u)
-
-    optimal_action = moves[utilities.index(max(utilities))]
-
-    return optimal_action
+    return minimax_max_node(board, color, limit)[0]
+    # moves = get_possible_moves(board, color)
+    #
+    # utilities = []
+    # for move in moves:
+    #     successor_state = play_move(board, color, move[0], move[1])
+    #     u = minimax_min_node(successor_state, color, limit, caching)[1]
+    #     utilities.append(u)
+    #
+    # optimal_action = moves[utilities.index(max(utilities))]
+    #
+    # return optimal_action
 
 ############ ALPHA-BETA PRUNING #####################
 def alphabeta_min_node(board, color, alpha, beta, limit, caching = 0, ordering = 0):
@@ -175,12 +180,15 @@ def alphabeta_min_node(board, color, alpha, beta, limit, caching = 0, ordering =
 
         sorted_moves = [(each, play_move(board, other_color, each[0], each[1])) for each in moves]
 
-        sorted_moves.sort(key=lambda util: compute_utility(util[1], color))
+        if ordering == 1:
+            sorted_moves.sort(key=lambda util: compute_utility(util[1], color))
 
         for each in sorted_moves:
 
-            move, new_until = alphabeta_max_node(each[1], color, alpha, beta, limit -1)
-            cached_params[each[1]] = (move, new_until)
+            (move, new_until) = alphabeta_max_node(each[1], color, alpha, beta, limit - 1)
+
+            if caching == 0:
+                cached_params[each[1]] = (move, new_until)
 
             if new_until < min_utility:
                 min_utility = new_until
@@ -217,11 +225,13 @@ def alphabeta_max_node(board, color, alpha, beta, limit, caching = 0, ordering =
 
         sorted_moves = [(each, play_move(board, color, each[0], each[1])) for each in moves]
 
-        sorted_moves.sort(key=lambda util: compute_utility(util[1], color), reverse=True)
+        if ordering == 1:
+            sorted_moves.sort(key=lambda util: compute_utility(util[1], color), reverse=True)
 
         for each in sorted_moves:
             move, new_until = alphabeta_min_node(each[1], color, alpha, beta, limit -1)
-            cached_params[each[1]] = (move, new_until)
+            if caching == 1:
+                cached_params[each[1]] = (move, new_until)
 
             if new_until > max_utility:
                 max_utility = new_until
@@ -254,29 +264,29 @@ def select_move_alphabeta(board, color, limit, caching = 0, ordering = 0):
     If ordering is ON (i.e. 1), use node ordering to expedite pruning and reduce the number of state evaluations.
     If ordering is OFF (i.e. 0), do NOT use node ordering to expedite pruning and reduce the number of state evaluations.
     """
-    # alpha = float('-inf')
-    # beta = -1 * alpha
-    # return alphabeta_max_node(board, color, alpha, beta, limit)[0]
-    alpha = float("-inf")
-    beta = float("inf")
-    moves = get_possible_moves(board, color)
-
-    start = time.time()
-    optimal_action = None
-
-    if not limit > 0:
-        limit = sys.maxsize
-    for i in range(1, limit):  # do iterative deepening
-        if time.time() - start > 10:
-            break
-        for move in moves:
-            successor_state = play_move(board, color, move[0], move[1])
-            u = alphabeta_min_node(successor_state, color, alpha, beta, limit, caching, ordering)[1]
-            if u > alpha:
-                alpha = u
-                optimal_action = move
-
-    return optimal_action
+    alpha = float('-inf')
+    beta = -1 * alpha
+    return alphabeta_max_node(board, color, alpha, beta, limit)[0]
+    # alpha = float("-inf")
+    # beta = float("inf")
+    # moves = get_possible_moves(board, color)
+    #
+    # start = time.time()
+    # optimal_action = None
+    #
+    # if not limit > 0:
+    #     limit = sys.maxsize
+    # for i in range(1, limit):  # do iterative deepening
+    #     if time.time() - start > 10:
+    #         break
+    #     for move in moves:
+    #         successor_state = play_move(board, color, move[0], move[1])
+    #         u = alphabeta_min_node(successor_state, color, alpha, beta, limit, caching, ordering)[1]
+    #         if u > alpha:
+    #             alpha = u
+    #             optimal_action = move
+    #
+    # return optimal_action
 
 
 ####################################################
