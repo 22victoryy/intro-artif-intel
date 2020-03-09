@@ -137,7 +137,18 @@ def select_move_minimax(board, color, limit, caching = 0):
     If caching is OFF (i.e. 0), do NOT use state caching to reduce the number of state evaluations.
     """
     #IMPLEMENT
-    return minimax_max_node(board, color, limit)[0]
+    # return minimax_max_node(board, color, limit)[0]
+    moves = get_possible_moves(board, color)
+
+    utilities = []
+    for move in moves:
+        successor_state = play_move(board, color, move[0], move[1])
+        u = minimax_min_node(successor_state, color, limit, caching)[1]
+        utilities.append(u)
+
+    optimal_action = moves[utilities.index(max(utilities))]
+
+    return optimal_action
 
 ############ ALPHA-BETA PRUNING #####################
 def alphabeta_min_node(board, color, alpha, beta, limit, caching = 0, ordering = 0):
@@ -243,11 +254,29 @@ def select_move_alphabeta(board, color, limit, caching = 0, ordering = 0):
     If ordering is ON (i.e. 1), use node ordering to expedite pruning and reduce the number of state evaluations.
     If ordering is OFF (i.e. 0), do NOT use node ordering to expedite pruning and reduce the number of state evaluations.
     """
-    alpha = float('-inf')
-    beta = -1 * alpha
-    return alphabeta_max_node(board, color, alpha, beta, limit)[0]
+    # alpha = float('-inf')
+    # beta = -1 * alpha
+    # return alphabeta_max_node(board, color, alpha, beta, limit)[0]
+    alpha = float("-inf")
+    beta = float("inf")
+    moves = get_possible_moves(board, color)
 
+    start = time.time()
+    optimal_action = None
 
+    if not limit > 0:
+        limit = sys.maxsize
+    for i in range(1, limit):  # do iterative deepening
+        if time.time() - start > 10:
+            break
+        for move in moves:
+            successor_state = play_move(board, color, move[0], move[1])
+            u = alphabeta_min_node(successor_state, color, alpha, beta, limit, caching, ordering)[1]
+            if u > alpha:
+                alpha = u
+                optimal_action = move
+
+    return optimal_action
 
 
 ####################################################
