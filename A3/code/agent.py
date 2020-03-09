@@ -78,23 +78,23 @@ def minimax_min_node(board, color, limit, caching = 0):
     if len(moves) == 0 or limit == 0:
         return None, compute_utility(board, color)
     else:
-        min_utility = float('inf')
+        min_util = float('inf')
         min_move = None
 
         # change to while
         for each in moves:
-            (move, new_utiltiy) = minimax_max_node(play_move(board, other_color, each[0], each[1]), color, limit - 1)
+            (move, new_util) = minimax_max_node(play_move(board, other_color, each[0], each[1]), color, limit - 1)
 
             if caching == 1:
-                cached_params[play_move(board, other_color, each[0], each[1])] = (move, new_utiltiy)
+                cached_params[play_move(board, other_color, each[0], each[1])] = (move, new_util)
 
                 # print(cached_params)
 
-            if new_utiltiy < min_utility:
-                min_utility = new_utiltiy
+            if new_util < min_util:
+                min_util = new_util
                 min_move = each
 
-    return (min_move, min_utility)
+    return (min_move, min_util)
 
 
 def minimax_max_node(board, color, limit, caching = 0):
@@ -173,7 +173,7 @@ def alphabeta_min_node(board, color, alpha, beta, limit, caching = 0, ordering =
     if len(moves) == 0 or limit == 0:
         return None, compute_utility(board, color)
     else:
-        min_utility = float('inf')
+        min_util = float('inf')
         min_move = None
 
         sorted_moves = [(each, play_move(board, other_color, each[0], each[1])) for each in moves]
@@ -188,17 +188,17 @@ def alphabeta_min_node(board, color, alpha, beta, limit, caching = 0, ordering =
             if caching == 1:
                 cached_params[each[1]] = (move, new_until)
 
-            if new_until < min_utility:
-                min_utility = new_until
+            if new_until < min_util:
+                min_util = new_until
                 min_move = each[0]
 
-            if min_utility <= alpha:
-                return min_move, min_utility
+            if min_util <= alpha:
+                return min_move, min_util
 
-            if min_utility < beta:
-                beta = min_utility
+            if min_util < beta:
+                beta = min_util
 
-        return min_move, min_utility
+        return min_move, min_util
 
 
 def alphabeta_max_node(board, color, alpha, beta, limit, caching = 0, ordering = 0):
@@ -218,7 +218,7 @@ def alphabeta_max_node(board, color, alpha, beta, limit, caching = 0, ordering =
     if len(moves) == 0 or limit == 0:
         return None, compute_utility(board, color)
     else:
-        max_utility = float('-inf')
+        min_util = float('-inf')
         max_move = None
 
         sorted_moves = [(each, play_move(board, color, each[0], each[1])) for each in moves]
@@ -232,17 +232,17 @@ def alphabeta_max_node(board, color, alpha, beta, limit, caching = 0, ordering =
             else:
                 move, new_until = alphabeta_min_node(each[1], color, alpha, beta, limit - 1)
 
-            if new_until > max_utility:
-                max_utility = new_until
+            if new_until > min_util:
+                min_util = new_until
                 max_move = each[0]
 
-            if max_utility >= beta:
-                return max_move, max_utility
+            if min_util >= beta:
+                return max_move, min_util
 
-            if max_utility > alpha:
-                alpha = max_utility
+            if min_util > alpha:
+                alpha = min_util
 
-        return (max_move, max_utility)
+        return (max_move, min_util)
 
 
 
