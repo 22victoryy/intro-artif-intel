@@ -83,12 +83,10 @@ def minimax_min_node(board, color, limit, caching = 0):
 
         # change to while
         for each in moves:
-
+            (move, new_utiltiy) = minimax_max_node(play_move(board, other_color, each[0], each[1]), color, limit - 1)
 
             if caching == 1:
                 cached_params[play_move(board, other_color, each[0], each[1])] = (move, new_utiltiy)
-            else:
-                (move, new_utiltiy) = minimax_max_node(play_move(board, other_color, each[0], each[1]), color, limit - 1)
 
                 # print(cached_params)
 
@@ -117,10 +115,10 @@ def minimax_max_node(board, color, limit, caching = 0):
         max_move = None
 
         for each in moves:
+            move, new_until = minimax_min_node(play_move(board, color, each[0], each[1]), color, limit - 1)
+
             if caching == 1:
                 cached_params[play_move(board, color, each[0], each[1])] = (move, new_until)
-            else:
-                move, new_until = minimax_min_node(play_move(board, color, each[0], each[1]), color, limit - 1)
             if new_until > max_until:
                 max_until = new_until
                 max_move = each
@@ -187,7 +185,7 @@ def alphabeta_min_node(board, color, alpha, beta, limit, caching = 0, ordering =
 
             (move, new_until) = alphabeta_max_node(each[1], color, alpha, beta, limit - 1)
 
-            if caching == 0:
+            if caching == 1:
                 cached_params[each[1]] = (move, new_until)
 
             if new_until < min_utility:
@@ -229,9 +227,10 @@ def alphabeta_max_node(board, color, alpha, beta, limit, caching = 0, ordering =
             sorted_moves.sort(key=lambda util: compute_utility(util[1], color), reverse=True)
 
         for each in sorted_moves:
-            move, new_until = alphabeta_min_node(each[1], color, alpha, beta, limit -1)
             if caching == 1:
                 cached_params[each[1]] = (move, new_until)
+            else:
+                move, new_until = alphabeta_min_node(each[1], color, alpha, beta, limit - 1)
 
             if new_until > max_utility:
                 max_utility = new_until
