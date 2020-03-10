@@ -81,18 +81,17 @@ def minimax_min_node(board, color, limit, caching = 0):
         min_util = float('inf')
         min_move = None
 
-        # change to while
-        for each in moves:
-            (move, new_util) = minimax_max_node(play_move(board, other_color, each[0], each[1]), color, limit - 1)
+        for move in moves:
+            (move, new_util) = minimax_max_node(play_move(board, other_color, move[0], move[1]), color, limit - 1)
 
             if caching == 1:
-                cached_params[play_move(board, other_color, each[0], each[1])] = (move, new_util)
+                cached_params[play_move(board, other_color, move[0], move[1])] = (move, new_util)
 
                 # print(cached_params)
 
             if new_util < min_util:
                 min_util = new_util
-                min_move = each
+                min_move = move
 
     return (min_move, min_util)
 
@@ -114,14 +113,14 @@ def minimax_max_node(board, color, limit, caching = 0):
         max_until = float('-inf')
         max_move = None
 
-        for each in moves:
-            move, new_until = minimax_min_node(play_move(board, color, each[0], each[1]), color, limit - 1)
+        for move in moves:
+            move, new_until = minimax_min_node(play_move(board, color, move[0], move[1]), color, limit - 1)
 
             if caching == 1:
-                cached_params[play_move(board, color, each[0], each[1])] = (move, new_until)
+                cached_params[play_move(board, color, move[0], move[1])] = (move, new_until)
             if new_until > max_until:
                 max_until = new_until
-                max_move = each
+                max_move = move
 
     return (max_move, max_until)
 
@@ -140,18 +139,8 @@ def select_move_minimax(board, color, limit, caching = 0):
     If caching is OFF (i.e. 0), do NOT use state caching to reduce the number of state evaluations.
     """
     #IMPLEMENT
-    return minimax_max_node(board, color, limit)[0]
-    # moves = get_possible_moves(board, color)
-    #
-    # utilities = []
-    # for move in moves:
-    #     successor_state = play_move(board, color, move[0], move[1])
-    #     u = minimax_min_node(successor_state, color, limit, caching)[1]
-    #     utilities.append(u)
-    #
-    # optimal_action = moves[utilities.index(max(utilities))]
-    #
-    # return optimal_action
+    return minimax_max_node(board, color, limit, caching)[0]
+
 
 ############ ALPHA-BETA PRUNING #####################
 def alphabeta_min_node(board, color, alpha, beta, limit, caching = 0, ordering = 0):
@@ -171,7 +160,7 @@ def alphabeta_min_node(board, color, alpha, beta, limit, caching = 0, ordering =
     moves = get_possible_moves(board, other_color)
 
     if len(moves) == 0 or limit == 0:
-        return None, compute_utility(board, color)
+        return (None, compute_utility(board, color))
     else:
         min_util = float('inf')
         min_move = None
@@ -181,16 +170,16 @@ def alphabeta_min_node(board, color, alpha, beta, limit, caching = 0, ordering =
         if ordering == 1:
             sorted_moves.sort(key=lambda util: compute_utility(util[1], color))
 
-        for each in sorted_moves:
+        for move in sorted_moves:
 
-            (move, new_until) = alphabeta_max_node(each[1], color, alpha, beta, limit - 1)
+            (move, new_until) = alphabeta_max_node(move[1], color, alpha, beta, limit - 1)
 
             if caching == 1:
-                cached_params[each[1]] = (move, new_until)
+                cached_params[move[1]] = (move, new_until)
 
             if new_until < min_util:
                 min_util = new_until
-                min_move = each[0]
+                min_move = move[0]
 
             if min_util <= alpha:
                 return min_move, min_util
@@ -226,15 +215,15 @@ def alphabeta_max_node(board, color, alpha, beta, limit, caching = 0, ordering =
         if ordering == 1:
             sorted_moves.sort(key=lambda util: compute_utility(util[1], color), reverse=True)
 
-        for each in sorted_moves:
+        for move in sorted_moves:
+            move, new_until = alphabeta_min_node(move[1], color, alpha, beta, limit - 1)
+
             if caching == 1:
-                cached_params[each[1]] = (move, new_until)
-            else:
-                move, new_until = alphabeta_min_node(each[1], color, alpha, beta, limit - 1)
+                cached_params[move[1]] = (move, new_until)
 
             if new_until > min_util:
                 min_util = new_until
-                max_move = each[0]
+                max_move = move[0]
 
             if min_util >= beta:
                 return max_move, min_util
@@ -265,27 +254,7 @@ def select_move_alphabeta(board, color, limit, caching = 0, ordering = 0):
     """
     alpha = float('-inf')
     beta = -1 * alpha
-    return alphabeta_max_node(board, color, alpha, beta, limit)[0]
-    # alpha = float("-inf")
-    # beta = float("inf")
-    # moves = get_possible_moves(board, color)
-    #
-    # start = time.time()
-    # optimal_action = None
-    #
-    # if not limit > 0:
-    #     limit = sys.maxsize
-    # for i in range(1, limit):  # do iterative deepening
-    #     if time.time() - start > 10:
-    #         break
-    #     for move in moves:
-    #         successor_state = play_move(board, color, move[0], move[1])
-    #         u = alphabeta_min_node(successor_state, color, alpha, beta, limit, caching, ordering)[1]
-    #         if u > alpha:
-    #             alpha = u
-    #             optimal_action = move
-    #
-    # return optimal_action
+    return alphabeta_max_node(board, color, alpha, beta, limit, caching, ordering)[0]
 
 
 ####################################################
