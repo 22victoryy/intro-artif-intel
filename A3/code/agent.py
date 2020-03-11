@@ -91,6 +91,7 @@ def minimax_min_node(board, color, limit, caching = 0):
             if util < mini_val:
                 mini_val = util
                 mini_move = moves[a]
+
             a += 1
 
     return (mini_move, mini_val)
@@ -171,6 +172,7 @@ def alphabeta_min_node(board, color, alpha, beta, limit, caching = 0, ordering =
             move_list.sort(key=lambda utilities: compute_utility(utilities[1], color))
 
         a = 0
+        # https://fr.wikipedia.org/wiki/%C3%89lagage_alpha-b%C3%AAta#Pseudocode
         while a < len(move_list):
             (move, util) = alphabeta_max_node(move_list[a][1], color, alpha, beta, limit - 1)
 
@@ -186,10 +188,11 @@ def alphabeta_min_node(board, color, alpha, beta, limit, caching = 0, ordering =
 
             if ab_min < beta:
                 beta = ab_min
+                if beta <= alpha:
+                    break
             a += 1
 
         return ab_move, ab_min
-
 
 def alphabeta_max_node(board, color, alpha, beta, limit, caching = 0, ordering = 0):
     """
@@ -218,6 +221,7 @@ def alphabeta_max_node(board, color, alpha, beta, limit, caching = 0, ordering =
 
         # print(move_list)
         # print(len(move_list))
+        # https://fr.wikipedia.org/wiki/%C3%89lagage_alpha-b%C3%AAta#Pseudocode
         a = 0
         while a < len(move_list):
             # print(move_list[a])
@@ -235,12 +239,11 @@ def alphabeta_max_node(board, color, alpha, beta, limit, caching = 0, ordering =
 
             if ab_max > alpha:
                 alpha = ab_max
+                if beta <= alpha:
+                    break
             a += 1
 
-
-
         return (ab_move, ab_max)
-
 
 
 def select_move_alphabeta(board, color, limit, caching = 0, ordering = 0):
@@ -260,9 +263,7 @@ def select_move_alphabeta(board, color, limit, caching = 0, ordering = 0):
     If ordering is ON (i.e. 1), use node ordering to expedite pruning and reduce the number of state evaluations.
     If ordering is OFF (i.e. 0), do NOT use node ordering to expedite pruning and reduce the number of state evaluations.
     """
-    alpha = float('-inf')
-    beta = -1 * alpha
-    return alphabeta_max_node(board, color, alpha, beta, limit)[0]
+    return alphabeta_max_node(board, color, float('-inf'), float('inf'), limit)[0]
 
 
 ####################################################
