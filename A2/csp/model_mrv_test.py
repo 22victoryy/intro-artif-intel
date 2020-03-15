@@ -2,7 +2,7 @@ from cspbase import *
 from futoshiki_csp import *
 from propagators import *
 
-test_ord_mrv = False
+test_ord_mrv = True
 test_model = True
 
 board_1 = [[1,'<',0,'.',0],[0,'.',0,'.',2],[2,'.',0,'>',0]]  # 3 x 3, 2d arr..

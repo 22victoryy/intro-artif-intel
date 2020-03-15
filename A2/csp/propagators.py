@@ -106,6 +106,7 @@ def fw_checking(constraint, variable, pruned):
 
     # finished helper function
 
+
 def prop_FC(csp, newVar=None):
     '''Do forward checking. That is check constraints with
        only one uninstantiated variable. Remember to keep
@@ -144,7 +145,10 @@ def prop_GAC(csp, newVar=None):
         for c in csp.get_all_cons():
             c_queue.append(c)
 
+
+
     return gac_enforce(csp, c_queue, pruned)
+
 
 def gac_enforce(csp, c_queue, pruned):
     """

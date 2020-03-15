@@ -106,10 +106,6 @@ def futoshiki_csp_model_1(futo_grid):
         alldiff = [*alldiff, diff]
         var_array = [*var_array, row]
         j += 1
-    # print(type(var_array[0][0]))
-    print(variables)
-    # print(var_array)
-
 
     a = 0
     while a  < len(var_array):
@@ -193,8 +189,6 @@ def futoshiki_csp_model_2(futo_grid):
         alldiff = [*alldiff, diff]
         var_array = [*var_array, row]
         j += 1
-
-    print(var_array)
 
     a = 0
     while a < len(var_array):
