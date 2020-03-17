@@ -143,15 +143,12 @@ def select_move_minimax(board, color, limit, caching = 0):
     #IMPLEMENT
     # return minimax_max_node(board, color, limit)[0]
     # IMPLEMENT
-    if get_possible_moves(board, color) is None or limit == 0:
-        return ([], compute_utility(board, color))
+    moves = get_possible_moves(board, color)
 
-    # Apply player's moves to get successor states
-    # always max
-    global cached_params
-    (move, maxval) = minimax_max_node(board, color, limit, caching)
+    if len(moves) == 0 or limit == 0:
+        return (None, compute_utility(board, color))
 
-    return move  # change this!
+    return minimax_max_node(board, color, limit, caching)[0]
 
 ############ ALPHA-BETA PRUNING #####################
 def alphabeta_min_node(board, color, alpha, beta, limit, caching = 0, ordering = 0):
@@ -182,7 +179,7 @@ def alphabeta_min_node(board, color, alpha, beta, limit, caching = 0, ordering =
             move_list.sort(key=lambda utilities: compute_utility(utilities[1], color))
 
         a = 0
-        # https://fr.wikipedia.org/wiki/%C3%89lagage_alpha-b%C3%AAta#Pseudocode
+        # https://fr.wikipedia.org/wiki/%C3%89lagage_alpha-b%C3%AAta#Pseudocode --> Pseudocode
         while a < len(move_list):
             (move, util) = alphabeta_max_node(move_list[a][1], color, alpha, beta, limit - 1)
 
@@ -231,7 +228,7 @@ def alphabeta_max_node(board, color, alpha, beta, limit, caching = 0, ordering =
 
         # print(move_list)
         # print(len(move_list))
-        # https://fr.wikipedia.org/wiki/%C3%89lagage_alpha-b%C3%AAta#Pseudocode
+        # https://fr.wikipedia.org/wiki/%C3%89lagage_alpha-b%C3%AAta#Pseudocode --> Pseudocode
         a = 0
         while a < len(move_list):
             # print(move_list[a])
@@ -273,25 +270,25 @@ def select_move_alphabeta(board, color, limit, caching = 0, ordering = 0):
     If ordering is ON (i.e. 1), use node ordering to expedite pruning and reduce the number of state evaluations.
     If ordering is OFF (i.e. 0), do NOT use node ordering to expedite pruning and reduce the number of state evaluations.
     """
-    if get_possible_moves(board, color) is None or limit == 0:
-        return compute_utility(board, color)
-    global cached_params
-    infinity = float('inf')
-    bestval = -infinity
-    beta = infinity
-    suc_boards = []
+    moves = get_possible_moves(board, color)
+
+    alpha = float('-inf')
+    beta = float('inf')
+
     bestmove = None
-    for m in get_possible_moves(board, color):
-        suc_boards.append((play_move(board, color, m[0], m[1]), m))
-    for state, m in suc_boards:
-        move, value = alphabeta_min_node(state, color, bestval, beta, limit - 1, caching)
-        if value > bestval:
-            bestval = value
-            bestmove = m
 
-    return bestmove  # change this!
-    # return alphabeta_max_node(board, color, float('-inf'), float('inf'), limit)[0]
+    if limit == 0 or len(moves) == 0:
+        return compute_utility(board, color)
 
+    i = 0
+    while i < len(moves):
+        next_board = play_move(board, color, moves[i][0], moves[i][1])
+        util = alphabeta_min_node(next_board, color, alpha, beta, limit - 1, caching, ordering)[1]
+        if util > alpha:
+            alpha = util
+            bestmove = moves[i]
+        i += 1
+    return bestmove
 
 ####################################################
 def run_ai():
