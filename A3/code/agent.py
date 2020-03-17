@@ -290,7 +290,7 @@ def select_move_alphabeta(board, color, limit, caching = 0, ordering = 0):
         i += 1
     return bestmove
 
-####################################################
+###################################################
 def run_ai():
     """
     This function establishes communication with the game manager.
