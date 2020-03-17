@@ -21,6 +21,7 @@ cell of the Futoshiki puzzle.
 2. futoshiki_csp_model_2 (worth 20/100 marks)
     - A model of a Futoshiki grid built using only n-ary
       all-different constraints for both the row and column constraints.
+# remark tbd
 
 '''
 from cspbase import *
