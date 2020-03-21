@@ -5,7 +5,7 @@
 (d)P(c|a,−f) = 0.5
 
 2.
-a)
-b)
-c)
-d)
+a) Car Starts, Airfilter, Airsystem
+b) Voltage at plug, Spark Quality, Spark Plug
+c) Spark timing(true), Air System(okay), Fuel System(okay), Car cranks(true), Spark Quality(good), 0.986
+d) Car Cranks(true), Headlights(off), Car System(faulty), Battery Voltage(strong), Starter System(okay)
