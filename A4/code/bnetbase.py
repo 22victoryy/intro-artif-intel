@@ -295,6 +295,9 @@ class BN:
     def variables(self):
         return list(self.Variables)
 
+
+#######################################################################################################
+
 def multiply_factors(Factors):
     '''return a new factor that is the product of the factors in Fators'''
      #IMPLEMENT
@@ -339,6 +342,9 @@ def multiply_two_factors_rec(f1, f2, mergedVars, newValues):
             multiply_two_factors_rec(f1, f2, mergedVars[1:], newValues)
 
 
+####################################################################################################
+
+
 def restrict_factor(f, var, value):
     '''f is a factor, var is a Variable, and value is a value from var.domain.
     Return a new factor that is the restriction of f by this var = value.
@@ -372,6 +378,9 @@ def restrict_factor_rec(oldFactor, newScope, newValues):
         for val in newScope[0].domain():
             newScope[0].set_assignment(val)
             restrict_factor_rec(oldFactor, newScope[1:], newValues)
+
+####################################################################################################################
+
 
 def sum_out_variable(f, var):
     '''return a new factor that is the product of the factors in Factors
@@ -411,18 +420,28 @@ def sum_out_variable_rec(oldFactor, newScope, newScopeCopy, newValues):
             newScope[0].set_assignment(val)
             sum_out_variable_rec(oldFactor, newScope[1:], newScopeCopy, newValues)
 
+##################################################################################################################
+
 def normalize(nums):
     '''take as input a list of number and return a new list of numbers where
     now the numbers sum to 1, i.e., normalize the input numbers'''
-    s = sum(nums)
-    if s == 0:
-        newnums = [0] * len(nums)
-    else:
-        newnums = []
-        for n in nums:
-            newnums.append(n / s)
-    return newnums
 
+    # if sum(nums) == 0:
+    # print("hi")
+    #
+    #
+    # s = sum(nums)
+    # if s == 0:
+    #     newnums = [0] * len(nums)
+    #     # print(newnums)
+    # else:
+    #     newnums = []
+    #     for n in nums:
+    #         newnums.append(n / s)
+    # return newnums
+    return [x for x in nums]
+
+####################################################################################################
 ###Orderings
 def min_fill_ordering(Factors, QueryVar):
     '''Compute a min fill ordering given a list of factors. Return a list
@@ -474,6 +493,7 @@ def compute_fill(scopes, var):
     if var in union: union.remove(var)
     return (len(union), union)
 
+
 def remove_var(var, new_scope, scopes):
     '''Return the new set of scopes that arise from eliminating var
     from scopes'''
@@ -484,6 +504,8 @@ def remove_var(var, new_scope, scopes):
     new_scopes.append(new_scope)
     return new_scopes
 
+
+############################################################################################################
 
 ###
 def VE(Net, QueryVar, EvidenceVars):
