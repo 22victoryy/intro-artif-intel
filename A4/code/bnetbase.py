@@ -296,7 +296,7 @@ class BN:
         return list(self.Variables)
 
 
-#######################################################################################################
+####################################################################################################
 
 def multiply_factors(Factors):
     '''return a new factor that is the product of the factors in Fators'''
@@ -425,21 +425,14 @@ def sum_out_variable_rec(oldFactor, newScope, newScopeCopy, newValues):
 def normalize(nums):
     '''take as input a list of number and return a new list of numbers where
     now the numbers sum to 1, i.e., normalize the input numbers'''
-
-    # if sum(nums) == 0:
-    # print("hi")
-    #
-    #
-    # s = sum(nums)
-    # if s == 0:
-    #     newnums = [0] * len(nums)
-    #     # print(newnums)
-    # else:
-    #     newnums = []
-    #     for n in nums:
-    #         newnums.append(n / s)
-    # return newnums
-    return [x for x in nums]
+    s = sum(nums)
+    if s == 0:
+        newnums = [0] * len(nums)
+    else:
+        newnums = []
+        for n in nums:
+            newnums.append(n / s)
+    return newnums
 
 ####################################################################################################
 ###Orderings
