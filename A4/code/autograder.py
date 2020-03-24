@@ -1,3 +1,4 @@
+##Three sample bayes nets are defined here. ##
 from bnetbase import *
 
 VisitAsia = Variable('Visit_To_Asia', ['visit', 'no-visit'])
@@ -171,9 +172,8 @@ if __name__ == '__main__':
     
     print("Test 8 ....", end = '')    
     probs = VE(Q3, E, [])
-    if probs[0] == 0.1 and probs[1] == 0.9:
+    if abs(probs[0] - 0.1) < 0.0001 and abs(probs[1] - 0.9) < 0.0001:
       print("passed.")
     else:
       print("failed.")      
     print('P(e) = {} P(-e) = {}'.format(probs[0], probs[1]))
-
