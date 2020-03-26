@@ -318,9 +318,9 @@ def multiply_factors(Factors):
                 name = [*name, Factors[i].name]
             j += 1
         i += 1
-    nfactor = Factor('multiply'.format(name), varscope)
-    mf_helper(nfactor, Factors, varscope)
-    return nfactor
+    mult_factor = Factor('multiply-{}'.format(name), varscope)
+    mf_helper(mult_factor, Factors, varscope)
+    return mult_factor
 
 
 def mf_helper(nf, f, nscope):
@@ -365,7 +365,7 @@ def restrict_factor(f, var, value):
     #
     scope_distinct = [v for v in f.get_scope() if v != var]
 
-    factor = Factor("restrict - {}".format(name), scope_distinct)
+    res_factor = Factor("restrict - {}".format(name), scope_distinct)
 
     values = []
 
@@ -379,11 +379,8 @@ def restrict_factor(f, var, value):
             new.pop(f.get_scope().index(var))
             values = [*values, new + [f.get_value(list(each))]]
 
-    factor.add_values(values)
-    return factor
-
-
-
+    res_factor.add_values(values)
+    return res_factor
 
 
 def sum_out_variable(f, var):
@@ -395,10 +392,11 @@ def sum_out_variable(f, var):
 
     scope_distinct = [v for v in f.get_scope() if v != var]
 
+    # domain
     dom = list(map(Variable.domain, scope_distinct))
     var_dom = var.domain()
 
-    factor = Factor("sumvar - {}".format(name), scope_distinct)
+    sumfactor = Factor("sumvar - {}".format(name), scope_distinct)
 
     # iterate through cross product
     i = iter(product(*dom))
@@ -407,15 +405,18 @@ def sum_out_variable(f, var):
         value = 0
         # increment value one by one every iteration of cross product
         while j < len(var_dom):
-            new = list(each)
-            new.insert(f.get_scope().index(var), var_dom[j])
-            value += f.get_value(new)
+            if len(f.scope) == 0:  # base
+                values.append(f.get_value_at_current_assignments())
+            else:
+                new = list(each)
+                new.insert(f.get_scope().index(var), var_dom[j])
+                value += f.get_value(new)
             j += 1
         new = list(each) + [value]
         values.append(new)
 
-    factor.add_values(values)
-    return factor
+    sumfactor.add_values(values)
+    return sumfactor
 
 
 def normalize(nums):
