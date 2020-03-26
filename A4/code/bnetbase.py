@@ -367,17 +367,17 @@ def restrict_factor(f, var, value):
 
     factor = Factor("restrict - {}".format(name), scope_distinct)
 
-    i = iter(product(*dom))
-
     values = []
+
+    i = iter(product(*dom))
     for each in takewhile(lambda e: e, i):
     # for each in product(*dom):
         if len(f.scope) == 0:  # base
             values.append(f.get_value_at_current_assignments())
         else:
-            new = list(each)  # alternate
+            new = list(each)  # remove at variable index
             new.pop(f.get_scope().index(var))
-            values.append(new + [f.get_value(list(each))])
+            values = [*values, new + [f.get_value(list(each))]]
 
     factor.add_values(values)
     return factor
