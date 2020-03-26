@@ -1,50 +1,43 @@
+# Look for
+# You must implement this function
+# tags.
+
 from itertools import product
-from itertools import takewhile
 
 '''Classes for variable elimination Routines 
    A) class BN_Variable
-
       This class allows one to define Bayes Net variables.
-
       On initialization the variable object can be given a name and a
       domain of values. This list of domain values can be added to or
       deleted from in support of an incremental specification of the
       variable domain.
-
       The variable also has a set and get value method. These set a
       value for the variable that can be used by the factor class. 
-
-
     B) class factor
-
       This class allows one to define a factor specified by a table
       of values. 
-
       On initialization the variables the factor is over is
       specified. This must be a list of variables. This list of
       variables cannot be changed once the constraint object is
       created.
-
       Once created the factor can be incrementally initialized with a
       list of values. To interact with the factor object one first
       sets the value of each variable in its scope (using the
       variable's set_value method), then one can set or get the value
       of the factor (a number) on those fixed values of the variables
       in its scope.
-
       Initially, one creates a factor object for every conditional
       probability table in the bayes-net. Then one initializes the
       factor by iteratively setting the values of all of the factor's
       variables and then adding the factor's numeric value using the
       add_value method. 
-
     C) class BN
        This class allows one to put factors and variables together to form a Bayes net.
        It serves as a convient place to store all of the factors and variables associated
        with a Bayes Net in one place. It also has some utility routines to, e.g,., find
        all of the factors a variable is involved in. 
-
     '''
+
 
 class Variable:
     '''Class for defining Bayes Net variables. '''
@@ -53,12 +46,12 @@ class Variable:
         '''Create a variable object, specifying its name (a
         string). Optionally specify the initial domain.
         '''
-        self.name = name                #text name for variable
-        self.dom = list(domain)         #Make a copy of passed domain
-        self.evidence_index = 0         #evidence value (stored as index into self.dom)
-        self.assignment_index = 0       #For use by factors. We can assign variables values
-                                        #and these assigned values can be used by factors
-                                        #to index into their tables.
+        self.name = name  # text name for variable
+        self.dom = list(domain)  # Make a copy of passed domain
+        self.evidence_index = 0  # evidence value (stored as index into self.dom)
+        self.assignment_index = 0  # For use by factors. We can assign variables values
+        # and these assigned values can be used by factors
+        # to index into their tables.
 
     def add_domain_values(self, values):
         '''Add domain values to the domain. values should be a list.'''
@@ -71,25 +64,25 @@ class Variable:
 
     def domain_size(self):
         '''Return the size of the domain'''
-        return(len(self.dom))
+        return (len(self.dom))
 
     def domain(self):
         '''return the variable domain'''
-        return(list(self.dom))
+        return (list(self.dom))
 
-    def set_evidence(self,val):
+    def set_evidence(self, val):
         '''set this variable's value when it operates as evidence'''
         self.evidence_index = self.value_index(val)
 
     def get_evidence(self):
-        return(self.dom[self.evidence_index])
+        return (self.dom[self.evidence_index])
 
     def set_assignment(self, val):
         '''Set this variable's assignment value for factor lookups'''
         self.assignment_index = self.value_index(val)
 
     def get_assignment(self):
-        return(self.dom[self.assignment_index])
+        return (self.dom[self.assignment_index])
 
     ##These routines are special low-level routines used directly by the
     ##factor objects
@@ -99,19 +92,18 @@ class Variable:
 
     def get_assignment_index(self):
         '''This routine is used by the factor objects'''
-        return(self.assignment_index)
+        return (self.assignment_index)
 
     def __repr__(self):
         '''string to return when evaluating the object'''
-        return("{}".format(self.name))
+        return ("{}".format(self.name))
 
     def __str__(self):
         '''more elaborate string for printing'''
-        return("{}, Dom = {}".format(self.name, self.dom))
+        return ("{}, Dom = {}".format(self.name, self.dom))
 
 
 class Factor:
-
     '''Class for defining factors. A factor is a function that is over
     an ORDERED sequence of variables called its scope. It maps every
     assignment of values to these variables to a number. In a Bayes
@@ -124,7 +116,6 @@ class Factor:
     elimination do not necessarily correspond to conditional
     probabilities. Nevertheless, they still map assignments of values
     to the variables in their scope to numbers.
-
     Note that if the factor's scope is empty it is a constaint factor
     that stores only one value. add_values would be passed something
     like [[0.25]] to set the factor's single value. The get_value
@@ -140,7 +131,7 @@ class Factor:
         size = 1
         for v in scope:
             size = size * v.domain_size()
-        self.values = [0]*size  #initialize values to be long list of zeros.
+        self.values = [0] * size  # initialize values to be long list of zeros.
 
     def get_scope(self):
         '''returns copy of scope...you can modify this copy without affecting
@@ -162,7 +153,6 @@ class Factor:
          [2, 'b', 'heavy', 0.99], [2, 'b', 'light', 2.25],
          [3, 'a', 'heavy', 0.90], [3, 'a', 'light', 0.111],
          [3, 'b', 'heavy', 0.01], [3, 'b', 'light', 0.1]]
-
          This list initializes the factor so that, e.g., its value on
          (A=2,B=b,C='light) is 2.25'''
 
@@ -174,7 +164,6 @@ class Factor:
             self.values[index] = t[0]
 
     def add_value_at_current_assignment(self, number):
-
         '''This function allows adding values to the factor in a way
         that will often be more convenient. We pass it only a single
         number. It then looks at the assigned values of the variables
@@ -182,7 +171,6 @@ class Factor:
         number on the current assignment of its variables. Hence, to
         use this function one first must set the current values of the
         variables in its scope.
-
         For example, if self.scope = [A, B, C],
         and A.domain() = [1,2,3], B.domain() = ['a', 'b'], and
         C.domain() = ['heavy', 'light'], and we first set an assignment for A, B
@@ -196,13 +184,11 @@ class Factor:
         the value 0.33 on the assigments (A=1, B='1', C='heavy')
         This has the same effect as the call
         add_values([1, 'a', 'heavy', 0.33])
-
         One advantage of the current_assignment interface to factor values is that
         we don't have to worry about the order of the variables in the factor's
         scope. add_values on the other hand has to be given tuples of values where
         the values must be given in the same order as the variables in the factor's
         scope.
-
         See recursive_print_values called by print_table to see an example of
         where the current_assignment interface to the factor values comes in handy.
         '''
@@ -213,7 +199,6 @@ class Factor:
         self.values[index] = number
 
     def get_value(self, variable_values):
-
         '''This function is used to retrieve a value from the
         factor. We pass it an ordered list of values, one for every
         variable in self.scope. It then returns the factor's value on
@@ -223,7 +208,6 @@ class Factor:
         on the list [1, 'b', 'heavy'] we would get a return value
         equal to the value of this factor on the assignment (A=1,
         B='b', C='light')'''
-
         index = 0
         for v in self.scope:
             index = index * v.domain_size() + v.value_index(variable_values[0])
@@ -231,19 +215,16 @@ class Factor:
         return self.values[index]
 
     def get_value_at_current_assignments(self):
-
         '''This function is used to retrieve a value from the
         factor. The value retrieved is the value of the factor when
         evaluated at the current assignment to the variables in its
         scope.
-
         For example, if self.scope = [A, B, C], and A.domain() =
         [1,2,3], B.domain() = ['a', 'b'], and C.domain() = ['heavy',
         'light'], and we had previously invoked A.set_assignment(1),
         B.set_assignment('a') and C.set_assignment('heavy'), then this
         function would return the value of the factor on the
         assigments (A=1, B='1', C='heavy')'''
-
         index = 0
         for v in self.scope:
             index = index * v.domain_size() + v.get_assignment_index()
@@ -251,7 +232,7 @@ class Factor:
 
     def print_table(self):
         '''print the factor's table'''
-        saved_values = []  #save and then restore the variable assigned values.
+        saved_values = []  # save and then restore the variable assigned values.
         for v in self.scope:
             saved_values.append(v.get_assignment_index())
 
@@ -263,7 +244,7 @@ class Factor:
 
     def recursive_print_values(self, vars):
         if len(vars) == 0:
-            print("[",end=""),
+            print("[", end=""),
             for v in self.scope:
                 print("{} = {},".format(v.name, v.get_assignment()), end="")
             print("] = {}".format(self.get_value_at_current_assignments()))
@@ -273,10 +254,10 @@ class Factor:
                 self.recursive_print_values(vars[1:])
 
     def __repr__(self):
-        return("{}".format(self.name))
+        return ("{}({})".format(self.name, list(map(lambda x: x.name, self.scope))))
+
 
 class BN:
-
     '''Class for defining a Bayes Net.
        This class is simple, it just is a wrapper for a list of factors. And it also
        keeps track of all variables in the scopes of these factors'''
@@ -290,7 +271,8 @@ class BN:
                 if not v in self.Variables:
                     print("Bayes net initialization error")
                     print("Factor scope {} has variable {} that", end='')
-                    print(" does not appear in list of variables {}.".format(list(map(lambda x: x.name, f.get_scope())), v.name, list(map(lambda x: x.name, Vars))))
+                    print(" does not appear in list of variables {}.".format(
+                        list(map(lambda x: x.name, f.get_scope()), v.name, map(lambda x: x.name, Vars))))
 
     def factors(self):
         return list(self.Factors)
@@ -299,138 +281,140 @@ class BN:
         return list(self.Variables)
 
 
+def check_assign(assign, var_list_list):
+    lut = {}
+    for i in range(len(assign)):
+        curr_assign = assign[i]
+        curr_vars = var_list_list[i]
+        for j in range(len(curr_vars)):
+            var = curr_vars[j]
+            val = curr_assign[j]
+            if var not in lut:  # not in lut, add to it
+                lut[var] = val
+            elif lut[var] != val:  # in lut, conflict val, reject
+                return {}
+    return lut
+
 
 def multiply_factors(Factors):
-    '''return a new factor that is the product of the factors in Fators'''
-     #IMPLEMENT
-    name = []
-    varscope = []
-    i = 0
-    while i < len(Factors):
-        scope = Factors[i].get_scope()
+    '''return a new factor that is the product of the factors in Factors'''
 
-    # for fact in Factors:
-        j = 0
-        while j < len(scope):
-            if scope[j] not in varscope:
-                varscope = [*varscope, scope[j]]
-            if Factors[i].name not in name:
-                name = [*name, Factors[i].name]
-            j += 1
-        i += 1
-    nfactor = Factor('multiply'.format(name), varscope)
-    mf_helper(nfactor, Factors, varscope)
-    return nfactor
+    # You must implement this function
 
+    var_raw_list = list(map(Factor.get_scope, Factors))
+    var_list = sum(var_raw_list, [])
+    var_set = set(var_list)
 
-def mf_helper(nf, f, nscope):
-    """
-    Helper function for multiply Factor.
-    - if final assignment multiply factor with assignments else do all value assignments
-    """
-    multiply = 1
-    if len(nscope) == 0:
-        i = 0
-        while i < len(f):
-            multiply *= f[i].get_value_at_current_assignments()
-            i += 1
-        nf.add_value_at_current_assignment(multiply)
-    else:
-        j = 0
-        while j < len(nscope[0].domain()):
-            nscope[0].set_assignment(nscope[0].domain()[j])
-            mf_helper(nf, f, nscope[1:])
-            j += 1
+    name = "Mult[" + " + ".join(f.name for f in Factors) + "]"
+
+    var_dom_list = list(map(lambda vs: list(map(Variable.domain, vs)),
+                            var_raw_list))
+
+    if len(var_set) == len(var_list):
+
+        poss = (product(*f) for f in var_dom_list)
+        all_poss = product(*poss)
+        vals = []
+        for assign in all_poss:
+            val = 1
+            for i in range(len(Factors)):
+                val *= Factors[i].get_value(list(assign[i]))
+            assign_list = sum((list(a) for a in assign), [])
+            vals.append(assign_list + [val])
+
+    else:  # have common var
+
+        # remove duplicate assignments
+        already_assign = set()
+        # shrink factor scope to unique vars
+        var_list_new = []
+        for v in var_list:
+            if v not in var_list_new:
+                var_list_new.append(v)
+        var_list = var_list_new
+
+        poss = (product(*f) for f in var_dom_list)
+        all_poss = product(*poss)
+        vals = []
+        for assign in all_poss:
+            # var -> val assignment lut
+            good_assign = check_assign(assign, var_raw_list)
+            # reject conflict assignments
+            if not good_assign:
+                continue
+
+            val = 1
+            for i in range(len(Factors)):
+                dom = Factors[i].get_scope()
+                factor_assign = list(map(lambda v: good_assign[v], dom))
+                val *= Factors[i].get_value(factor_assign)
+            assign_list = list(map(lambda v: good_assign[v], var_list))
+
+            if tuple(assign_list) not in already_assign:
+                already_assign.add(tuple(assign_list))
+                vals.append(assign_list + [val])
+
+    f = Factor(name, var_list)
+    f.add_values(vals)
+    return f
+
 
 def restrict_factor(f, var, value):
     '''f is a factor, var is a Variable, and value is a value from var.domain.
+    Return a new factor that is the restriction of f by this var = value.
+    Don't change f! If f has only one variable its restriction yields a
+    constant factor'''
 
-    Return a new factor that is the restriction of f by this var = value. --> must restrict the domain
-    Don't change f! If f has only one variable its restriction yields a -- base case
-    constant factor
-    Keep trying variable assignments -- alternate case (similar to above, and print starter code)
-    '''
-    #IMPLEMENT
-    # itertools.product --> Computes the cartesian product of two variables
-    #
-    val_list = []
-    name = f.name + var.name
-    #
-    # # restrict so var = value
-    dom = list(map(Variable.domain, f.get_scope()))
-    dom[f.get_scope().index(var)] = [*val_list, value]
-    #
-    # # convert val_list to string
-    # val = ''.join([value])
-    #
-    scope_distinct = [v for v in f.get_scope() if v != var]
+    # You must implement this function
 
-    factor = Factor("restrict - {}".format(name), scope_distinct)
+    var_list = f.get_scope()
+    idx = var_list.index(var)
+    var_list_new = [v for v in var_list if v != var]
+    ff = Factor(f.name + "[R:" + var.name + "]", var_list_new)
 
-    i = iter(product(*dom))
+    # restrict var domain to be {value}
+    domain = list(map(Variable.domain, var_list))
+    domain[idx] = [value]
+    vals = []
+    for assign in product(*domain):
+        val = f.get_value(list(assign))
+        assign_list = list(assign)
+        # generate assign, ignore var = value, since it's fixed
+        assign_list.pop(idx)
+        vals.append(assign_list + [val])
 
-    values = []
-    for each in takewhile(lambda e: e, i):
-    # for each in product(*dom):
-        if len(f.scope) == 0:  # base
-            values.append(f.get_value_at_current_assignments())
-        else:
-            new = list(each)  # alternate
-            new.pop(f.get_scope().index(var))
-            values.append(new + [f.get_value(list(each))])
-
-    factor.add_values(values)
-    return factor
-
-
-
+    ff.add_values(vals)
+    return ff
 
 
 def sum_out_variable(f, var):
-    '''return a new factor that is the product of the factors in Factors
-       followed by the suming out of Var'''
-    #IMPLEMENT
-    values = []
-    name = f.name + var.name
+    '''return a new factor that by the suming out of Var'''
 
-    scope_distinct = [v for v in f.get_scope() if v != var]
+    # You must implement this function
 
-    dom = list(map(Variable.domain, scope_distinct))
-    var_dom = var.domain()
+    var_list = f.get_scope()
+    idx = var_list.index(var)
+    var_list_new = [v for v in var_list if v != var]
+    ff = Factor(f.name + "[S:" + var.name + "]", var_list_new)
 
-    factor = Factor("sumvar - {}".format(name), scope_distinct)
+    # consider product of other var dom
+    domain_new = list(map(Variable.domain, var_list_new))
+    vals = []
+    for assign in product(*domain_new):
+        val = 0
+        for v in var.domain():
+            assign_list = list(assign)
+            # insert var = v into assignment
+            assign_list.insert(idx, v)
+            val += f.get_value(assign_list)
+        vals.append(list(assign) + [val])
 
-    # iterate through cross product
-    i = iter(product(*dom))
-    for each in i:
-        j = 0
-        value = 0
-        # increment value one by one every iteration of cross product
-        while j < len(var_dom):
-            new = list(each)
-            new.insert(f.get_scope().index(var), var_dom[j])
-            value += f.get_value(new)
-            j += 1
-        new = list(each) + [value]
-        values.append(new)
-
-    factor.add_values(values)
-    return factor
+    ff.add_values(vals)
+    return ff
 
 
-def normalize(nums):
-    '''take as input a list of number and return a new list of numbers where
-    now the numbers sum to 1, i.e., normalize the input numbers'''
-    s = sum(nums)
-    if s == 0:
-        newnums = [0]*len(nums)
-    else:
-        newnums = []
-        for n in nums:
-            newnums.append(n/s)
-    return newnums
+###Ordering
 
-###Orderings
 def min_fill_ordering(Factors, QueryVar):
     '''Compute a min fill ordering given a list of factors. Return a list
     of variables from the scopes of the factors in Factors. The QueryVar is
@@ -446,12 +430,13 @@ def min_fill_ordering(Factors, QueryVar):
 
     ordering = []
     while Vars:
-        (var,new_scope) = min_fill_var(scopes,Vars)
+        (var, new_scope) = min_fill_var(scopes, Vars)
         ordering.append(var)
         if var in Vars:
             Vars.remove(var)
         scopes = remove_var(var, new_scope, scopes)
     return ordering
+
 
 def min_fill_var(scopes, Vars):
     '''Given a set of scopes (lists of lists of variables) compute and
@@ -460,7 +445,7 @@ def min_fill_var(scopes, Vars):
     of scopes. Also return the new scope generated from eliminating
     that variable.'''
     minv = Vars[0]
-    (minfill,min_new_scope) = compute_fill(scopes,Vars[0])
+    (minfill, min_new_scope) = compute_fill(scopes, Vars[0])
     for v in Vars[1:]:
         (fill, new_scope) = compute_fill(scopes, v)
         if fill < minfill:
@@ -468,6 +453,7 @@ def min_fill_var(scopes, Vars):
             minfill = fill
             min_new_scope = new_scope
     return (minv, min_new_scope)
+
 
 def compute_fill(scopes, var):
     '''Return the fill in scope generated by eliminating var from
@@ -480,6 +466,7 @@ def compute_fill(scopes, var):
                     union.append(v)
     if var in union: union.remove(var)
     return (len(union), union)
+
 
 def remove_var(var, new_scope, scopes):
     '''Return the new set of scopes that arise from eliminating var
@@ -495,25 +482,29 @@ def remove_var(var, new_scope, scopes):
 ###
 def VE(Net, QueryVar, EvidenceVars):
     '''
-    Input: Net---a BN object (a Bayes Net)
-           QueryVar---a Variable object (the variable whose distribution
-                      we want to compute)
-           EvidenceVars---a LIST of Variable objects. Each of these
-                          variables has had its evidence set to a particular
-                          value from its domain using set_evidence.
+    Input:
+    Net---a BN object (a Bayes Net)
+    QueryVar---a Variable object (the variable whose distribution
+    we want to compute)
+    EvidenceVars---a LIST of Variable objects. Each of these
+    variables has had its evidence set to a particular
+    value from its domain using set_evidence.
 
-   VE returns a distribution over the values of QueryVar, i.e., a list
-   of numbers one for every value in QueryVar's domain. These numbers
-   sum to one, and the i'th number is the probability that QueryVar is
-   equal to its i'th value given the setting of the evidence
-   variables. For example if QueryVar = A with Dom[A] = ['a', 'b',
-   'c'], EvidenceVars = [B, C], and we have previously called
-   B.set_evidence(1) and C.set_evidence('c'), then VE would return a
-   list of three numbers. E.g. [0.5, 0.24, 0.26]. These numbers would
-   mean that Pr(A='a'|B=1, C='c') = 0.5 Pr(A='a'|B=1, C='c') = 0.24
-   Pr(A='a'|B=1, C='c') = 0.26
+    VE returns a distribution over the values of QueryVar, i.e., a list
+    of numbers one for every value in QueryVar's domain. These numbers
+    sum to one, and the i'th number is the probability that QueryVar is
+    equal to its i'th value given the setting of the evidence
+    variables. For example if QueryVar = A with Dom[A] = ['a', 'b',
+    'c'], EvidenceVars = [B, C], and we have previously called
+    B.set_evidence(1) and C.set_evidence('c'), then VE would return a
+    list of three numbers. E.g. [0.5, 0.24, 0.26]. These numbers would
+    mean that Pr(A='a'|B=1, C='c') = 0.5 Pr(A='b'|B=1, C='c') = 0.24
+    Pr(A='c'|B=1, C='c') = 0.26
+
     '''
-    #IMPLEMENT
+
+    # You must implement this function
+
     F = Net.factors()
     E = EvidenceVars
     Q = QueryVar
@@ -548,18 +539,94 @@ def VE(Net, QueryVar, EvidenceVars):
     else:
         return [val / total for val in dist]
 
-#
-# Replace each factor f∈F that mentions a variable(s) in E
-# with its restriction fE=e (this might yield a “constant” factor)
-# 2. For each Zj - in the order given - eliminate Zj ∈ Z as follows:
-# (a) Compute new factor gj = ∑Zj
-#  f1
-#  x f2
-#  x … x fk
-# , where the fi are
-# the factors in F that include Zj
-# (b) Remove the factors fi (that mention Zj) from F and add new
-# factor gj to F
-# 3. The remaining factors at the end of this process will refer only to the
-# query variable Q. Take their product and normalize to produce
-# P(Q|E).
+
+if __name__ == "__main__":
+    a = Variable('a', [1, 0])
+    b = Variable('b', [1, 0])
+    c = Variable('c', [1, 0])
+    d = Variable('d', [1, 0])
+    e = Variable('e', [1, 0])
+    f = Variable('f', [1, 0])
+    g = Variable('g', [1, 0])
+    h = Variable('h', [1, 0])
+    i = Variable('i', [1, 0])
+
+    Fa = Factor('P(a)', [a])
+    Fa.add_values([[1, 0.9],
+                   [0, 0.1]])
+
+    Fbah = Factor('P(b|ah)', [b, a, h])
+    Fbah.add_values([[1, 1, 1, 1.0],
+                     [1, 1, 0, 0.0],
+                     [1, 0, 1, 0.5],
+                     [1, 0, 0, 0.6],
+                     [0, 1, 1, 0.0],
+                     [0, 1, 0, 1.0],
+                     [0, 0, 1, 0.5],
+                     [0, 0, 0, 0.4]])
+
+    Fcbg = Factor('P(c|bg)', [c, b, g])
+    Fcbg.add_values([[1, 1, 1, 0.9],
+                     [1, 1, 0, 0.9],
+                     [1, 0, 1, 0.1],
+                     [1, 0, 0, 1.0],
+                     [0, 1, 1, 0.1],
+                     [0, 1, 0, 0.1],
+                     [0, 0, 1, 0.9],
+                     [0, 0, 0, 0.0]])
+
+    Fdcf = Factor('P(d|cf)', [d, c, f])
+    Fdcf.add_values([[1, 1, 1, 0.0],
+                     [1, 1, 0, 1.0],
+                     [1, 0, 1, 0.7],
+                     [1, 0, 0, 0.2],
+                     [0, 1, 1, 1.0],
+                     [0, 1, 0, 0.0],
+                     [0, 0, 1, 0.3],
+                     [0, 0, 0, 0.8]])
+
+    Fec = Factor('P(e|c)', [e, c])
+    Fec.add_values([[1, 1, 0.2],
+                    [1, 0, 0.4],
+                    [0, 1, 0.8],
+                    [0, 0, 0.6]])
+
+    Ff = Factor('P(f)', [f])
+    Ff.add_values([[1, 0.1],
+                   [0, 0.9]])
+
+    Fg = Factor('P(g)', [g])
+    Fg.add_values([[1, 1.0],
+                   [0, 0.0]])
+
+    Fh = Factor('P(h)', [h])
+    Fh.add_values([[1, 0.5],
+                   [0, 0.5]])
+
+    Fib = Factor('P(i|b)', [i, b])
+    Fib.add_values([[1, 1, 0.3],
+                    [1, 0, 0.9],
+                    [0, 1, 0.7],
+                    [0, 0, 0.1]])
+
+    net = BN('q1 net',
+             [a, b, c, d, e, f, g, h, i],
+             [Fa, Fbah, Fcbg, Fdcf, Fec, Ff, Fg, Fh, Fib])
+
+    a.set_evidence(1)
+    q1a = VE(net, b, [a])
+    print('a) ', q1a[0])
+
+    a.set_evidence(1)
+    q1b = VE(net, c, [a])
+    print('b) ', q1b[0])
+
+    a.set_evidence(1)
+    e.set_evidence(0)
+    q1c = VE(net, c, [a, e])
+    print('c) ', q1c[0])
+
+    a.set_evidence(1)
+    f.set_evidence(0)
+    q1d = VE(net, c, [a, f])
+    print('d) ', q1d[0])

@@ -95,7 +95,7 @@ if __name__ == '__main__':
       print("passed.")
     else:
       print("failed.")
-    
+
     print('P(s|g) = {} P(-s|g) = {}'.format(probs[0], probs[1]))
 
     #(b)
@@ -106,8 +106,8 @@ if __name__ == '__main__':
     if probs[0] == 0.68 and probs[1] == 0.32:
       print("passed.")
     else:
-      print("failed.")    
-    
+      print("failed.")
+
     print('P(w|b,-e) = {} P(-w|b,-e) = {}'.format(probs[0],probs[1]))
 
     #(c)
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     if probs1[0] == 0.5 and probs1[1] == 0.5 and probs2[0] == 0.0 and probs2[1] == 1.0:
       print("passed.")
     else:
-      print("failed.")  
+      print("failed.")
     print('P(g|s) = {} P(-g|s) = {} P(g|-s) = {} P(-g|-s) = {}'.format(probs1[0],probs1[1],probs2[0],probs2[1]))
 
     #(d)
@@ -133,7 +133,7 @@ if __name__ == '__main__':
     if probs1[0] == 0.5 and probs1[1] == 0.5 and probs2[0] == 0.5 and probs2[1] == 0.5:
       print("passed.")
     else:
-      print("failed.")  
+      print("failed.")
     print('P(g|s,w) = {} P(-g|s,w) = {} P(g|s,-w) = {} P(-g|s,-w) = {}'.format(probs1[0],probs1[1],probs2[0],probs2[1]))
 
     print("Test 5 ....", end = '')
@@ -146,10 +146,10 @@ if __name__ == '__main__':
     if probs3[0] == 0.0 and probs3[1] == 1.0 and probs4[0] == 0.0 and probs4[1] == 1.0:
       print("passed.")
     else:
-      print("failed.") 
+      print("failed.")
     print('P(g|-s,w) = {} P(-g|-s,w) = {} P(g|-s,-w) = {} P(-g|-s,-w) = {}'.format(probs3[0],probs3[1],probs4[0],probs4[1]))
 
-    #(f) 
+    #(f)
     print("Test 6 ....", end = '')
     W.set_evidence('w')
     probs1 = VE(Q3, G, [W])
@@ -158,7 +158,7 @@ if __name__ == '__main__':
     if abs(probs1[0] - 0.15265998457979954) < 0.0001 and abs(probs1[1] - 0.8473400154202004) < 0.0001 and abs(probs2[0] - 0.01336753983256819) < 0.0001 and abs(probs2[1] - 0.9866324601674318) < 0.0001:
       print("passed.")
     else:
-      print("failed.")      
+      print("failed.")
     print('P(g|w) = {} P(-g|w) = {} P(g|-w) = {} P(-g|-w) = {}'.format(probs1[0],probs1[1],probs2[0],probs2[1]))
 
     #(h)
@@ -167,13 +167,13 @@ if __name__ == '__main__':
     if abs(probs[0] - 0.04950000000000001) < .0001 and abs(probs[1] - 0.9505) < .0001:
       print("passed.")
     else:
-      print("failed.")      
+      print("failed.")
     print('P(g) = {} P(-g) = {}'.format(probs[0], probs[1]))
-    
-    print("Test 8 ....", end = '')    
+
+    print("Test 8 ....", end = '')
     probs = VE(Q3, E, [])
     if abs(probs[0] - 0.1) < 0.0001 and abs(probs[1] - 0.9) < 0.0001:
       print("passed.")
     else:
-      print("failed.")      
+      print("failed.")
     print('P(e) = {} P(-e) = {}'.format(probs[0], probs[1]))
