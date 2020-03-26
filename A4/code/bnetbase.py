@@ -317,55 +317,71 @@ def multiply_factors(Factors):
                 name = [*name, Factors[i].name]
             j += 1
         i += 1
-    nfactor = Factor(''.format(name), varscope)
+    nfactor = Factor('multiply'.format(name), varscope)
     mf_helper(nfactor, Factors, varscope)
     return nfactor
 
 
-def mf_helper(newFactor, Factors, newScope):
+def mf_helper(nf, f, nscope):
     """
     Helper function for multiply Factor.
     - if final assignment multiply factor with assignments else do all value assignments
     """
     multiply = 1
-    if len(newScope) == 0:
+    if len(nscope) == 0:
         i = 0
-        while i < len(Factors):
-            multiply *= Factors[i].get_value_at_current_assignments()
+        while i < len(f):
+            multiply *= f[i].get_value_at_current_assignments()
             i += 1
-        newFactor.add_value_at_current_assignment(multiply)
+        nf.add_value_at_current_assignment(multiply)
     else:
         j = 0
-        while j < len(newScope[0].domain()):
-            newScope[0].set_assignment(newScope[0].domain()[j])
-            mf_helper(newFactor, Factors, newScope[1:])
+        while j < len(nscope[0].domain()):
+            nscope[0].set_assignment(nscope[0].domain()[j])
+            mf_helper(nf, f, nscope[1:])
             j += 1
 
 def restrict_factor(f, var, value):
     '''f is a factor, var is a Variable, and value is a value from var.domain.
-    Return a new factor that is the restriction of f by this var = value.
-    Don't change f! If f has only one variable its restriction yields a
-    constant factor'''
+
+    Return a new factor that is the restriction of f by this var = value. --> must restrict the domain
+    Don't change f! If f has only one variable its restriction yields a -- base case
+    constant factor
+    Keep trying variable assignments -- alternate case (similar to above, and print starter code)
+    '''
     #IMPLEMENT
+    # itertools.product --> Computes the cartesian product of two variables
 
-    var_list = f.get_scope()
-    idx = var_list.index(var)
-    var_list_new = [v for v in var_list if v != var]
-    ff = Factor(f.name + "[R:" + var.name + "]", var_list_new)
+    name = f.name + var.name
 
-    # restrict var domain to be {value}
-    domain = list(map(Variable.domain, var_list))
-    domain[idx] = [value]
-    vals = []
-    for assign in product(*domain):
-        val = f.get_value(list(assign))
-        assign_list = list(assign)
-        # generate assign, ignore var = value, since it's fixed
-        assign_list.pop(idx)
-        vals.append(assign_list + [val])
+    scope_distinct = [v for v in f.get_scope() if v != var]
+    factor = Factor("restrict - {}".format(name), scope_distinct)
 
-    ff.add_values(vals)
-    return ff
+    # restrict domain so var = value
+    dom = list(map(Variable.domain, f.get_scope()))
+
+    val_list = []
+    dom[f.get_scope().index(var)] = [*val_list, value]
+
+    # convert valist to string
+    val = ''.join([value])
+    values = []
+
+    for v in product(*dom):
+        if len(f.scope) == 0:  # base
+            values.append(f.get_value_at_current_assignments())
+        else:
+            assign_list = list(v)
+            assign_list.remove(val)
+            values.append(assign_list + [f.get_value(list(v))])
+
+    factor.add_values(values)
+    return factor
+
+
+
+
+
 
 def sum_out_variable(f, var):
     '''return a new factor that is the product of the factors in Factors
@@ -523,3 +539,18 @@ def VE(Net, QueryVar, EvidenceVars):
     else:
         return [val / total for val in dist]
 
+#
+# Replace each factor f∈F that mentions a variable(s) in E
+# with its restriction fE=e (this might yield a “constant” factor)
+# 2. For each Zj - in the order given - eliminate Zj ∈ Z as follows:
+# (a) Compute new factor gj = ∑Zj
+#  f1
+#  x f2
+#  x … x fk
+# , where the fi are
+# the factors in F that include Zj
+# (b) Remove the factors fi (that mention Zj) from F and add new
+# factor gj to F
+# 3. The remaining factors at the end of this process will refer only to the
+# query variable Q. Take their product and normalize to produce
+# P(Q|E).
