@@ -517,13 +517,14 @@ def VE(Net, QueryVar, EvidenceVars):
    Pr(A='a'|B=1, C='c') = 0.26
     '''
     #IMPLEMENT
-    F = Net.factors()
+
+    factors = Net.factors()
     E = EvidenceVars
     Q = QueryVar
 
     FF = []
     Eset = set(E)
-    for f in F:
+    for f in factors:
         restrict_vars = Eset.intersection(f.get_scope())
         if len(restrict_vars) > 0:  # f can be restricted
             ff = f
@@ -552,7 +553,7 @@ def VE(Net, QueryVar, EvidenceVars):
         return [val / total for val in dist]
 
 #
-# Replace each factor f∈F that mentions a variable(s) in E
+# 1. Replace each factor f∈F that mentions a variable(s) in E
 # with its restriction fE=e (this might yield a “constant” factor)
 # 2. For each Zj - in the order given - eliminate Zj ∈ Z as follows:
 # (a) Compute new factor gj = ∑Zj
