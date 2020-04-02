@@ -494,7 +494,6 @@ def remove_var(var, new_scope, scopes):
     new_scopes.append(new_scope)
     return new_scopes
 
-
 ###
 def VE(Net, QueryVar, EvidenceVars):
     '''
@@ -512,45 +511,53 @@ def VE(Net, QueryVar, EvidenceVars):
    variables. For example if QueryVar = A with Dom[A] = ['a', 'b',
    'c'], EvidenceVars = [B, C], and we have previously called
    B.set_evidence(1) and C.set_evidence('c'), then VE would return a
-   list of three numbers. E.g. [0.5, 0.24, 0.26]. These numbers would
+   list of three numbers. EvidenceVars.g. [0.5, 0.24, 0.26]. These numbers would
    mean that Pr(A='a'|B=1, C='c') = 0.5 Pr(A='a'|B=1, C='c') = 0.24
    Pr(A='a'|B=1, C='c') = 0.26
     '''
     #IMPLEMENT
-
     factors = Net.factors()
-    E = EvidenceVars
-    Q = QueryVar
+    v_intersect = set(EvidenceVars)
+    evar_list = []
 
-    FF = []
-    Eset = set(E)
-    for f in factors:
-        restrict_vars = Eset.intersection(f.get_scope())
-        if len(restrict_vars) > 0:  # f can be restricted
-            ff = f
-            for ef in restrict_vars:
-                ff = restrict_factor(ff, ef, ef.get_evidence())
-            FF.append(ff)
+    # get the intersection of the evidence vars
+    i = 0
+    while i < len(factors):
+        res_vars = v_intersect.intersection(factors[i].get_scope())
+        if len(res_vars) > 0:  # restrict the factors, factor can be restricted
+            factor = factors[i]
+
+            j = 0
+            rv = list(res_vars) # convert set to list to access individual elements
+            while j < len(rv):
+                factor = restrict_factor(factor, rv[j], rv[j].get_evidence())
+                j += 1
+
+            evar_list = [*evar_list, factor]
         else:
-            FF.append(f)
+            evar_list = [*evar_list, factors[i]]
+        i += 1
 
-    Z = min_fill_ordering(FF, Q)
-    for z in Z:
-        fs = [ff for ff in FF if z in ff.get_scope()]
-        g = sum_out_variable(multiply_factors(fs), z)
-        FF = [ff for ff in FF if ff not in fs]
-        FF.append(g)
+    # order the variables
+    ordered_vals = min_fill_ordering(evar_list, QueryVar)
 
-    f = multiply_factors(FF)
+    k = 0
+    while k < len(ordered_vals):
 
-    # perform normalization to generate prob
-    # use inf to deal with division by zero
-    dist = [f.get_value([v]) for v in Q.domain()]
-    total = sum(dist)
-    if total == 0:
-        return [float('inf') for val in dist]
-    else:
-        return [val / total for val in dist]
+        factor_scope = [ff for ff in evar_list if ordered_vals[k] in ff.get_scope()]
+
+        g = sum_out_variable(multiply_factors(factor_scope), ordered_vals[k])
+
+        evar_list = [ff for ff in evar_list if ff not in factor_scope]
+
+        evar_list = [*evar_list, g]
+
+        k += 1
+
+    mf_val = multiply_factors(evar_list)
+
+    return float('inf') if sum(mf_val.values) == 0 else [val / sum(mf_val.values) for val in mf_val.values]
+
 
 #
 # 1. Replace each factor f∈F that mentions a variable(s) in E
