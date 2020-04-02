@@ -517,6 +517,8 @@ def VE(Net, QueryVar, EvidenceVars):
     v_intersect = set(EvidenceVars)
     evar_list = []
 
+    # We first need to restrict the factors with EvidenceVars
+    # factors in Net containing  evidence variable in their scope, use intersection
     # get the intersection of the evidence vars
     i = 0
     while i < len(factors):
@@ -538,21 +540,48 @@ def VE(Net, QueryVar, EvidenceVars):
     # order the variables
     ordered_vals = min_fill_ordering(evar_list, QueryVar)
 
+    # 2. For each Zj - in the order given - eliminate Zj ∈ Z as follows:
+    # (a) Compute new factor gj = ∑Zj
+    #  f1
+    #  x f2
+    #  x … x fk
+    # , where the fi are
+    # the factors in F that include Zj
+    # (b) Remove the factors fi (that mention Zj) from F and add new
+    # factor gj to F
     k = 0
     while k < len(ordered_vals):
 
-        factor_scope = [factor for factor in evar_list if ordered_vals[k] in factor.get_scope()]
+        l = 0
+        factor_scope = []
 
-        g = sum_out_variable(multiply_factors(factor_scope), ordered_vals[k])
+        # construct scope list for ordered variables in the scope
+        while l < len(evar_list):
+            if ordered_vals[k] in evar_list[l].get_scope():
+                factor_scope = [*factor_scope, evar_list[l]]
+            l += 1
+
+        # a = 0
+        # while a < len(evar_list):
+        #     if evar_list[0] not in factor_scope:
+
 
         evar_list = [factor for factor in evar_list if factor not in factor_scope]
+        #
+        # for factor in evar_list:
+        #     if factor not in factor_scope:
+        #         factor_scope.remove(factor)
 
-        evar_list = [*evar_list, g]
+        #
+        evar_list = [*evar_list, sum_out_variable(multiply_factors(factor_scope), ordered_vals[k])]
 
         k += 1
 
-    mf_val = multiply_factors(evar_list)
+    # 3. The remaining factors at the end of this process will refer only to the
+    # query variable Q. Take their product and normalize to produce
+    # P(Q|E).
 
+    mf_val = multiply_factors(evar_list)
     return float('inf') if sum(mf_val.values) == 0 else [val / sum(mf_val.values) for val in mf_val.values]
 
 
