@@ -85,16 +85,12 @@ FW.add_values([['w', 's', 0.8], ['w', '-s', .2], ['-w', 's', 0.2], ['-w', '-s', 
 Q3 = BN('SampleQ4', [E, B, S, G, W], [FE, FB, FS, FG, FW])
 
 if __name__ == '__main__':
-
-    a = 0
-
     # (a)
     print("Test 1 ....", end='')
     G.set_evidence('g')
     probs = VE(Q3, S, [G])
     if probs[0] == 1 and probs[1] == 0:
         print("passed.")
-        a += 1
     else:
         print("failed.")
 
@@ -105,9 +101,8 @@ if __name__ == '__main__':
     B.set_evidence('b')
     E.set_evidence('-e')
     probs = VE(Q3, W, [B, E])
-    if probs[0] == 0.68 and probs[1] == 0.32:
+    if abs(probs[0] - 0.68) < 0.0001 and abs(probs[1] - 0.32) < 0.0001:
         print("passed.")
-        a += 1
     else:
         print("failed.")
 
@@ -121,7 +116,6 @@ if __name__ == '__main__':
     probs2 = VE(Q3, G, [S])
     if probs1[0] == 0.5 and probs1[1] == 0.5 and probs2[0] == 0.0 and probs2[1] == 1.0:
         print("passed.")
-        a += 1
     else:
         print("failed.")
     print('P(g|s) = {} P(-g|s) = {} P(g|-s) = {} P(-g|-s) = {}'.format(probs1[0], probs1[1], probs2[0], probs2[1]))
@@ -136,7 +130,6 @@ if __name__ == '__main__':
     probs2 = VE(Q3, G, [S, W])
     if probs1[0] == 0.5 and probs1[1] == 0.5 and probs2[0] == 0.5 and probs2[1] == 0.5:
         print("passed.")
-        a += 1
     else:
         print("failed.")
     print('P(g|s,w) = {} P(-g|s,w) = {} P(g|s,-w) = {} P(-g|s,-w) = {}'.format(probs1[0], probs1[1], probs2[0],
@@ -151,7 +144,6 @@ if __name__ == '__main__':
     probs4 = VE(Q3, G, [S, W])
     if probs3[0] == 0.0 and probs3[1] == 1.0 and probs4[0] == 0.0 and probs4[1] == 1.0:
         print("passed.")
-        a += 1
     else:
         print("failed.")
     print('P(g|-s,w) = {} P(-g|-s,w) = {} P(g|-s,-w) = {} P(-g|-s,-w) = {}'.format(probs3[0], probs3[1], probs4[0],
@@ -166,7 +158,6 @@ if __name__ == '__main__':
     if abs(probs1[0] - 0.15265998457979954) < 0.0001 and abs(probs1[1] - 0.8473400154202004) < 0.0001 and abs(
             probs2[0] - 0.01336753983256819) < 0.0001 and abs(probs2[1] - 0.9866324601674318) < 0.0001:
         print("passed.")
-        a += 1
     else:
         print("failed.")
     print('P(g|w) = {} P(-g|w) = {} P(g|-w) = {} P(-g|-w) = {}'.format(probs1[0], probs1[1], probs2[0], probs2[1]))
@@ -176,7 +167,6 @@ if __name__ == '__main__':
     probs = VE(Q3, G, [])
     if abs(probs[0] - 0.04950000000000001) < .0001 and abs(probs[1] - 0.9505) < .0001:
         print("passed.")
-        a += 1
     else:
         print("failed.")
     print('P(g) = {} P(-g) = {}'.format(probs[0], probs[1]))
@@ -185,7 +175,6 @@ if __name__ == '__main__':
     probs = VE(Q3, E, [])
     if abs(probs[0] - 0.1) < 0.0001 and abs(probs[1] - 0.9) < 0.0001:
         print("passed.")
-        a += 1
     else:
         print("failed.")
     print('P(e) = {} P(-e) = {}'.format(probs[0], probs[1]))
@@ -197,7 +186,6 @@ if __name__ == '__main__':
     values = (factor.get_value(['e']), factor.get_value(['-e']))
     if values[0] == 0.1 and values[1] == 0.9:
         print("passed.")
-        a += 1
     else:
         print("failed.")
     print('P(e) = {} P(-e) = {}'.format(values[0], values[1]))
@@ -210,7 +198,6 @@ if __name__ == '__main__':
             ['b']) and values[2] == FE.get_value(['e']) * FB.get_value(['-b']) and values[3] == FE.get_value(
             ['-e']) * FB.get_value(['-b']):
         print("passed.")
-        a += 1
     else:
         print("failed.")
     print('P(e,b) = {} P(-e,b) = {} P(e,-b) = {} P(-e,-b) = {}'.format(values[0], values[1], values[2], values[3]))
@@ -224,12 +211,10 @@ if __name__ == '__main__':
             ['-e']) * FS.get_value(['s', '-e', 'b']) and values[2] == FE.get_value(['e']) * FS.get_value(
             ['-s', 'e', '-b']) and values[3] == FE.get_value(['-e']) * FS.get_value(['s', '-e', '-b']):
         print("passed.")
-        a += 1
     else:
         print("failed.")
     print('P(e,s,b) = {} P(-e,s,b) = {} P(e,-s,-b) = {} P(-e,s,-b) = {}'.format(values[0], values[1], values[2],
                                                                                 values[3]))
-    exit()
 
     ##
     print("Restrict Factor Tests")
@@ -238,7 +223,6 @@ if __name__ == '__main__':
     value = factor.get_value_at_current_assignments()
     if value == 0.1:
         print("passed.")
-        a += 1
     else:
         print("failed.")
     print('P(E=e) = {}'.format(value))
@@ -248,32 +232,27 @@ if __name__ == '__main__':
     value = factor.get_value_at_current_assignments()
     if value == 0.5:
         print("passed.")
-        a += 1
     else:
         print("failed.")
     print('P(G|S=s) = {}'.format(value))
 
     print("Test 3 ....", end='')
     factor = restrict_factor(FS, S, '-s')
+    factor = restrict_factor(factor, E, '-e')
+    factor = restrict_factor(factor, B, 'b')
     value = factor.get_value_at_current_assignments()
-    if value == 1:
+    if value == .2:
         print("passed.")
-        a += 1
     else:
         print("failed.")
-    print('P(S=-s|E,B) = {}'.format(value))
-    ###
-    # print("Sum Out Variable Tests")
-    # print("Test 1 ....", end = '')
-    # factor = sum_out_variable(FS, E)
-    ###
+    print('P(S=-s|E=-e,B=b) = {}'.format(value))
+
     print("Normalize Tests")
     print("Test 1 ....", end='')
     normalized_nums = normalize([i for i in range(5)])
     norm_sum = sum(normalized_nums)
     if norm_sum == 1:
         print("passed.")
-        a += 1
     else:
         print("failed.")
     print('{} when normalized to {} sum to {}'.format([i for i in range(5)], normalized_nums, norm_sum))
@@ -283,7 +262,6 @@ if __name__ == '__main__':
     norm_sum = sum(normalized_nums)
     if norm_sum == 1:
         print("passed.")
-        a += 1
     else:
         print("failed.")
     print('{} when normalized to {} sum to {}'.format([i for i in range(0, -5, -1)], normalized_nums, norm_sum))
@@ -293,9 +271,6 @@ if __name__ == '__main__':
     norm_sum = sum(normalized_nums)
     if norm_sum == 0:
         print("passed.")
-        a += 1
     else:
         print("failed.")
     print('{} when normalized to {} sum to {}'.format([i for i in range(4, -5, -1)], normalized_nums, norm_sum))
-
-print("Total Score: {} / 11".format(a))
