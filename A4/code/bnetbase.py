@@ -300,10 +300,8 @@ class BN:
     def variables(self):
         return list(self.Variables)
 
-
-
 def multiply_factors(Factors):
-    '''return a new factor that is the product of the factors in Fators'''
+    '''return a new factor that is the product of the factors in Factors'''
      #IMPLEMENT
     name = []
     varscope = []
@@ -323,7 +321,6 @@ def multiply_factors(Factors):
     mult_factor = Factor('multiply-{}'.format(name), varscope)
     mf_helper(mult_factor, Factors, varscope)
     return mult_factor
-
 
 def mf_helper(nf, f, nscope):
     """
@@ -544,11 +541,11 @@ def VE(Net, QueryVar, EvidenceVars):
     k = 0
     while k < len(ordered_vals):
 
-        factor_scope = [ff for ff in evar_list if ordered_vals[k] in ff.get_scope()]
+        factor_scope = [factor for factor in evar_list if ordered_vals[k] in factor.get_scope()]
 
         g = sum_out_variable(multiply_factors(factor_scope), ordered_vals[k])
 
-        evar_list = [ff for ff in evar_list if ff not in factor_scope]
+        evar_list = [factor for factor in evar_list if factor not in factor_scope]
 
         evar_list = [*evar_list, g]
 
