@@ -92,3 +92,4 @@ a.set_evidence(1)
 f.set_evidence(0)
 q1d = VE(net, c, [a, f])
 print('d) ', q1d[0])
+
