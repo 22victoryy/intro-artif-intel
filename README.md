@@ -1,5 +1,5 @@
 # intro-artif-intel
-Old Artificial Intelligence (GOFAI) coursework using search algorithms on search spaces.
+Old Artificial Intelligence coursework using search algorithms on search spaces.
 
 # Credits
 Sonya Allin / Bahar Aameri for instruction of CSC384 Winter 2020 at University of Toronto <br>
