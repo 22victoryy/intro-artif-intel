@@ -372,7 +372,7 @@ def restrict_factor(f, var, value):
     for each in takewhile(lambda e: e, i):
     # for each in product(*dom):
         if len(f.scope) == 0:  # base
-            values.append(f.get_value_at_current_assignments())
+            values = [*values, f.get_value_at_current_assignments()]
         else:
             new = list(each)  # remove at variable index
             new.pop(f.get_scope().index(var))
@@ -405,14 +405,14 @@ def sum_out_variable(f, var):
         # increment value one by one every iteration of cross product
         while j < len(var_dom):
             if len(f.scope) == 0:  # base
-                values.append(f.get_value_at_current_assignments())
+                values = [*values, f.get_value_at_current_assignments()]
             else:
                 new = list(each)
                 new.insert(f.get_scope().index(var), var_dom[j])
                 value += f.get_value(new)
             j += 1
         new = list(each) + [value]
-        values.append(new)
+        values = [*values, new]
 
     sumfactor.add_values(values)
     return sumfactor
