@@ -1,8 +1,6 @@
 from itertools import product
 from itertools import takewhile
 
-# cdf test: all pass, 65.0 / 76.0
-
 '''Classes for variable elimination Routines 
    A) class BN_Variable
 
